@@ -1,13 +1,15 @@
 /**
- * Servicio para consumir la API de datos.gov.co (SODA3)
- * Endpoint: https://www.datos.gov.co/resource/gi7q-5bgv.json
- * Requiere autenticación con X-App-Token header
+ * Servicio para obtener lugares desde el backend de DIME o API directa
+ * Prioridad: Backend local → API directa datos.gov.co
  */
 
-// Token de autenticación para la API SODA3
+// URL del backend de DIME
+const BACKEND_URL = 'http://localhost:8000/api/lugares';
+
+// Token de autenticación para la API SODA3 (fallback)
 const API_TOKEN = 'CVraNSsLcjWDoVyJlV6LEmEaU';
 
-// URL de la API de datos.gov.co (SODA3)
+// URL de la API de datos.gov.co (SODA3) - Fallback
 const API_URL = 'https://www.datos.gov.co/resource/gi7q-5bgv.json';
 
 /**
@@ -219,10 +221,41 @@ const transformarDatos = (datos) => {
 };
 
 /**
- * Obtiene los lugares desde la API de datos.gov.co
+ * Obtiene los lugares desde el backend de DIME (prioridad) o API directa (fallback)
  * @returns {Promise<Array>} - Array de lugares transformados
  */
 export const obtenerLugares = async () => {
+  // Intentar primero con el backend local
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000); // Timeout de 3 segundos
+    
+    const response = await fetch(BACKEND_URL, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (response.ok) {
+      const data = await response.json();
+      // El backend ya devuelve los datos formateados, solo validar que sea un array
+      if (Array.isArray(data)) {
+        return data;
+      } else if (data.error) {
+        throw new Error(data.error);
+      }
+    }
+  } catch (backendError) {
+    // Si el backend falla (no disponible, timeout, CORS, etc.), usar API directa
+    // Fallback silencioso a API directa
+  }
+  
+  // Fallback: Obtener desde la API directa de datos.gov.co
   try {
     // Configurar headers con autenticación SODA3
     const headers = {
@@ -259,8 +292,8 @@ export const obtenerLugares = async () => {
     const lugaresTransformados = transformarDatos(lugares);
     return lugaresTransformados;
   } catch (error) {
-    // En caso de error, retornar array vacío o datos de fallback
-    throw error; // Lanzar el error para que el componente pueda manejarlo
+    // En caso de error, lanzar para que el componente pueda manejarlo
+    throw error;
   }
 };
 
@@ -271,7 +304,7 @@ export const obtenerLugares = async () => {
  */
 export const obtenerLugaresConCache = async (cacheTime = 5 * 60 * 1000) => {
   // Versión del caché - cambiar esto invalida el caché anterior
-  const CACHE_VERSION = 'v4';
+  const CACHE_VERSION = 'v6-backend';
   const cacheKey = `dime-lugares-cache-${CACHE_VERSION}`;
   const cacheTimestampKey = `dime-lugares-cache-timestamp-${CACHE_VERSION}`;
   
@@ -299,7 +332,8 @@ export const obtenerLugaresConCache = async (cacheTime = 5 * 60 * 1000) => {
     
     if (cacheAge < cacheTime) {
       // Los datos en caché son válidos
-      return JSON.parse(cachedData);
+      const datosCache = JSON.parse(cachedData);
+      return datosCache;
     }
   }
   

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapView } from './features/Map/MapView';
 import { obtenerLugaresConCache } from './services/api';
-import { Compass, Mic, Send, User, MoreHorizontal, AlertTriangle, HelpCircle, X, Check } from 'lucide-react';
+import { Compass, Mic, Send, User, MoreHorizontal, AlertTriangle, HelpCircle, X, Check, ChevronDown, MessageCircle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Preloader } from './components/ui/Preloader';
 import { WelcomeCarousel } from './features/Onboarding/WelcomeCarousel.jsx';
@@ -18,6 +18,11 @@ function App() {
   const [enviado, setEnviado] = useState(false);
   const [textoReporte, setTextoReporte] = useState('');
   const [mensajeChat, setMensajeChat] = useState('');
+  const [mensajesChat, setMensajesChat] = useState([
+    { tipo: 'bot', texto: 'Soy DIME-IA, ¿en qué te puedo ayudar?' }
+  ]);
+  const [cargandoRespuesta, setCargandoRespuesta] = useState(false);
+  const [chatMinimizado, setChatMinimizado] = useState(false);
   const [tecladoVisible, setTecladoVisible] = useState(false);
   const [alturaTeclado, setAlturaTeclado] = useState(0);
   const [posicionChat, setPosicionChat] = useState('1rem');
@@ -87,6 +92,51 @@ function App() {
 
     cargarDatos();
   }, []);
+
+  // Función para enviar mensaje al backend
+  const enviarMensaje = async (mensaje) => {
+    if (!mensaje.trim()) return;
+    
+    // Agregar mensaje del usuario al historial
+    const nuevoMensajeUsuario = { tipo: 'usuario', texto: mensaje.trim() };
+    setMensajesChat(prev => [...prev, nuevoMensajeUsuario]);
+    setMensajeChat('');
+    setCargandoRespuesta(true);
+    
+    try {
+      const response = await fetch('http://localhost:8000/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pregunta: mensaje.trim() })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al obtener respuesta');
+      }
+      
+      const data = await response.json();
+      const respuestaBot = { tipo: 'bot', texto: data.respuesta };
+      setMensajesChat(prev => [...prev, respuestaBot]);
+      
+      // Scroll automático al final
+      setTimeout(() => {
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      }, 100);
+    } catch (error) {
+      const mensajeError = { 
+        tipo: 'bot', 
+        texto: 'Lo siento, hubo un problema al procesar tu mensaje. Por favor, intenta de nuevo.' 
+      };
+      setMensajesChat(prev => [...prev, mensajeError]);
+    } finally {
+      setCargandoRespuesta(false);
+    }
+  };
 
   // Detectar cuando el teclado está visible usando múltiples métodos
   useEffect(() => {
@@ -266,19 +316,75 @@ function App() {
               transition: 'bottom 0.3s ease-out, padding-bottom 0.3s ease-out'
             }}
           >
-            {/* Tarjeta contenedora del Chat */}
-            <div className="bg-white rounded-[2rem] shadow-2xl p-5 pointer-events-auto border border-gray-100">
+            {chatMinimizado ? (
+              /* Chat Minimizado - Solo botón flotante */
+              <button
+                onClick={() => setChatMinimizado(false)}
+                className="bg-white rounded-full p-2 shadow-2xl pointer-events-auto hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center border-2 border-gray-200"
+                style={{ width: '56px', height: '56px' }}
+              >
+                <DimeRobotIcon className="w-10 h-10" />
+              </button>
+            ) : (
+              /* Chat Expandido - Vista completa */
+              <div className="bg-white rounded-[2rem] shadow-2xl pointer-events-auto border border-gray-100">
+                {/* Botón Minimizar */}
+                <div className="flex justify-end p-3 pb-0">
+                  <button
+                    onClick={() => setChatMinimizado(true)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors active:scale-90 p-1"
+                    title="Minimizar chat"
+                  >
+                    <ChevronDown className="w-5 h-5" />
+                  </button>
+                </div>
+                
+                <div className="px-5 pb-5">
           
-          {/* A. Mensaje de Bienvenida (Avatar + Texto) */}
-          <div className="flex items-start gap-3 mb-4">
-            {/* Avatar Robot DIME */}
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-md border-2 border-blue-600 p-1">
-              <DimeRobotIcon className="w-8 h-8" />
-            </div>
-            {/* Burbuja de Texto */}
-            <div className="bg-gray-100 text-gray-700 px-4 py-2 rounded-2xl rounded-tl-none text-sm font-medium shadow-sm leading-relaxed">
-              Soy DIME-IA, ¿en qué te puedo ayudar?
-            </div>
+          {/* A. Historial de Mensajes */}
+          <div 
+            id="chat-messages"
+            className="max-h-64 overflow-y-auto mb-4 space-y-3 pr-2"
+            style={{ scrollBehavior: 'smooth' }}
+          >
+            {mensajesChat.map((mensaje, index) => (
+              <div 
+                key={index}
+                className={`flex items-start gap-3 ${mensaje.tipo === 'usuario' ? 'flex-row-reverse' : ''}`}
+              >
+                {mensaje.tipo === 'bot' && (
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-md border-2 border-blue-600 p-1">
+                    <DimeRobotIcon className="w-8 h-8" />
+                  </div>
+                )}
+                {mensaje.tipo === 'usuario' && (
+                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shrink-0 shadow-md">
+                    <User className="w-6 h-6 text-white" />
+                  </div>
+                )}
+                <div className={`px-4 py-2 rounded-2xl text-sm font-medium shadow-sm leading-relaxed ${
+                  mensaje.tipo === 'bot' 
+                    ? 'bg-gray-100 text-gray-700 rounded-tl-none' 
+                    : 'bg-blue-600 text-white rounded-tr-none'
+                }`}>
+                  {mensaje.texto}
+                </div>
+              </div>
+            ))}
+            {cargandoRespuesta && (
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-md border-2 border-blue-600 p-1">
+                  <DimeRobotIcon className="w-8 h-8" />
+                </div>
+                <div className="bg-gray-100 text-gray-700 px-4 py-2 rounded-2xl rounded-tl-none text-sm font-medium shadow-sm">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="animate-bounce">.</span>
+                    <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>.</span>
+                    <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>.</span>
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* B. Barra de Entrada (Micrófono y Enviar) */}
@@ -321,9 +427,8 @@ function App() {
                   }, 100);
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && mensajeChat.trim()) {
-                    // Aquí irá la lógica para enviar el mensaje
-                    setMensajeChat('');
+                  if (e.key === 'Enter' && mensajeChat.trim() && !cargandoRespuesta) {
+                    enviarMensaje(mensajeChat);
                   }
                 }}
                 placeholder="Escribe o habla..." 
@@ -334,12 +439,11 @@ function App() {
             {/* Botón Enviar */}
             <button 
               onClick={() => {
-                if (mensajeChat.trim()) {
-                  // Aquí irá la lógica para enviar el mensaje
-                  setMensajeChat('');
+                if (mensajeChat.trim() && !cargandoRespuesta) {
+                  enviarMensaje(mensajeChat);
                 }
               }}
-              disabled={!mensajeChat.trim()}
+              disabled={!mensajeChat.trim() || cargandoRespuesta}
               className={`transition-all active:scale-90 rotate-0 hover:-rotate-12 transition-transform ${
                 mensajeChat.trim() 
                   ? 'text-blue-600 hover:text-blue-700' 
@@ -349,8 +453,9 @@ function App() {
               <Send className="w-6 h-6" />
             </button>
             </div>
-
-          </div>
+                </div>
+              </div>
+            )}
           </motion.div>
 
               {/* --- 4. MODALES (VENTANAS EMERGENTES) --- */}
