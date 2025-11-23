@@ -1,5 +1,7 @@
 steps:
   # Build de la imagen Docker desde el directorio backend
+  # -f backend/Dockerfile: especifica dónde está el Dockerfile
+  # . : el contexto de build es la raíz del proyecto
   - name: 'gcr.io/cloud-builders/docker'
     args: 
       - 'build'
@@ -7,7 +9,7 @@ steps:
       - 'gcr.io/$PROJECT_ID/dime-backend'
       - '-f'
       - 'backend/Dockerfile'
-      - 'backend'
+      - '.'
   
   # Push de la imagen al Container Registry
   - name: 'gcr.io/cloud-builders/docker'
