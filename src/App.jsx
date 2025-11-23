@@ -5,6 +5,8 @@ import { Compass, Mic, Send, User, MoreHorizontal, AlertTriangle, HelpCircle, X,
 import { AnimatePresence, motion } from 'framer-motion';
 import { Preloader } from './components/ui/Preloader';
 import { WelcomeCarousel } from './features/Onboarding/WelcomeCarousel.jsx';
+import { DimeRobotIcon } from './components/ui/DimeRobotIcon';
+import dimeIcon from './assets/dime-icon.png';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -25,6 +27,9 @@ function App() {
   // Cargar datos desde la API
   useEffect(() => {
     const cargarDatos = async () => {
+      const inicioTiempo = Date.now();
+      const tiempoMinimoPreloader = 2500; // Mínimo 2.5 segundos para ver los mensajes
+      
       try {
         setLoading(true);
         setErrorCarga(null);
@@ -41,32 +46,34 @@ function App() {
         ]);
         
         if (lugaresData && lugaresData.length > 0) {
-          console.log('✅ Datos cargados exitosamente:', lugaresData.length, 'lugares');
-          console.log('📋 Muestra de lugares:', lugaresData.slice(0, 3));
           setLugares(lugaresData);
         } else {
           // Si no hay datos, usar datos de prueba como fallback
-          console.warn('⚠️ No se obtuvieron datos de la API, usando datos de prueba');
           const datosPrueba = await import('./data/datos_prueba.json');
           setLugares(datosPrueba.default);
         }
       } catch (error) {
-        console.error('❌ Error al cargar datos:', error);
         setErrorCarga(error.message);
         
         // En caso de error, usar datos de prueba como fallback
         try {
-          console.log('🔄 Cargando datos de prueba como fallback...');
           const datosPrueba = await import('./data/datos_prueba.json');
           setLugares(datosPrueba.default);
-          console.log('✅ Datos de prueba cargados');
         } catch (fallbackError) {
-          console.error('❌ Error al cargar datos de prueba:', fallbackError);
           // Si incluso el fallback falla, usar array vacío
           setLugares([]);
         }
       } finally {
-        // Siempre establecer loading a false
+        // Calcular cuánto tiempo ha pasado
+        const tiempoTranscurrido = Date.now() - inicioTiempo;
+        const tiempoRestante = Math.max(0, tiempoMinimoPreloader - tiempoTranscurrido);
+        
+        // Esperar el tiempo restante para cumplir el mínimo
+        if (tiempoRestante > 0) {
+          await new Promise(resolve => setTimeout(resolve, tiempoRestante));
+        }
+        
+        // Siempre establecer loading a false después del tiempo mínimo
         setLoading(false);
         
         // Verificamos si es la primera vez que el usuario usa la app
@@ -168,13 +175,17 @@ function App() {
           >
             <div className="bg-white w-full px-5 py-3 rounded-full shadow-xl flex items-center justify-between pointer-events-auto border border-gray-100">
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
              {/* Icono Brújula */}
             <div className="bg-blue-50 p-2 rounded-full">
-              <Compass className="w-5 h-5 text-blue-600" />
+              <img 
+                src={dimeIcon} 
+                alt="DIME" 
+                className="w-5 h-5 object-contain"
+              />
             </div>
             {/* Solo el Título DIME */}
-            <h1 className="text-blue-900 font-bold text-xl leading-none tracking-tight">D I M E</h1>
+            <h1 className="font-bold text-xl leading-none tracking-tight" style={{ color: '#1c528b' }}>D I M E</h1>
           </div>
 
           {/* --- MENÚ DE TRES PUNTOS --- */}
@@ -260,9 +271,9 @@ function App() {
           
           {/* A. Mensaje de Bienvenida (Avatar + Texto) */}
           <div className="flex items-start gap-3 mb-4">
-            {/* Avatar Azul */}
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shrink-0 shadow-md">
-              <User className="w-6 h-6 text-white" />
+            {/* Avatar Robot DIME */}
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-md border-2 border-blue-600 p-1">
+              <DimeRobotIcon className="w-8 h-8" />
             </div>
             {/* Burbuja de Texto */}
             <div className="bg-gray-100 text-gray-700 px-4 py-2 rounded-2xl rounded-tl-none text-sm font-medium shadow-sm leading-relaxed">
@@ -312,7 +323,6 @@ function App() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && mensajeChat.trim()) {
                     // Aquí irá la lógica para enviar el mensaje
-                    console.log('Mensaje enviado:', mensajeChat);
                     setMensajeChat('');
                   }
                 }}
@@ -326,7 +336,6 @@ function App() {
               onClick={() => {
                 if (mensajeChat.trim()) {
                   // Aquí irá la lógica para enviar el mensaje
-                  console.log('Mensaje enviado:', mensajeChat);
                   setMensajeChat('');
                 }
               }}
@@ -399,7 +408,6 @@ function App() {
                     if (textoReporte.trim()) {
                       setEnviado(true);
                       // Aquí podrías agregar lógica para enviar el reporte a una API
-                      console.log('Reporte enviado:', textoReporte);
                     }
                   }}
                   disabled={!textoReporte.trim()}
@@ -465,7 +473,7 @@ function App() {
               <HelpCircle className="w-8 h-8 text-blue-600" />
             </div>
             
-            <h2 className="text-2xl font-bold text-blue-900 mb-1">DIME</h2>
+            <h2 className="text-2xl font-bold mb-1" style={{ color: '#1c528b' }}>DIME</h2>
             <p className="text-gray-400 text-xs font-medium uppercase tracking-widest mb-6">Versión Prototipo 1.0</p>
             
             <div className="text-left space-y-4 mb-6">

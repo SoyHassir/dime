@@ -181,10 +181,6 @@ const transformarDatos = (datos) => {
         lat < -90 || lat > 90 ||
         lng < -180 || lng > 180) {
       invalidos++;
-      // Solo loggear los primeros 5 inválidos para no saturar la consola
-      if (invalidos <= 5) {
-        console.warn('⚠️ Coordenadas inválidas para:', item.infraestructura, 'lat:', lat, 'lng:', lng);
-      }
       return null;
     }
     
@@ -192,14 +188,6 @@ const transformarDatos = (datos) => {
 
     const nombreFormateado = item.infraestructura ? toTitleCase(item.infraestructura) : 'Sin nombre';
     const categoriaFormateada = item.categoria ? toTitleCase(item.categoria) : 'Otros';
-    
-    // Log para depuración (solo los primeros 3)
-    if (index < 3) {
-      console.log('📝 Formateo:', {
-        original: item.infraestructura,
-        formateado: nombreFormateado
-      });
-    }
     
     return {
       id: index + 1,
@@ -227,8 +215,6 @@ const transformarDatos = (datos) => {
     return esValido;
   });
   
-  console.log(`📊 Resumen de transformación: ${validos} válidos, ${invalidos} inválidos de ${datos.length} totales`);
-  
   return lugaresTransformados;
 };
 
@@ -248,49 +234,31 @@ export const obtenerLugares = async () => {
     // URL con límite para obtener todos los registros
     const urlConLimite = `${API_URL}?$limit=5000`;
     
-    console.log('🔍 Obteniendo datos de la API (SODA3):', urlConLimite);
     const response = await fetch(urlConLimite, {
       method: 'GET',
       headers: headers
     });
     
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Error en la respuesta:', response.status, response.statusText);
-      console.error('Detalles del error:', errorText);
       throw new Error(`Error al obtener datos: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
-    console.log('✅ Datos recibidos de la API');
     
     // La API devuelve directamente un array de objetos
     let lugares = [];
     
     if (Array.isArray(data)) {
-      console.log('📦 Datos son un array directo:', data.length);
       lugares = data;
     } else if (data.data && Array.isArray(data.data)) {
-      console.log('📦 Datos encontrados en data.data:', data.data.length);
       lugares = data.data;
     } else {
-      console.warn('⚠️ Estructura de datos no reconocida. Claves disponibles:', Object.keys(data));
-      console.warn('📄 Primeros 500 caracteres:', JSON.stringify(data, null, 2).substring(0, 500));
       return [];
-    }
-    
-    console.log('📊 Total de lugares extraídos:', lugares.length);
-    if (lugares.length > 0) {
-      console.log('📝 Primer lugar de ejemplo:', lugares[0]);
     }
 
     const lugaresTransformados = transformarDatos(lugares);
-    console.log('✨ Lugares transformados:', lugaresTransformados.length);
-    console.log('📋 Primeros 3 lugares transformados:', lugaresTransformados.slice(0, 3));
     return lugaresTransformados;
   } catch (error) {
-    console.error('❌ Error al obtener lugares desde la API:', error);
-    console.error('Stack trace:', error.stack);
     // En caso de error, retornar array vacío o datos de fallback
     throw error; // Lanzar el error para que el componente pueda manejarlo
   }
@@ -317,11 +285,8 @@ export const obtenerLugaresConCache = async (cacheTime = 5 * 60 * 1000) => {
       }
     }
     keysToRemove.forEach(key => localStorage.removeItem(key));
-    if (keysToRemove.length > 0) {
-      console.log('🧹 Cachés antiguos limpiados');
-    }
   } catch (e) {
-    console.warn('⚠️ Error al limpiar cachés antiguos:', e);
+    // Error al limpiar cachés antiguos - ignorar silenciosamente
   }
   
   // Verificar si hay datos en caché
@@ -334,10 +299,7 @@ export const obtenerLugaresConCache = async (cacheTime = 5 * 60 * 1000) => {
     
     if (cacheAge < cacheTime) {
       // Los datos en caché son válidos
-      console.log('💾 Usando datos en caché (edad:', Math.round(cacheAge / 1000), 'segundos)');
       return JSON.parse(cachedData);
-    } else {
-      console.log('🔄 Caché expirado, obteniendo datos frescos');
     }
   }
   
@@ -349,17 +311,12 @@ export const obtenerLugaresConCache = async (cacheTime = 5 * 60 * 1000) => {
     if (lugares.length > 0) {
       localStorage.setItem(cacheKey, JSON.stringify(lugares));
       localStorage.setItem(cacheTimestampKey, Date.now().toString());
-      console.log('💾 Datos guardados en caché');
-    } else {
-      console.warn('⚠️ No se obtuvieron lugares de la API');
     }
     
     return lugares;
   } catch (error) {
-    console.error('❌ Error en obtenerLugaresConCache:', error);
     // Si hay error y hay caché, intentar usar el caché aunque esté expirado
     if (cachedData) {
-      console.log('🔄 Intentando usar caché expirado debido a error');
       return JSON.parse(cachedData);
     }
     throw error;

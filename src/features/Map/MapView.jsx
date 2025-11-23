@@ -35,12 +35,6 @@ function FlyToLocation({ coords }) {
 
 export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
   const centroTolu = [9.524189, -75.582492];
-  
-  // Logging para depuración
-  console.log('🗺️ MapView recibió lugares:', lugares?.length || 0);
-  if (lugares && lugares.length > 0) {
-    console.log('📍 Primer lugar:', lugares[0]);
-  }
 
   return (
     <div className="h-full w-full z-0">
@@ -75,11 +69,7 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
             
             return esValido;
           })
-          .map((lugar, index) => {
-            // Solo loggear los primeros 3 para depuración
-            if (index < 3) {
-              console.log('📍 Renderizando marcador:', lugar.nombre, 'en', lugar.ubicacion.lat, lugar.ubicacion.lng);
-            }
+          .map((lugar) => {
             return (
               <Marker 
                 key={lugar.id} 

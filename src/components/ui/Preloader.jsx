@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Compass } from 'lucide-react';
+import dimeIcon from '../../assets/dime-icon.png';
 
 export const Preloader = () => {
   const [mensaje, setMensaje] = useState("Iniciando DIME...");
@@ -40,13 +40,17 @@ export const Preloader = () => {
           duration: 1.5, 
           ease: "easeInOut" 
         }}
-        className="bg-blue-50 p-6 rounded-full mb-6 shadow-lg shadow-blue-100"
+        className="bg-blue-50 p-6 rounded-full mb-3 shadow-lg shadow-blue-100"
       >
-        <Compass className="w-16 h-16 text-blue-600" />
+        <img 
+          src={dimeIcon} 
+          alt="DIME" 
+          className="w-16 h-16 object-contain"
+        />
       </motion.div>
 
       {/* 2. EL TÍTULO */}
-      <h1 className="text-3xl font-bold text-blue-900 tracking-tight mb-2">
+      <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: '#1c528b' }}>
         D I M E
       </h1>
 
