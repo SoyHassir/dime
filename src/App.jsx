@@ -53,21 +53,13 @@ function App() {
         if (lugaresData && lugaresData.length > 0) {
           setLugares(lugaresData);
         } else {
-          // Si no hay datos, usar datos de prueba como fallback
-          const datosPrueba = await import('./data/datos_prueba.json');
-          setLugares(datosPrueba.default);
+          // Si no hay datos, usar array vacío
+          setLugares([]);
         }
       } catch (error) {
         setErrorCarga(error.message);
-        
-        // En caso de error, usar datos de prueba como fallback
-        try {
-          const datosPrueba = await import('./data/datos_prueba.json');
-          setLugares(datosPrueba.default);
-        } catch (fallbackError) {
-          // Si incluso el fallback falla, usar array vacío
-          setLugares([]);
-        }
+        // En caso de error, usar array vacío
+        setLugares([]);
       } finally {
         // Calcular cuánto tiempo ha pasado
         const tiempoTranscurrido = Date.now() - inicioTiempo;
