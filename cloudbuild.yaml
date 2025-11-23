@@ -30,10 +30,11 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'GEMINI_API_KEY=${_GEMINI_API_KEY},ALLOWED_ORIGINS=${_ALLOWED_ORIGINS}'
+      - 'ALLOWED_ORIGINS=${_ALLOWED_ORIGINS}'
 
 substitutions:
-  _GEMINI_API_KEY: 'AIzaSyB9LaPj_szdlMTwMwZR5k5TpsOtn1zvGE4'
+  # NOTA: Configura GEMINI_API_KEY como variable de entorno en Cloud Run
+  # No hardcodees la API key aquí por seguridad
   _ALLOWED_ORIGINS: 'https://dime-ia.web.app,https://dime-ia.firebaseapp.com'
 
 options:

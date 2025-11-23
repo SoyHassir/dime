@@ -9,10 +9,11 @@ app = FastAPI()
 
 # --- CONFIGURACIÓN GEMINI AI ---
 # API Key de Google Gemini
-# En producción, usa variables de entorno: export GEMINI_API_KEY="tu_key"
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyB9LaPj_szdlMTwMwZR5k5TpsOtn1zvGE4")
+# IMPORTANTE: La API key debe configurarse como variable de entorno
+# En producción, configura GEMINI_API_KEY en Cloud Run
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-if GEMINI_API_KEY and "TU_API_KEY" not in GEMINI_API_KEY:
+if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
     # Usar gemini-2.0-flash que está disponible y es rápido
     try:
@@ -281,7 +282,7 @@ def obtener_lugares():
 
 @app.post("/api/chat")
 async def chat_endpoint(mensaje: MensajeUsuario):
-    if not model or not GEMINI_API_KEY or "TU_API_KEY" in GEMINI_API_KEY:
+    if not model or not GEMINI_API_KEY:
         return {
             "respuesta": "¡Ay! Falta configurar mi API Key de Google. Por favor, configura GEMINI_API_KEY en el backend."
         }

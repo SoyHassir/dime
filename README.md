@@ -71,7 +71,7 @@ firebase deploy --only hosting
    - **Directorio**: `backend/` ⚠️ (con barra al final)
    - **Dockerfile**: `Dockerfile` ⚠️ (solo el nombre, sin `backend/`)
 6. Variables de entorno:
-   - `GEMINI_API_KEY` = `AIzaSyB9LaPj_szdlMTwMwZR5k5TpsOtn1zvGE4`
+   - `GEMINI_API_KEY` = `tu_api_key_de_google` (obtén tu key en https://aistudio.google.com/app/apikey)
    - `ALLOWED_ORIGINS` = `https://dime-ia.web.app,https://dime-ia.firebaseapp.com`
 7. Click en "CREAR"
 
@@ -83,7 +83,7 @@ gcloud run deploy dime-backend \
   --region us-central1 \
   --platform managed \
   --allow-unauthenticated \
-  --set-env-vars "GEMINI_API_KEY=tu_key,ALLOWED_ORIGINS=https://dime-ia.web.app,https://dime-ia.firebaseapp.com"
+  --set-env-vars "GEMINI_API_KEY=tu_api_key_aqui,ALLOWED_ORIGINS=https://dime-ia.web.app,https://dime-ia.firebaseapp.com"
 ```
 
 ### Actualizar Frontend con URL del Backend
