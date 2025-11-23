@@ -1,0 +1,23 @@
+[
+    {
+      "id": 1,
+      "nombre": "Concejo Municipal",
+      "categoria": "ADMINISTRACIÓN PÚBLICA",
+      "ubicacion": { "lat": 9.524189, "lng": -75.582492 },
+      "direccion": "Calle principal (Dato simulado)"
+    },
+    {
+      "id": 3,
+      "nombre": "Palacio Municipal",
+      "categoria": "ADMINISTRACIÓN PÚBLICA",
+      "ubicacion": { "lat": 9.524133, "lng": -75.584724 },
+      "direccion": "Frente al parque (Dato simulado)"
+    },
+    {
+      "id": 51,
+      "nombre": "I.E. Luis Patrón Rosano",
+      "categoria": "EDUCACIÓN",
+      "ubicacion": { "lat": 9.521854, "lng": -75.586536 },
+      "direccion": "Sector escolar"
+    }
+  ]

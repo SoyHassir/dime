@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Aquí puedes agregar estilos globales extras si quieres */
+html, body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+/* Ajustes para safe-area en móviles - solo en el contenedor principal */
+@supports (padding: max(0px)) {
+  #root {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
