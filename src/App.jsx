@@ -18,6 +18,7 @@ function App() {
   const [mensajeChat, setMensajeChat] = useState('');
   const [tecladoVisible, setTecladoVisible] = useState(false);
   const [alturaTeclado, setAlturaTeclado] = useState(0);
+  const [posicionChat, setPosicionChat] = useState('1rem');
   
   // Simulamos la carga inicial (o la conexión a la API)
   useEffect(() => {
@@ -45,9 +46,13 @@ function App() {
         const visible = diferencia > 150; // Más de 150px de diferencia indica teclado
         setTecladoVisible(visible);
         if (visible) {
+          // Calcular la altura del teclado (diferencia entre window y viewport)
           setAlturaTeclado(diferencia);
+          // Posicionar el chat justo encima del teclado (8px de espacio como WhatsApp)
+          setPosicionChat('8px');
         } else {
           setAlturaTeclado(0);
+          setPosicionChat('1rem');
         }
       }
     };
@@ -199,9 +204,7 @@ function App() {
               tecladoVisible ? 'z-[99999]' : 'z-[1000]'
             }`}
             style={{ 
-              bottom: tecladoVisible && alturaTeclado > 0 
-                ? `${alturaTeclado + 8}px` 
-                : '1rem',
+              bottom: posicionChat,
               paddingBottom: tecladoVisible ? '0' : 'max(1rem, env(safe-area-inset-bottom))',
               transition: 'bottom 0.3s ease-out, padding-bottom 0.3s ease-out'
             }}
@@ -245,6 +248,9 @@ function App() {
                       setTecladoVisible(visible);
                       if (visible) {
                         setAlturaTeclado(diferencia);
+                        setPosicionChat('8px');
+                      } else {
+                        setPosicionChat('1rem');
                       }
                     }
                   }, 300);
@@ -254,6 +260,7 @@ function App() {
                   setTimeout(() => {
                     setTecladoVisible(false);
                     setAlturaTeclado(0);
+                    setPosicionChat('1rem');
                   }, 100);
                 }}
                 onKeyDown={(e) => {
