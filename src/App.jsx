@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import datos from './data/datos_prueba.json'; 
 import { MapView } from './features/Map/MapView';
+import { obtenerLugaresConCache } from './services/api';
 import { Compass, Mic, Send, User, MoreHorizontal, AlertTriangle, HelpCircle, X, Check } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Preloader } from './components/ui/Preloader';
@@ -19,20 +19,66 @@ function App() {
   const [tecladoVisible, setTecladoVisible] = useState(false);
   const [alturaTeclado, setAlturaTeclado] = useState(0);
   const [posicionChat, setPosicionChat] = useState('1rem');
+  const [lugares, setLugares] = useState([]);
+  const [errorCarga, setErrorCarga] = useState(null);
   
-  // Simulamos la carga inicial (o la conexión a la API)
+  // Cargar datos desde la API
   useEffect(() => {
-    // Aquí luego pondrás tu fetch real a la API
-    const timer = setTimeout(() => {
-      setLoading(false);
-      // Verificamos si es la primera vez que el usuario usa la app
-      const hasSeenOnboarding = localStorage.getItem('dime-onboarding-completed');
-      if (!hasSeenOnboarding) {
-        // Solo mostramos el onboarding si no lo ha visto antes
-        setShowOnboarding(true);
+    const cargarDatos = async () => {
+      try {
+        setLoading(true);
+        setErrorCarga(null);
+        
+        // Timeout de seguridad (máximo 10 segundos)
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout: La API tardó demasiado en responder')), 10000)
+        );
+        
+        // Obtener lugares desde la API con caché
+        const lugaresData = await Promise.race([
+          obtenerLugaresConCache(),
+          timeoutPromise
+        ]);
+        
+        if (lugaresData && lugaresData.length > 0) {
+          console.log('✅ Datos cargados exitosamente:', lugaresData.length, 'lugares');
+          console.log('📋 Muestra de lugares:', lugaresData.slice(0, 3));
+          setLugares(lugaresData);
+        } else {
+          // Si no hay datos, usar datos de prueba como fallback
+          console.warn('⚠️ No se obtuvieron datos de la API, usando datos de prueba');
+          const datosPrueba = await import('./data/datos_prueba.json');
+          setLugares(datosPrueba.default);
+        }
+      } catch (error) {
+        console.error('❌ Error al cargar datos:', error);
+        setErrorCarga(error.message);
+        
+        // En caso de error, usar datos de prueba como fallback
+        try {
+          console.log('🔄 Cargando datos de prueba como fallback...');
+          const datosPrueba = await import('./data/datos_prueba.json');
+          setLugares(datosPrueba.default);
+          console.log('✅ Datos de prueba cargados');
+        } catch (fallbackError) {
+          console.error('❌ Error al cargar datos de prueba:', fallbackError);
+          // Si incluso el fallback falla, usar array vacío
+          setLugares([]);
+        }
+      } finally {
+        // Siempre establecer loading a false
+        setLoading(false);
+        
+        // Verificamos si es la primera vez que el usuario usa la app
+        const hasSeenOnboarding = localStorage.getItem('dime-onboarding-completed');
+        if (!hasSeenOnboarding) {
+          // Solo mostramos el onboarding si no lo ha visto antes
+          setShowOnboarding(true);
+        }
       }
-    }, 3000); // 3 segundos de demo
-    return () => clearTimeout(timer);
+    };
+
+    cargarDatos();
   }, []);
 
   // Detectar cuando el teclado está visible usando múltiples métodos
@@ -188,7 +234,7 @@ function App() {
             className="absolute inset-0 z-0"
           >
             <MapView 
-              lugares={datos} 
+              lugares={lugares} 
               lugarSeleccionado={lugarSeleccionado}
               onMarkerClick={manejarClickEnMarcador}
             />

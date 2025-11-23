@@ -35,6 +35,12 @@ function FlyToLocation({ coords }) {
 
 export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
   const centroTolu = [9.524189, -75.582492];
+  
+  // Logging para depuración
+  console.log('🗺️ MapView recibió lugares:', lugares?.length || 0);
+  if (lugares && lugares.length > 0) {
+    console.log('📍 Primer lugar:', lugares[0]);
+  }
 
   return (
     <div className="h-full w-full z-0">
@@ -55,17 +61,43 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
            <FlyToLocation coords={[lugarSeleccionado.ubicacion.lat, lugarSeleccionado.ubicacion.lng]} />
         )}
 
-        {lugares.map((lugar) => (
-          <Marker 
-            key={lugar.id} 
-            position={[lugar.ubicacion.lat, lugar.ubicacion.lng]}
-            eventHandlers={{
-              click: () => onMarkerClick(lugar),
-            }}
-          >
-             {/* Opcional: Popup nativo de Leaflet, o usamos nuestra Card flotante */}
-          </Marker>
-        ))}
+        {lugares && lugares.length > 0 ? lugares
+          .filter(lugar => {
+            // Validación adicional antes de renderizar
+            const esValido = lugar && 
+                   lugar.ubicacion && 
+                   typeof lugar.ubicacion.lat === 'number' && 
+                   typeof lugar.ubicacion.lng === 'number' &&
+                   !isNaN(lugar.ubicacion.lat) && 
+                   !isNaN(lugar.ubicacion.lng) &&
+                   lugar.ubicacion.lat !== 0 && 
+                   lugar.ubicacion.lng !== 0;
+            
+            return esValido;
+          })
+          .map((lugar, index) => {
+            // Solo loggear los primeros 3 para depuración
+            if (index < 3) {
+              console.log('📍 Renderizando marcador:', lugar.nombre, 'en', lugar.ubicacion.lat, lugar.ubicacion.lng);
+            }
+            return (
+              <Marker 
+                key={lugar.id} 
+                position={[lugar.ubicacion.lat, lugar.ubicacion.lng]}
+                eventHandlers={{
+                  click: () => onMarkerClick(lugar),
+                }}
+              >
+                 {/* Opcional: Popup nativo de Leaflet, o usamos nuestra Card flotante */}
+              </Marker>
+            );
+          }) : (
+            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <p className="bg-white/90 px-4 py-2 rounded-lg text-sm text-gray-600">
+                No hay lugares para mostrar
+              </p>
+            </div>
+          )}
       </MapContainer>
 
       {/* Aquí inyectamos nuestra Card flotante sobre el mapa */}
