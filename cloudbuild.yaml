@@ -1,0 +1,33 @@
+steps:
+  # Build de la imagen Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/dime-backend', '-f', 'backend/Dockerfile', 'backend']
+  
+  # Push de la imagen al Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/dime-backend']
+  
+  # Desplegar en Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'dime-backend'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/dime-backend'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'GEMINI_API_KEY=${_GEMINI_API_KEY},ALLOWED_ORIGINS=${_ALLOWED_ORIGINS}'
+
+substitutions:
+  _GEMINI_API_KEY: 'AIzaSyB9LaPj_szdlMTwMwZR5k5TpsOtn1zvGE4'
+  _ALLOWED_ORIGINS: 'https://dime-ia.web.app,https://dime-ia.firebaseapp.com'
+
+options:
+  machineType: 'E2_HIGHCPU_8'
+

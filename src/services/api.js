@@ -3,8 +3,8 @@
  * Prioridad: Backend local → API directa datos.gov.co
  */
 
-// URL del backend de DIME
-const BACKEND_URL = 'http://localhost:8000/api/lugares';
+// URL del backend de DIME (usa variable de entorno en producción)
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000/api/lugares';
 
 // Token de autenticación para la API SODA3 (fallback)
 const API_TOKEN = 'CVraNSsLcjWDoVyJlV6LEmEaU';

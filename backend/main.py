@@ -28,16 +28,23 @@ else:
 contexto_tolu = ""
 
 # --- 1. PERMISOS (CORS) ---
-# Esto permite que tu React (que vive en el puerto 5173) hable con este Python
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",  # Vite dev server
-        "http://localhost:3000",  # React dev server alternativo
+# Configuración de CORS: permite desarrollo local y producción
+ALLOWED_ORIGINS_ENV = os.getenv("ALLOWED_ORIGINS", "")
+if ALLOWED_ORIGINS_ENV:
+    # Si hay variable de entorno, usar esos orígenes + localhost para desarrollo
+    allowed_origins = ALLOWED_ORIGINS_ENV.split(",") + [
+        "http://localhost:5173",
+        "http://localhost:3000",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000",
-        "*"  # Permitir todos en desarrollo (cambiar en producción)
-    ], 
+    ]
+else:
+    # Por defecto, permitir todos (desarrollo)
+    allowed_origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
