@@ -1,7 +1,8 @@
 steps:
-  # Build de la imagen Docker
+  # Build de la imagen Docker desde el directorio backend
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/dime-backend', '-f', 'backend/Dockerfile', 'backend']
+    dir: 'backend'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/dime-backend', '-f', 'Dockerfile', '.']
   
   # Push de la imagen al Container Registry
   - name: 'gcr.io/cloud-builders/docker'
