@@ -1,115 +1,57 @@
-# DIME - Asistente Inteligente de la Alcaldía de Santiago de Tolú
+# DIME - Arquitectura del Proyecto
 
-DIME es una aplicación web que proporciona información sobre las entidades municipales y servicios públicos de Santiago de Tolú, con un asistente de IA integrado.
+Este repositorio contiene dos componentes principales:
 
-## 🚀 Características
+- `frontend/` – Aplicación React + Vite desplegada en Firebase Hosting.
+- `backend/` – API FastAPI (Python) desplegada en Google Cloud Run.
 
-- **Mapa Interactivo**: Visualiza todas las entidades municipales en un mapa
-- **Asistente IA**: Chat con DIME-IA para consultas sobre ubicaciones y servicios
-- **Información Detallada**: Tarjetas informativas con datos de cada entidad
-- **Diseño Responsive**: Optimizado para móviles y desktop
-- **Onboarding**: Guía inicial para nuevos usuarios
-
-## 🛠️ Tecnologías
-
-### Frontend
-- React + Vite
-- Tailwind CSS v4
-- Framer Motion (animaciones)
-- React Leaflet (mapas)
-- Lucide React (iconos)
-
-### Backend
-- FastAPI (Python)
-- Google Gemini AI
-- Geopy (geocodificación)
-
-## 📦 Instalación
-
-### Frontend
-
-```bash
-npm install
-npm run dev
+```
+.
+├── backend/                # Código y scripts del backend (FastAPI)
+├── frontend/               # Código fuente del frontend (React + Vite)
+├── Dockerfile              # Dockerfile raíz utilizado por Cloud Run (copia backend/)
+├── cloudbuild.yaml         # Configuración para construir y desplegar el backend
+└── README.md               # Este documento
 ```
 
-### Backend
+## Cómo trabajar con el frontend
+
+```bash
+cd frontend
+npm install
+npm run dev        # Desarrollo local
+npm run build      # Build de producción
+npm run deploy     # Build + firebase deploy --only hosting
+```
+
+> Los archivos de configuración de Firebase, Vite, Tailwind y ESLint viven dentro de `frontend/`.
+
+## Cómo trabajar con el backend
 
 ```bash
 cd backend
 pip install -r requirements.txt
-python -m uvicorn main:app --reload
+uvicorn main:app --reload
 ```
 
-## 🚀 Despliegue
+El backend usa variables de entorno:
+- `GEMINI_API_KEY`
+- `ALLOWED_ORIGINS`
 
-### Frontend (Firebase Hosting)
+Estas variables deben configurarse en Cloud Run.
 
-```bash
-npm run deploy
-```
-
-O manualmente:
-```bash
-npm run build
-firebase deploy --only hosting
-```
-
-### Backend (Google Cloud Run)
-
-#### Opción A: Desde la Consola Web (Recomendado)
-
-1. Ve a: https://console.cloud.google.com/run
-2. Click en "CREAR SERVICIO"
-3. Configura:
-   - **Nombre**: `dime-backend`
-   - **Región**: `us-central1`
-   - ✅ **Permitir tráfico no autenticado**
-4. Conecta repositorio: `SoyHassir/dime`
-5. Configura:
-   - **Rama**: `main`
-   - **Directorio**: `backend/` ⚠️ (con barra al final)
-   - **Dockerfile**: `Dockerfile` ⚠️ (solo el nombre, sin `backend/`)
-6. Variables de entorno:
-   - `GEMINI_API_KEY` = `tu_api_key_de_google` (obtén tu key en https://aistudio.google.com/app/apikey)
-   - `ALLOWED_ORIGINS` = `https://dime-ia.web.app,https://dime-ia.firebaseapp.com`
-7. Click en "CREAR"
-
-#### Opción B: Desde la Línea de Comandos
-
-```bash
-gcloud run deploy dime-backend \
-  --source ./backend \
-  --region us-central1 \
-  --platform managed \
-  --allow-unauthenticated \
-  --set-env-vars "GEMINI_API_KEY=tu_api_key_aqui,ALLOWED_ORIGINS=https://dime-ia.web.app,https://dime-ia.firebaseapp.com"
-```
-
-### Actualizar Frontend con URL del Backend
-
-Una vez desplegado el backend:
-
-1. Crea `.env.production` en la raíz:
-```env
-VITE_BACKEND_URL=https://tu-backend-url.run.app
-```
-
-2. Redespliega:
-```bash
-npm run deploy
-```
-
-## 📝 Variables de Entorno
-
-### Frontend
-- `VITE_BACKEND_URL`: URL del backend desplegado
+## Despliegue rápido
 
 ### Backend
-- `GEMINI_API_KEY`: API Key de Google Gemini
-- `ALLOWED_ORIGINS`: Orígenes permitidos para CORS
+- Cloud Build + Cloud Run utilizan `Dockerfile` (en la raíz) que copia `backend/`.
 
-## 📄 Licencia
+### Frontend
+```bash
+cd frontend
+npm run deploy
+```
 
-Este proyecto es propiedad de la Alcaldía de Santiago de Tolú.
-
+## Notas
+- Los archivos `.env*` están ignorados por Git.
+- Los datos enriquecidos (`backend/base_datos_enriquecida.json`) se usan para la IA.
+```
