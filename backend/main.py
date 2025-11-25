@@ -85,12 +85,63 @@ def actualizar_memoria_ia():
                 # Usar direccion_ia (dirección humana) en lugar de zona
                 direccion = item.get('direccion_ia', None)
                 
-                # Formateo inteligente de texto
+                # Formateo inteligente de texto (usa la misma función de corrección)
                 def to_title_case(texto):
                     if not texto or not isinstance(texto, str):
                         return texto
+                    
+                    # Normalizar: si todo está en mayúsculas, convertir a minúsculas primero
+                    texto_original = texto.strip()
+                    if texto_original.isupper() and len(texto_original) > 1:
+                        texto = texto_original.lower()
+                    else:
+                        texto = texto_original
+                    
+                    # Diccionario de correcciones específicas (mismo que en /api/lugares)
+                    correcciones = {
+                        'I.E. PAULO Freire': 'Institución Educativa Paulo Freire',
+                        'Intitucion Educativa JOSE Yemail TOUS - SEDE SAN Isidro': 'Institución Educativa José Yemail Tous - Sede San Isidro',
+                        'CDI LA Esperanza DE LOS Niños': 'CDI La Esperanza de los Niños',
+                        'Instituto Pedagogico DEL GOLFO': 'Instituto Pedagógico del Golfo',
+                        'CASA DE LA Cultura Municipal': 'Casa de la Cultura Municipal',
+                        'VILLA Olimpica': 'Villa Olímpica',
+                        'Laguna DE Oxidacion': 'Laguna de Oxidación',
+                        'Biblioteca Publica Municipal Hector ROJAS Herazo': 'Biblioteca Pública Municipal Héctor Rojas Herazo',
+                        'Iglesia Adventista DEL Septimo DIA EL Santuario': 'Iglesia Adventista del Séptimo Día El Santuario',
+                        'Estadio DE Futbol': 'Estadio de Fútbol',
+                        'CANCA DE Microfutbol VILLA Nazarth': 'Cancha de Microfútbol Villa Nazareth',
+                        'Cancha DE Futbol VILLA Nazareth': 'Cancha de Fútbol Villa Nazareth',
+                        'Glorieta Entrada DE Tolú': 'Glorieta entrada de Tolú',
+                        'Intitucion Educativa JOSE Yemail TOUS - SEDE Alegria': 'Institución Educativa José Yemail Tous - Sede Alegría',
+                        'Parque Regional Natural Manglares DE Guacamaya': 'Parque Regional Natural Manglares de Guacamaya',
+                        'Intitucion Educativa PITA EN MEDIO - SEDE LAS Cruces': 'Institución Educativa Pita en Medio - Sede Las Cruces',
+                        'Intitucion Educativa PITA EN MEDIO - SEDE Principal': 'Institución Educativa Pita en Medio - Sede Principal',
+                        'Intitucion Educativa PITA EN MEDIO - SEDE 2': 'Institución Educativa Pita en Medio - Sede 2',
+                        'Intitucion Educativa PITA ABAJO SEDE Principal': 'Institución Educativa Pita Abajo - Sede Principal',
+                        'Parque Corregimiento PITA ABAJO': 'Parque Corregimiento Pita Abajo',
+                        'Cementerio Corregimiento PITA ABAJO': 'Cementerio Corregimiento Pita Abajo',
+                        'Intitucion Educativa Educativo NUEVA ERA SEDE Principal': 'Institución Educativa Nueva Era - Sede Principal',
+                        'Intitucion Educativa NUEVA ERA SEDE SANTA LUCIA': 'Institución Educativa Nueva Era - Sede Santa Lucía',
+                        'Intitucion Educativa NUEVA ERA SEDE Puertas Negras': 'Institución Educativa Nueva Era - Sede Puertas Negras',
+                        'Cementerio Corregimiento Puerto VIEJO': 'Cementerio Corregimiento Puerto Viejo',
+                        'Estadio DE Softbol Corregimiento Puerto VIEJO': 'Estadio de Sóftbol Corregimiento Puerto Viejo',
+                        'Intitucion Educativa Puerto VIEJO SEDE Principal': 'Institución Educativa Puerto Viejo - Sede Principal',
+                        'Intitucion Educativa NUEVA ERA SEDE EL Palmar': 'Institución Educativa Nueva Era - Sede El Palmar',
+                        'Intitucion Educativa Puerto VIEJO SEDE PALO Blanco': 'Institución Educativa Puerto Viejo - Sede Palo Blanco',
+                        'PISTA DE PATINAJE': 'Pista de Patinaje',
+                        'PISTA DE PATNAJE': 'Pista de Patinaje',
+                    }
+                    
+                    # Verificar si hay una corrección exacta (tanto original como normalizado)
+                    if texto_original in correcciones:
+                        return correcciones[texto_original]
+                    if texto in correcciones:
+                        return correcciones[texto]
+                    
+                    # Si no hay corrección exacta, aplicar formateo inteligente
                     palabras_minusculas = ['de', 'del', 'la', 'las', 'los', 'el', 'en', 'por', 'para']
-                    texto = texto.replace('INSTITUCION EDUCATIVA', 'I.E.').replace('INSTITUCIÓN EDUCATIVA', 'I.E.')
+                    texto = texto.replace('INSTITUCION EDUCATIVA', 'Institución Educativa').replace('INSTITUCIÓN EDUCATIVA', 'Institución Educativa')
+                    texto = texto.replace('Intitucion', 'Institución').replace('INTITUCION', 'Institución')
                     palabras = texto.split()
                     resultado = []
                     for i, palabra in enumerate(palabras):
@@ -99,6 +150,32 @@ def actualizar_memoria_ia():
                             resultado.append('Tolú')
                         elif palabra_lower == 'turistico':
                             resultado.append('Turístico')
+                        elif palabra_lower == 'futbol':
+                            resultado.append('Fútbol')
+                        elif palabra_lower == 'microfutbol':
+                            resultado.append('Microfútbol')
+                        elif palabra_lower == 'softbol':
+                            resultado.append('Sóftbol')
+                        elif palabra_lower == 'pedagogico':
+                            resultado.append('Pedagógico')
+                        elif palabra_lower == 'oxidacion':
+                            resultado.append('Oxidación')
+                        elif palabra_lower == 'publica':
+                            resultado.append('Pública')
+                        elif palabra_lower == 'septimo':
+                            resultado.append('Séptimo')
+                        elif palabra_lower == 'dia':
+                            resultado.append('Día')
+                        elif palabra_lower == 'nazarth':
+                            resultado.append('Nazareth')
+                        elif palabra_lower == 'alegria':
+                            resultado.append('Alegría')
+                        elif palabra_lower == 'lucia':
+                            resultado.append('Lucía')
+                        elif palabra_lower == 'canca':
+                            resultado.append('Cancha')
+                        elif palabra_lower == 'patinaje' or palabra_lower == 'patnaje':
+                            resultado.append('Patinaje')
                         elif i == 0:
                             resultado.append(palabra.capitalize())
                         elif palabra_lower in palabras_minusculas:
@@ -228,11 +305,62 @@ def obtener_lugares():
                 if not texto or not isinstance(texto, str):
                     return texto
                 
+                # Normalizar: si todo está en mayúsculas, convertir a minúsculas primero
+                texto_original = texto.strip()
+                if texto_original.isupper() and len(texto_original) > 1:
+                    texto = texto_original.lower()
+                else:
+                    texto = texto_original
+                
+                # Diccionario de correcciones específicas
+                correcciones = {
+                    'I.E. PAULO Freire': 'Institución Educativa Paulo Freire',
+                    'Intitucion Educativa JOSE Yemail TOUS - SEDE SAN Isidro': 'Institución Educativa José Yemail Tous - Sede San Isidro',
+                    'CDI LA Esperanza DE LOS Niños': 'CDI La Esperanza de los Niños',
+                    'Instituto Pedagogico DEL GOLFO': 'Instituto Pedagógico del Golfo',
+                    'CASA DE LA Cultura Municipal': 'Casa de la Cultura Municipal',
+                    'VILLA Olimpica': 'Villa Olímpica',
+                    'Laguna DE Oxidacion': 'Laguna de Oxidación',
+                    'Biblioteca Publica Municipal Hector ROJAS Herazo': 'Biblioteca Pública Municipal Héctor Rojas Herazo',
+                    'Iglesia Adventista DEL Septimo DIA EL Santuario': 'Iglesia Adventista del Séptimo Día El Santuario',
+                    'Estadio DE Futbol': 'Estadio de Fútbol',
+                    'CANCA DE Microfutbol VILLA Nazarth': 'Cancha de Microfútbol Villa Nazareth',
+                    'Cancha DE Futbol VILLA Nazareth': 'Cancha de Fútbol Villa Nazareth',
+                    'Glorieta Entrada DE Tolú': 'Glorieta entrada de Tolú',
+                    'Intitucion Educativa JOSE Yemail TOUS - SEDE Alegria': 'Institución Educativa José Yemail Tous - Sede Alegría',
+                    'Parque Regional Natural Manglares DE Guacamaya': 'Parque Regional Natural Manglares de Guacamaya',
+                    'Intitucion Educativa PITA EN MEDIO - SEDE LAS Cruces': 'Institución Educativa Pita en Medio - Sede Las Cruces',
+                    'Intitucion Educativa PITA EN MEDIO - SEDE Principal': 'Institución Educativa Pita en Medio - Sede Principal',
+                    'Intitucion Educativa PITA EN MEDIO - SEDE 2': 'Institución Educativa Pita en Medio - Sede 2',
+                    'Intitucion Educativa PITA ABAJO SEDE Principal': 'Institución Educativa Pita Abajo - Sede Principal',
+                    'Parque Corregimiento PITA ABAJO': 'Parque Corregimiento Pita Abajo',
+                    'Cementerio Corregimiento PITA ABAJO': 'Cementerio Corregimiento Pita Abajo',
+                    'Intitucion Educativa Educativo NUEVA ERA SEDE Principal': 'Institución Educativa Nueva Era - Sede Principal',
+                    'Intitucion Educativa NUEVA ERA SEDE SANTA LUCIA': 'Institución Educativa Nueva Era - Sede Santa Lucía',
+                    'Intitucion Educativa NUEVA ERA SEDE Puertas Negras': 'Institución Educativa Nueva Era - Sede Puertas Negras',
+                    'Cementerio Corregimiento Puerto VIEJO': 'Cementerio Corregimiento Puerto Viejo',
+                    'Estadio DE Softbol Corregimiento Puerto VIEJO': 'Estadio de Sóftbol Corregimiento Puerto Viejo',
+                    'Intitucion Educativa Puerto VIEJO SEDE Principal': 'Institución Educativa Puerto Viejo - Sede Principal',
+                    'Intitucion Educativa NUEVA ERA SEDE EL Palmar': 'Institución Educativa Nueva Era - Sede El Palmar',
+                    'Intitucion Educativa Puerto VIEJO SEDE PALO Blanco': 'Institución Educativa Puerto Viejo - Sede Palo Blanco',
+                    'PISTA DE PATINAJE': 'Pista de Patinaje',
+                    'PISTA DE PATNAJE': 'Pista de Patinaje',
+                }
+                
+                # Verificar si hay una corrección exacta (tanto original como normalizado)
+                if texto_original in correcciones:
+                    return correcciones[texto_original]
+                if texto in correcciones:
+                    return correcciones[texto]
+                
+                # Si no hay corrección exacta, aplicar formateo inteligente
                 palabras_minusculas = ['de', 'del', 'la', 'las', 'los', 'el', 'en', 'por', 'para', 
                                      'con', 'sin', 'sobre', 'bajo', 'entre', 'hasta', 'desde']
                 
                 # Reemplazos especiales
-                texto = texto.replace('INSTITUCION EDUCATIVA', 'I.E.').replace('INSTITUCIÓN EDUCATIVA', 'I.E.')
+                texto = texto.replace('INSTITUCION EDUCATIVA', 'Institución Educativa').replace('INSTITUCIÓN EDUCATIVA', 'Institución Educativa')
+                texto = texto.replace('Intitucion', 'Institución').replace('INTITUCION', 'Institución')
+                texto = texto.replace('Educativa', 'Educativa')
                 
                 palabras = texto.split()
                 resultado = []
@@ -245,6 +373,48 @@ def obtener_lugares():
                         continue
                     elif palabra_lower == 'turistico':
                         resultado.append('Turístico')
+                        continue
+                    elif palabra_lower == 'futbol':
+                        resultado.append('Fútbol')
+                        continue
+                    elif palabra_lower == 'microfutbol':
+                        resultado.append('Microfútbol')
+                        continue
+                    elif palabra_lower == 'softbol':
+                        resultado.append('Sóftbol')
+                        continue
+                    elif palabra_lower == 'pedagogico':
+                        resultado.append('Pedagógico')
+                        continue
+                    elif palabra_lower == 'oxidacion':
+                        resultado.append('Oxidación')
+                        continue
+                    elif palabra_lower == 'publica':
+                        resultado.append('Pública')
+                        continue
+                    elif palabra_lower == 'septimo':
+                        resultado.append('Séptimo')
+                        continue
+                    elif palabra_lower == 'dia':
+                        resultado.append('Día')
+                        continue
+                    elif palabra_lower == 'nazarth':
+                        resultado.append('Nazareth')
+                        continue
+                    elif palabra_lower == 'alegria':
+                        resultado.append('Alegría')
+                        continue
+                    elif palabra_lower == 'lucia':
+                        resultado.append('Lucía')
+                        continue
+                    elif palabra_lower == 'viejo':
+                        resultado.append('Viejo')
+                        continue
+                    elif palabra_lower == 'canca':
+                        resultado.append('Cancha')
+                        continue
+                    elif palabra_lower == 'patinaje' or palabra_lower == 'patnaje':
+                        resultado.append('Patinaje')
                         continue
                     
                     # Primera palabra siempre capitalizada
@@ -264,7 +434,13 @@ def obtener_lugares():
                     return 'Dirección no disponible'
                 zona_limpia = zona.strip()
                 if zona_limpia:
-                    return f"Zona: {zona_limpia.capitalize()}"
+                    # Aplicar formateo inteligente (no solo capitalize)
+                    if zona_limpia.upper() == 'URBANA':
+                        return 'Zona: Urbana'
+                    elif zona_limpia.upper() == 'RURAL':
+                        return 'Zona: Rural'
+                    else:
+                        return f"Zona: {zona_limpia.capitalize()}"
                 return 'Dirección no disponible'
 
             # 3. Crear objeto limpio para DIME

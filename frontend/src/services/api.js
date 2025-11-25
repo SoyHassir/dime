@@ -304,7 +304,7 @@ export const obtenerLugares = async () => {
  */
 export const obtenerLugaresConCache = async (cacheTime = 5 * 60 * 1000) => {
   // Versión del caché - cambiar esto invalida el caché anterior
-  const CACHE_VERSION = 'v6-backend';
+  const CACHE_VERSION = 'v7-nombres-corregidos';
   const cacheKey = `dime-lugares-cache-${CACHE_VERSION}`;
   const cacheTimestampKey = `dime-lugares-cache-timestamp-${CACHE_VERSION}`;
   
