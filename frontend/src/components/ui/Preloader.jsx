@@ -69,8 +69,8 @@ export const Preloader = () => {
         />
       </div>
 
-      <div className="absolute bottom-8 text-xs text-gray-300">
-        Datos al Ecosistema 2025
+      <div className="absolute bottom-8 text-xs text-gray-300 text-center">
+        Hecho con 💙 y sabor sincelejano <br/>para guiar a Tolú.
       </div>
 
     </motion.div>

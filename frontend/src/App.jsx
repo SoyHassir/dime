@@ -250,7 +250,7 @@ function App() {
                   initial={{ opacity: 0, scale: 0.95, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="absolute top-12 right-0 w-52 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[1002] overflow-hidden origin-top-right"
+                  className="absolute top-14 right-0 w-52 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[1002] overflow-hidden origin-top-right"
                 >
                   
                   {/* Opción 1: Reportar error */}
@@ -592,7 +592,7 @@ function App() {
             </div>
 
             <div className="border-t border-gray-100 pt-4">
-              <p className="text-xs text-gray-400">Desarrollado para el Concurso<br/>Datos al Ecosistema 2025</p>
+              <p className="text-xs text-gray-400">Hecho con 💙 y sabor sincelejano <br/>para guiar a Tolú.</p>
             </div>
 
               </motion.div>
