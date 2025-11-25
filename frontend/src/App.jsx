@@ -588,8 +588,13 @@ function App() {
             {/* Botón Micrófono */}
             <button 
               onClick={activarVozInput}
-              className="text-gray-400 hover:text-blue-600 transition-colors active:scale-90"
-              title="Hablar"
+              className={`transition-colors active:scale-90 ${
+                escuchando || respondiendo
+                  ? 'text-blue-600' 
+                  : 'text-gray-400 hover:text-blue-600'
+              }`}
+              title={escuchando || respondiendo ? "Escuchando..." : "Hablar"}
+              disabled={escuchando || respondiendo}
             >
               <Mic className="w-6 h-6" />
             </button>
