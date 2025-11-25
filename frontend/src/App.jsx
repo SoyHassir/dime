@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapView } from './features/Map/MapView';
 import { obtenerLugaresConCache } from './services/api';
-import { Compass, Mic, Send, User, MoreHorizontal, AlertTriangle, HelpCircle, X, Check, ChevronDown, MessageCircle } from 'lucide-react';
+import { Mic, Send, User, MoreHorizontal, AlertTriangle, HelpCircle, X, Check, ChevronDown, Volume2, VolumeX } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Preloader } from './components/ui/Preloader';
 import { WelcomeCarousel } from './features/Onboarding/WelcomeCarousel.jsx';
@@ -26,6 +26,9 @@ function App() {
   const [tecladoVisible, setTecladoVisible] = useState(false);
   const [alturaTeclado, setAlturaTeclado] = useState(0);
   const [posicionChat, setPosicionChat] = useState('1rem');
+  const [vozActiva, setVozActiva] = useState(true); // Control de salida de voz
+  const [escuchando, setEscuchando] = useState(false); // Control de modal de escucha
+  const [respondiendo, setRespondiendo] = useState(false); // Control de estado de respuesta
   const [lugares, setLugares] = useState([]);
   const [errorCarga, setErrorCarga] = useState(null);
   
@@ -85,8 +88,183 @@ function App() {
     cargarDatos();
   }, []);
 
+  // --- FUNCIÓN DE SALIDA DE VOZ (TEXT-TO-SPEECH) ---
+  const hablar = (texto) => {
+    if (!vozActiva || !window.speechSynthesis) {
+      // Si la voz está desactivada, cerrar el modal de inmediato
+      if (escuchando) {
+        setEscuchando(false);
+        setRespondiendo(false);
+      }
+      return;
+    }
+
+    window.speechSynthesis.cancel(); 
+    const locucion = new SpeechSynthesisUtterance(texto);
+    locucion.lang = 'es-CO'; // Español Colombia
+    locucion.rate = 1.0; 
+    locucion.pitch = 1.0; 
+    
+    // Intenta encontrar una voz colombiana o española
+    const voces = window.speechSynthesis.getVoices();
+    const vozEspanola = voces.find(v => v.lang.startsWith('es'));
+    if (vozEspanola) locucion.voice = vozEspanola;
+
+    // Cuando empieza a hablar
+    locucion.onstart = () => {
+      setRespondiendo(true);
+    };
+
+    // Cuando termina de hablar, cerrar el modal
+    locucion.onend = () => {
+      setRespondiendo(false);
+      setEscuchando(false);
+      reproducirSonidoFin();
+    };
+
+    // Si hay error, cerrar el modal
+    locucion.onerror = () => {
+      setRespondiendo(false);
+      setEscuchando(false);
+    };
+
+    window.speechSynthesis.speak(locucion);
+  };
+
+  // --- FUNCIÓN PARA REPRODUCIR SONIDO (Estilo Google Voice) ---
+  const reproducirSonidoInicio = () => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Sonido ascendente suave (400Hz -> 800Hz)
+      oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+      oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 0.15);
+      oscillator.type = 'sine';
+      
+      // Fade in/out suave
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.05);
+      gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.15);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.15);
+    } catch (error) {
+      // Error silencioso al reproducir sonido
+    }
+  };
+
+  const reproducirSonidoFin = () => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Sonido descendente suave (600Hz -> 300Hz)
+      oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+      oscillator.frequency.linearRampToValueAtTime(300, audioContext.currentTime + 0.12);
+      oscillator.type = 'sine';
+      
+      // Fade in/out suave
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.03);
+      gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.12);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.12);
+    } catch (error) {
+      // Error silencioso al reproducir sonido
+    }
+  };
+
+  // --- FUNCIÓN DE ENTRADA DE VOZ (SPEECH-TO-TEXT) ---
+  const activarVozInput = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert("Tu navegador (ej: Safari) no soporta la entrada de voz. Intenta en Chrome.");
+      return;
+    }
+
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.lang = 'es-CO';
+    recognition.interimResults = false;
+    recognition.continuous = false;
+    
+    // Sonido de inicio (estilo Google Voice)
+    reproducirSonidoInicio();
+    
+    // Mostrar modal de escucha
+    setEscuchando(true);
+    recognition.start();
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      
+      // Sonido de fin (estilo Google Voice)
+      reproducirSonidoFin();
+      
+      // NO cerrar el modal todavía, mantenerlo abierto mientras DIME responde
+      // El modal se cerrará cuando termine de hablar (en la función hablar)
+      
+      // Enviar el mensaje automáticamente (desdeVoz = true para que hable)
+      if (transcript.trim()) {
+        enviarMensaje(transcript, true);
+      } else {
+        // Si no hay texto, cerrar el modal
+        setEscuchando(false);
+      }
+    };
+    
+    recognition.onerror = (event) => {
+      // Manejar diferentes tipos de errores
+      let mensajeError = '';
+      switch(event.error) {
+        case 'network':
+          mensajeError = 'Error de conexión. Verifica tu internet e intenta de nuevo.';
+          break;
+        case 'no-speech':
+          mensajeError = 'No se detectó voz. Intenta hablar más fuerte o más cerca del micrófono.';
+          break;
+        case 'audio-capture':
+          mensajeError = 'No se pudo acceder al micrófono. Verifica los permisos.';
+          break;
+        case 'aborted':
+          mensajeError = 'Reconocimiento cancelado.';
+          break;
+        default:
+          mensajeError = `Error: ${event.error}. Intenta de nuevo.`;
+      }
+      
+      // Cerrar modal y mostrar mensaje de error
+      setEscuchando(false);
+      setRespondiendo(false);
+      reproducirSonidoFin();
+      
+      // Mostrar mensaje de error al usuario
+      if (event.error !== 'aborted') {
+        alert(mensajeError);
+      }
+    };
+
+    recognition.onend = () => {
+      if (escuchando) {
+        setEscuchando(false);
+        reproducirSonidoFin();
+      }
+    };
+
+    // Guardar referencia para poder cancelar
+    window.currentRecognition = recognition;
+  };
+
   // Función para enviar mensaje al backend
-  const enviarMensaje = async (mensaje) => {
+  const enviarMensaje = async (mensaje, desdeVoz = false) => {
     if (!mensaje.trim()) return;
     
     // Agregar mensaje del usuario al historial
@@ -97,6 +275,7 @@ function App() {
     
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+      
       const response = await fetch(`${backendUrl}/api/chat`, {
         method: 'POST',
         headers: {
@@ -106,12 +285,18 @@ function App() {
       });
       
       if (!response.ok) {
-        throw new Error('Error al obtener respuesta');
+        const errorText = await response.text();
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
       
       const data = await response.json();
       const respuestaBot = { tipo: 'bot', texto: data.respuesta };
       setMensajesChat(prev => [...prev, respuestaBot]);
+      
+      // Solo hablar si el mensaje viene de voz
+      if (desdeVoz) {
+        hablar(data.respuesta);
+      }
       
       // Scroll automático al final
       setTimeout(() => {
@@ -123,9 +308,13 @@ function App() {
     } catch (error) {
       const mensajeError = { 
         tipo: 'bot', 
-        texto: 'Lo siento, hubo un problema al procesar tu mensaje. Por favor, intenta de nuevo.' 
+        texto: `Lo siento, hubo un problema al procesar tu mensaje. ${error.message || 'Por favor, intenta de nuevo.'}` 
       };
       setMensajesChat(prev => [...prev, mensajeError]);
+      // Solo hablar si el mensaje viene de voz
+      if (desdeVoz) {
+        hablar(mensajeError.texto);
+      }
     } finally {
       setCargandoRespuesta(false);
     }
@@ -187,6 +376,7 @@ function App() {
     localStorage.setItem('dime-onboarding-completed', 'true');
     setShowOnboarding(false);
   };
+
 
   const manejarClickEnMarcador = (lugar) => {
     setLugarSeleccionado(lugar);
@@ -321,8 +511,9 @@ function App() {
             ) : (
               /* Chat Expandido - Vista completa */
               <div className="bg-white rounded-[2rem] shadow-2xl pointer-events-auto border border-gray-100">
-                {/* Botón Minimizar */}
-                <div className="flex justify-end p-3 pb-0">
+                {/* Header con botón minimizar */}
+                <div className="flex justify-end items-center p-3 pb-0">
+                  {/* Botón Minimizar */}
                   <button
                     onClick={() => setChatMinimizado(true)}
                     className="text-gray-400 hover:text-gray-600 transition-colors active:scale-90 p-1"
@@ -380,10 +571,26 @@ function App() {
             )}
           </div>
 
-          {/* B. Barra de Entrada (Micrófono y Enviar) */}
+          {/* B. Barra de Entrada (Volumen, Micrófono y Enviar) */}
           <div className="flex items-center gap-4 mt-2 pl-1">
+            {/* Botón Silenciar/Activar Voz */}
+            <button 
+              onClick={() => {
+                setVozActiva(!vozActiva);
+                window.speechSynthesis.cancel(); 
+              }}
+              className="text-gray-400 hover:text-blue-600 transition-colors active:scale-90"
+              title={vozActiva ? "Silenciar voz" : "Activar voz"}
+            >
+              {vozActiva ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
+            </button>
+
             {/* Botón Micrófono */}
-            <button className="text-gray-400 hover:text-blue-600 transition-colors active:scale-90">
+            <button 
+              onClick={activarVozInput}
+              className="text-gray-400 hover:text-blue-600 transition-colors active:scale-90"
+              title="Hablar"
+            >
               <Mic className="w-6 h-6" />
             </button>
 
@@ -595,6 +802,86 @@ function App() {
               <p className="text-xs text-gray-400">Hecho con 💙 y sabor sincelejano <br/>para guiar a Tolú.</p>
             </div>
 
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* MODAL DE ESCUCHA (Estilo Google Voice) */}
+          {escuchando && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-[3000] flex items-center justify-center bg-white/80 backdrop-blur-md"
+            >
+              {/* Botón X para cerrar */}
+              <button
+                onClick={() => {
+                  // Cancelar reconocimiento de voz si está activo
+                  if (window.currentRecognition) {
+                    window.currentRecognition.stop();
+                    window.currentRecognition = null;
+                  }
+                  // Cancelar speech synthesis si está hablando
+                  if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                  }
+                  setEscuchando(false);
+                  setRespondiendo(false);
+                  reproducirSonidoFin();
+                }}
+                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-gray-200/80 hover:bg-gray-300/80 flex items-center justify-center transition-colors z-[3001]"
+                title="Cerrar"
+              >
+                <X className="w-6 h-6 text-gray-700" />
+              </button>
+
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+                className="flex flex-col items-center justify-center"
+              >
+                {/* Icono con animación de ondas */}
+                <div className="relative mb-8">
+                  {/* Ondas animadas */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="absolute w-32 h-32 bg-blue-600/20 rounded-full animate-ping"></div>
+                    <div className="absolute w-24 h-24 bg-blue-600/30 rounded-full animate-ping" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="absolute w-16 h-16 bg-blue-600/40 rounded-full animate-ping" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                  
+                  {/* Icono central - cambia según el estado */}
+                  <div className={`relative w-20 h-20 rounded-full flex items-center justify-center shadow-2xl ${
+                    respondiendo ? 'bg-green-600' : 'bg-blue-600'
+                  }`}>
+                    {respondiendo ? (
+                      <DimeRobotIcon className="w-10 h-10" />
+                    ) : (
+                      <Mic className="w-10 h-10 text-white" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Texto - cambia según el estado */}
+                {respondiendo ? (
+                  <>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Respondiendo...</h2>
+                    <p className="text-gray-600 text-sm">DIME está hablando</p>
+                  </>
+                ) : cargandoRespuesta ? (
+                  <>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Procesando...</h2>
+                    <p className="text-gray-600 text-sm">Pensando en tu pregunta</p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Escuchando...</h2>
+                    <p className="text-gray-600 text-sm">Di tu pregunta ahora</p>
+                  </>
+                )}
               </motion.div>
             </motion.div>
           )}

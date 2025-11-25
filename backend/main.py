@@ -4,6 +4,10 @@ from pydantic import BaseModel
 import requests
 import google.generativeai as genai
 import os
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
 
 app = FastAPI()
 
