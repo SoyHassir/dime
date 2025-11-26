@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import requests
 import google.generativeai as genai
 import os
+import re
 from dotenv import load_dotenv
 
 # Cargar variables de entorno desde .env
@@ -305,17 +306,13 @@ def obtener_lugares():
                 if not texto or not isinstance(texto, str):
                     return texto
                 
-                # Normalizar: si todo está en mayúsculas, convertir a minúsculas primero
-                texto_original = texto.strip()
-                if texto_original.isupper() and len(texto_original) > 1:
-                    texto = texto_original.lower()
-                else:
-                    texto = texto_original
+                # Normalizar espacios múltiples a uno solo y trim
+                texto_original = re.sub(r'\s+', ' ', texto.strip())
                 
-                # Diccionario de correcciones específicas
+                # Diccionario de correcciones específicas (con todas las variaciones posibles)
                 correcciones = {
                     'I.E. PAULO Freire': 'Institución Educativa Paulo Freire',
-                    'Intitucion Educativa JOSE Yemail TOUS - SEDE SAN Isidro': 'Institución Educativa José Yemail Tous - Sede San Isidro',
+                    'Intitucion Educativa JOSE Yemail TOUS - SEDE SAN Isidro': 'Institución Educativa José Yemail Tous (Sede San Isidro)',
                     'CDI LA Esperanza DE LOS Niños': 'CDI La Esperanza de los Niños',
                     'Instituto Pedagogico DEL GOLFO': 'Instituto Pedagógico del Golfo',
                     'CASA DE LA Cultura Municipal': 'Casa de la Cultura Municipal',
@@ -327,45 +324,113 @@ def obtener_lugares():
                     'CANCA DE Microfutbol VILLA Nazarth': 'Cancha de Microfútbol Villa Nazareth',
                     'Cancha DE Futbol VILLA Nazareth': 'Cancha de Fútbol Villa Nazareth',
                     'Glorieta Entrada DE Tolú': 'Glorieta entrada de Tolú',
-                    'Intitucion Educativa JOSE Yemail TOUS - SEDE Alegria': 'Institución Educativa José Yemail Tous - Sede Alegría',
+                    'Intitucion Educativa JOSE Yemail TOUS - SEDE Alegria': 'Institución Educativa José Yemail Tous (Sede Alegría)',
                     'Parque Regional Natural Manglares DE Guacamaya': 'Parque Regional Natural Manglares de Guacamaya',
-                    'Intitucion Educativa PITA EN MEDIO - SEDE LAS Cruces': 'Institución Educativa Pita en Medio - Sede Las Cruces',
-                    'Intitucion Educativa PITA EN MEDIO - SEDE Principal': 'Institución Educativa Pita en Medio - Sede Principal',
-                    'Intitucion Educativa PITA EN MEDIO - SEDE 2': 'Institución Educativa Pita en Medio - Sede 2',
-                    'Intitucion Educativa PITA ABAJO SEDE Principal': 'Institución Educativa Pita Abajo - Sede Principal',
+                    'Intitucion Educativa PITA EN MEDIO - SEDE LAS Cruces': 'Institución Educativa Pita en Medio (Sede Las Cruces)',
+                    'Intitucion Educativa PITA EN MEDIO - SEDE Principal': 'Institución Educativa Pita en Medio (Sede Principal)',
+                    'Intitucion Educativa PITA EN MEDIO - SEDE 2': 'Institución Educativa Pita en Medio (Sede 2)',
+                    'Intitucion Educativa PITA ABAJO SEDE Principal': 'Institución Educativa Pita Abajo (Sede Principal)',
                     'Parque Corregimiento PITA ABAJO': 'Parque Corregimiento Pita Abajo',
                     'Cementerio Corregimiento PITA ABAJO': 'Cementerio Corregimiento Pita Abajo',
-                    'Intitucion Educativa Educativo NUEVA ERA SEDE Principal': 'Institución Educativa Nueva Era - Sede Principal',
-                    'Intitucion Educativa NUEVA ERA SEDE SANTA LUCIA': 'Institución Educativa Nueva Era - Sede Santa Lucía',
-                    'Intitucion Educativa NUEVA ERA SEDE Puertas Negras': 'Institución Educativa Nueva Era - Sede Puertas Negras',
+                    'Intitucion Educativa Educativo NUEVA ERA SEDE Principal': 'Institución Educativa Nueva Era (Sede Principal)',
+                    'Intitucion Educativa NUEVA ERA SEDE SANTA LUCIA': 'Institución Educativa Nueva Era (Sede Santa Lucía)',
+                    'Intitucion Educativa NUEVA ERA SEDE Puertas Negras': 'Institución Educativa Nueva Era (Sede Puertas Negras)',
                     'Cementerio Corregimiento Puerto VIEJO': 'Cementerio Corregimiento Puerto Viejo',
                     'Estadio DE Softbol Corregimiento Puerto VIEJO': 'Estadio de Sóftbol Corregimiento Puerto Viejo',
-                    'Intitucion Educativa Puerto VIEJO SEDE Principal': 'Institución Educativa Puerto Viejo - Sede Principal',
-                    'Intitucion Educativa NUEVA ERA SEDE EL Palmar': 'Institución Educativa Nueva Era - Sede El Palmar',
-                    'Intitucion Educativa Puerto VIEJO SEDE PALO Blanco': 'Institución Educativa Puerto Viejo - Sede Palo Blanco',
+                    'Intitucion Educativa Puerto VIEJO SEDE Principal': 'Institución Educativa Puerto Viejo (Sede Principal)',
+                    'Intitucion Educativa NUEVA ERA SEDE EL Palmar': 'Institución Educativa Nueva Era (Sede El Palmar)',
+                    'Intitucion Educativa Puerto VIEJO SEDE PALO Blanco': 'Institución Educativa Puerto Viejo (Sede Palo Blanco)',
                     'PISTA DE PATINAJE': 'Pista de Patinaje',
                     'PISTA DE PATNAJE': 'Pista de Patinaje',
+                    # Agregar variaciones en mayúsculas/minúsculas para casos comunes
+                    'pista de patinaje': 'Pista de Patinaje',
+                    'Pista De Patinaje': 'Pista de Patinaje',
+                    'PISTA DE PATINAGE': 'Pista de Patinaje',  # Por si hay errores de tipeo
+                    # Laboratorio IDTOLÚ
+                    'LABORATORIO DE INVESTIGACION Y DESARROLLO DE TOLU - IDTOLU': 'Laboratorio de Investigación y Desarrollo de Tolú - IDTOLÚ',
+                    'Laboratorio de Investigacion Y Desarrollo de Tolú - Idtolu': 'Laboratorio de Investigación y Desarrollo de Tolú - IDTOLÚ',
+                    'LABORATORIO DE INVESTIGACION Y DESARROLLO DE TOLU - IDTOLÚ': 'Laboratorio de Investigación y Desarrollo de Tolú - IDTOLÚ',
+                    'laboratorio de investigacion y desarrollo de tolu - idtolu': 'Laboratorio de Investigación y Desarrollo de Tolú - IDTOLÚ',
+                    # Instituto Freinet
+                    'INSTITUTO FREINET PRE ESCOLAR Y PRIMARIA': 'Instituto Freinet Pre-Escolar y Primaria',
+                    'Instituto Freinet Pre Escolar Y Primaria': 'Instituto Freinet Pre-Escolar y Primaria',
+                    'Instituto Freinet Pre-Escolar y Primaria': 'Instituto Freinet Pre-Escolar y Primaria',
+                    # Oficina Ambiental
+                    'OFICINA AMBIENTAL Y AGROPECUARIA': 'Oficina Ambiental y Agropecuaria',
+                    'Oficina Ambiental Y Agropecuaria': 'Oficina Ambiental y Agropecuaria',
+                    # CDI La Esperanza (asegurar que "La" tenga mayúscula)
+                    'CDI LA ESPERANZA DE LOS NIÑOS': 'CDI La Esperanza de los Niños',
+                    'CDI la Esperanza de los Niños': 'CDI La Esperanza de los Niños',
                 }
                 
-                # Verificar si hay una corrección exacta (tanto original como normalizado)
+                # Verificar si hay una corrección exacta (múltiples formatos)
+                # 1. Texto original (normalizado de espacios)
                 if texto_original in correcciones:
                     return correcciones[texto_original]
-                if texto in correcciones:
-                    return correcciones[texto]
+                # 2. Texto en mayúsculas
+                if texto_original.upper() in correcciones:
+                    return correcciones[texto_original.upper()]
+                # 3. Texto en minúsculas
+                if texto_original.lower() in correcciones:
+                    return correcciones[texto_original.lower()]
+                # 4. Texto con title case
+                if texto_original.title() in correcciones:
+                    return correcciones[texto_original.title()]
+                
+                # Si todo está en mayúsculas, convertir a minúsculas para procesamiento
+                if texto_original.isupper() and len(texto_original) > 1:
+                    texto = texto_original.lower()
+                else:
+                    texto = texto_original
                 
                 # Si no hay corrección exacta, aplicar formateo inteligente
+                # Nota: "y" va en minúsculas, "la" va en minúsculas excepto cuando es primera palabra o después de sigla
                 palabras_minusculas = ['de', 'del', 'la', 'las', 'los', 'el', 'en', 'por', 'para', 
-                                     'con', 'sin', 'sobre', 'bajo', 'entre', 'hasta', 'desde']
+                                     'con', 'sin', 'sobre', 'bajo', 'entre', 'hasta', 'desde', 'y', 'o', 'a']
+                
+                # Lista de siglas conocidas (deben mantenerse en mayúsculas)
+                siglas_conocidas = {
+                    'cdi': 'CDI',
+                    'idtolu': 'IDTOLÚ',
+                    'ie': 'I.E.',
+                    'i.e.': 'I.E.',
+                }
                 
                 # Reemplazos especiales
                 texto = texto.replace('INSTITUCION EDUCATIVA', 'Institución Educativa').replace('INSTITUCIÓN EDUCATIVA', 'Institución Educativa')
                 texto = texto.replace('Intitucion', 'Institución').replace('INTITUCION', 'Institución')
                 texto = texto.replace('Educativa', 'Educativa')
+                texto = texto.replace('investigacion', 'Investigación').replace('INVESTIGACION', 'Investigación')
                 
                 palabras = texto.split()
                 resultado = []
                 for i, palabra in enumerate(palabras):
                     palabra_lower = palabra.lower()
+                    
+                    # Verificar si es una sigla conocida
+                    if palabra_lower in siglas_conocidas:
+                        resultado.append(siglas_conocidas[palabra_lower])
+                        continue
+                    
+                    # Detectar siglas: palabras cortas (2-6 caracteres) que son solo letras mayúsculas o tienen números
+                    # o que empiezan con mayúsculas y son muy cortas
+                    es_sigla = False
+                    if len(palabra) >= 2 and len(palabra) <= 6:
+                        # Si está completamente en mayúsculas y no es una palabra común
+                        if palabra.isupper() and palabra_lower not in palabras_minusculas:
+                            es_sigla = True
+                        # Si tiene números mezclados con letras
+                        elif any(c.isdigit() for c in palabra) and any(c.isalpha() for c in palabra):
+                            es_sigla = True
+                        # Si es muy corta (2-3 caracteres) y está en mayúsculas o title case
+                        elif len(palabra) <= 3 and (palabra.isupper() or (palabra[0].isupper() and palabra[1:].islower())):
+                            # Verificar que no sea una palabra común
+                            if palabra_lower not in palabras_minusculas and palabra_lower not in ['y', 'o', 'a']:
+                                es_sigla = True
+                    
+                    if es_sigla:
+                        resultado.append(palabra.upper())
+                        continue
                     
                     # Correcciones ortográficas
                     if palabra_lower == 'tolu':
@@ -420,14 +485,34 @@ def obtener_lugares():
                     # Primera palabra siempre capitalizada
                     if i == 0:
                         resultado.append(palabra.capitalize())
-                    # Artículos/preposiciones en minúsculas
+                    # "La" después de una sigla (como "CDI La Esperanza") debe ir con mayúscula
+                    elif palabra_lower == 'la' and i > 0 and len(resultado) > 0:
+                        # Verificar si la palabra anterior es una sigla
+                        palabra_anterior = resultado[-1] if resultado else ''
+                        # Si la anterior es una sigla (mayúsculas) o es "CDI", capitalizar "La"
+                        if palabra_anterior.isupper() or palabra_anterior == 'CDI':
+                            resultado.append('La')
+                        else:
+                            resultado.append('la')
+                    # Artículos/preposiciones/conjunciones en minúsculas
                     elif palabra_lower in palabras_minusculas:
                         resultado.append(palabra_lower)
                     # Resto capitalizado
                     else:
                         resultado.append(palabra.capitalize())
                 
-                return ' '.join(resultado)
+                texto_formateado = ' '.join(resultado)
+                
+                # Detectar y encerrar "Sede" entre paréntesis
+                # Patrones: " - Sede X", "Sede X" (al final o después de guion)
+                # Patrón 1: " - Sede X" → " (Sede X)" (cuando hay guion antes)
+                texto_formateado = re.sub(r'\s+-\s+(Sede\s+[^-]+?)(?:\s*-\s*|$)', r' (\1)', texto_formateado)
+                # Patrón 2: "Sede X" al final del texto (sin guion antes, pero puede haber espacio)
+                texto_formateado = re.sub(r'\s+(Sede\s+[A-Za-z0-9\s]+?)(?:\s*-\s*|$)', r' (\1)', texto_formateado)
+                # Limpiar espacios dobles que puedan quedar
+                texto_formateado = re.sub(r'\s+', ' ', texto_formateado).strip()
+                
+                return texto_formateado
             
             def formatear_zona(zona):
                 if not zona or not isinstance(zona, str):

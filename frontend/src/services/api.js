@@ -25,6 +25,76 @@ const API_URL = 'https://www.datos.gov.co/resource/gi7q-5bgv.json';
 const toTitleCase = (texto) => {
   if (!texto || typeof texto !== 'string') return texto;
   
+  // Normalizar espacios múltiples a uno solo
+  const textoNormalizado = texto.replace(/\s+/g, ' ').trim();
+  
+  // Diccionario de correcciones específicas (igual que en el backend)
+  const correcciones = {
+    'I.E. PAULO Freire': 'Institución Educativa Paulo Freire',
+    'Intitucion Educativa JOSE Yemail TOUS - SEDE SAN Isidro': 'Institución Educativa José Yemail Tous (Sede San Isidro)',
+    'CDI LA Esperanza DE LOS Niños': 'CDI La Esperanza de los Niños',
+    'Instituto Pedagogico DEL GOLFO': 'Instituto Pedagógico del Golfo',
+    'CASA DE LA Cultura Municipal': 'Casa de la Cultura Municipal',
+    'VILLA Olimpica': 'Villa Olímpica',
+    'Laguna DE Oxidacion': 'Laguna de Oxidación',
+    'Biblioteca Publica Municipal Hector ROJAS Herazo': 'Biblioteca Pública Municipal Héctor Rojas Herazo',
+    'Iglesia Adventista DEL Septimo DIA EL Santuario': 'Iglesia Adventista del Séptimo Día El Santuario',
+    'Estadio DE Futbol': 'Estadio de Fútbol',
+    'CANCA DE Microfutbol VILLA Nazarth': 'Cancha de Microfútbol Villa Nazareth',
+    'Cancha DE Futbol VILLA Nazareth': 'Cancha de Fútbol Villa Nazareth',
+    'Glorieta Entrada DE Tolú': 'Glorieta entrada de Tolú',
+    'Intitucion Educativa JOSE Yemail TOUS - SEDE Alegria': 'Institución Educativa José Yemail Tous (Sede Alegría)',
+    'Parque Regional Natural Manglares DE Guacamaya': 'Parque Regional Natural Manglares de Guacamaya',
+    'Intitucion Educativa PITA EN MEDIO - SEDE LAS Cruces': 'Institución Educativa Pita en Medio (Sede Las Cruces)',
+    'Intitucion Educativa PITA EN MEDIO - SEDE Principal': 'Institución Educativa Pita en Medio (Sede Principal)',
+    'Intitucion Educativa PITA EN MEDIO - SEDE 2': 'Institución Educativa Pita en Medio (Sede 2)',
+    'Intitucion Educativa PITA ABAJO SEDE Principal': 'Institución Educativa Pita Abajo (Sede Principal)',
+    'Parque Corregimiento PITA ABAJO': 'Parque Corregimiento Pita Abajo',
+    'Cementerio Corregimiento PITA ABAJO': 'Cementerio Corregimiento Pita Abajo',
+    'Intitucion Educativa Educativo NUEVA ERA SEDE Principal': 'Institución Educativa Nueva Era (Sede Principal)',
+    'Intitucion Educativa NUEVA ERA SEDE SANTA LUCIA': 'Institución Educativa Nueva Era (Sede Santa Lucía)',
+    'Intitucion Educativa NUEVA ERA SEDE Puertas Negras': 'Institución Educativa Nueva Era (Sede Puertas Negras)',
+    'Cementerio Corregimiento Puerto VIEJO': 'Cementerio Corregimiento Puerto Viejo',
+    'Estadio DE Softbol Corregimiento Puerto VIEJO': 'Estadio de Sóftbol Corregimiento Puerto Viejo',
+    'Intitucion Educativa Puerto VIEJO SEDE Principal': 'Institución Educativa Puerto Viejo (Sede Principal)',
+    'Intitucion Educativa NUEVA ERA SEDE EL Palmar': 'Institución Educativa Nueva Era (Sede El Palmar)',
+    'Intitucion Educativa Puerto VIEJO SEDE PALO Blanco': 'Institución Educativa Puerto Viejo (Sede Palo Blanco)',
+    'PISTA DE PATINAJE': 'Pista de Patinaje',
+    'PISTA DE PATNAJE': 'Pista de Patinaje',
+    'pista de patinaje': 'Pista de Patinaje',
+    'Pista De Patinaje': 'Pista de Patinaje',
+    'PISTA DE PATINAGE': 'Pista de Patinaje',
+    // Laboratorio IDTOLÚ
+    'LABORATORIO DE INVESTIGACION Y DESARROLLO DE TOLU - IDTOLU': 'Laboratorio de Investigación y Desarrollo de Tolú - IDTOLÚ',
+    'Laboratorio de Investigacion Y Desarrollo de Tolú - Idtolu': 'Laboratorio de Investigación y Desarrollo de Tolú - IDTOLÚ',
+    'LABORATORIO DE INVESTIGACION Y DESARROLLO DE TOLU - IDTOLÚ': 'Laboratorio de Investigación y Desarrollo de Tolú - IDTOLÚ',
+    'laboratorio de investigacion y desarrollo de tolu - idtolu': 'Laboratorio de Investigación y Desarrollo de Tolú - IDTOLÚ',
+    // Instituto Freinet
+    'INSTITUTO FREINET PRE ESCOLAR Y PRIMARIA': 'Instituto Freinet Pre-Escolar y Primaria',
+    'Instituto Freinet Pre Escolar Y Primaria': 'Instituto Freinet Pre-Escolar y Primaria',
+    'Instituto Freinet Pre-Escolar y Primaria': 'Instituto Freinet Pre-Escolar y Primaria',
+    // Oficina Ambiental
+    'OFICINA AMBIENTAL Y AGROPECUARIA': 'Oficina Ambiental y Agropecuaria',
+    'Oficina Ambiental Y Agropecuaria': 'Oficina Ambiental y Agropecuaria',
+    // CDI La Esperanza (asegurar que "La" tenga mayúscula)
+    'CDI LA ESPERANZA DE LOS NIÑOS': 'CDI La Esperanza de los Niños',
+    'CDI la Esperanza de los Niños': 'CDI La Esperanza de los Niños',
+  };
+  
+  // Verificar correcciones en múltiples formatos
+  if (textoNormalizado in correcciones) {
+    return correcciones[textoNormalizado];
+  }
+  if (textoNormalizado.toUpperCase() in correcciones) {
+    return correcciones[textoNormalizado.toUpperCase()];
+  }
+  if (textoNormalizado.toLowerCase() in correcciones) {
+    return correcciones[textoNormalizado.toLowerCase()];
+  }
+  if (textoNormalizado.title() in correcciones) {
+    return correcciones[textoNormalizado.title()];
+  }
+  
   // Reemplazos especiales de frases completas (antes de procesar palabras individuales)
   const reemplazosEspeciales = [
     { 
@@ -42,7 +112,7 @@ const toTitleCase = (texto) => {
   ];
   
   // Aplicar reemplazos especiales
-  let textoProcesado = texto;
+  let textoProcesado = textoNormalizado;
   for (const { patron, reemplazo } of reemplazosEspeciales) {
     textoProcesado = textoProcesado.replace(patron, reemplazo);
   }
@@ -50,11 +120,30 @@ const toTitleCase = (texto) => {
   // Correcciones ortográficas (se aplicarán durante el procesamiento de palabras)
   const correccionesOrtograficas = {
     'tolu': 'Tolú',
-    'turistico': 'Turístico'
+    'turistico': 'Turístico',
+    'futbol': 'Fútbol',
+    'microfutbol': 'Microfútbol',
+    'softbol': 'Sóftbol',
+    'pedagogico': 'Pedagógico',
+    'oxidacion': 'Oxidación',
+    'publica': 'Pública',
+    'septimo': 'Séptimo',
+    'dia': 'Día',
+    'nazarth': 'Nazareth',
+    'alegria': 'Alegría',
+    'lucia': 'Lucía',
+    'canca': 'Cancha',
+    'patinaje': 'Patinaje',
+    'patnaje': 'Patinaje'
   };
   
+  // Si todo está en mayúsculas, normalizar primero
+  if (textoProcesado === textoProcesado.toUpperCase() && textoProcesado.length > 1) {
+    textoProcesado = textoProcesado.toLowerCase();
+  }
+  
   // Palabras que deben ir en minúsculas (excepto si son la primera palabra)
-  // Incluir todas las variaciones en mayúsculas para asegurar que se conviertan
+  // Nota: "y" va en minúsculas, "la" va en minúsculas excepto cuando es primera palabra o después de sigla
   const palabrasMinusculas = [
     'de', 'del', 'la', 'las', 'los', 'el', 'en', 'por', 'para', 
     'con', 'sin', 'sobre', 'bajo', 'entre', 'hasta', 'desde', 
@@ -62,14 +151,46 @@ const toTitleCase = (texto) => {
     'y', 'o', 'a', 'un', 'una', 'unos', 'unas'
   ];
   
+  // Lista de siglas conocidas (deben mantenerse en mayúsculas)
+  const siglasConocidas = {
+    'cdi': 'CDI',
+    'idtolu': 'IDTOLÚ',
+    'ie': 'I.E.',
+    'i.e.': 'I.E.',
+  };
+  
   // Detectar siglas (palabras cortas que están completamente en mayúsculas o tienen puntos)
   const esSigla = (palabra) => {
+    const palabraLower = palabra.toLowerCase();
+    
+    // Verificar si es una sigla conocida
+    if (palabraLower in siglasConocidas) {
+      return true;
+    }
+    
     // Si tiene puntos, probablemente es una sigla (I.E., C.D.I., etc.)
     if (palabra.includes('.')) return true;
-    // Si es muy corta (1-4 caracteres) y está en mayúsculas, probablemente es sigla
-    if (palabra.length <= 4 && palabra === palabra.toUpperCase() && palabra.length > 1) return true;
+    
+    // Si es muy corta (2-6 caracteres) y está en mayúsculas, probablemente es sigla
+    if (palabra.length >= 2 && palabra.length <= 6 && palabra === palabra.toUpperCase() && !palabrasMinusculas.includes(palabraLower)) {
+      return true;
+    }
+    
     // Si tiene números mezclados con letras mayúsculas, probablemente es sigla
-    if (/^[A-Z0-9]+$/.test(palabra) && palabra.length <= 5) return true;
+    if (/^[A-Z0-9]+$/.test(palabra) && palabra.length <= 6) return true;
+    
+    // Si es muy corta (2-3 caracteres) y está en mayúsculas o title case
+    if (palabra.length >= 2 && palabra.length <= 3) {
+      const esMayusculas = palabra === palabra.toUpperCase();
+      const esTitleCase = palabra[0] === palabra[0].toUpperCase() && palabra.slice(1) === palabra.slice(1).toLowerCase();
+      if (esMayusculas || esTitleCase) {
+        // Verificar que no sea una palabra común
+        if (!palabrasMinusculas.includes(palabraLower) && palabraLower !== 'y') {
+          return true;
+        }
+      }
+    }
+    
     return false;
   };
   
@@ -79,6 +200,11 @@ const toTitleCase = (texto) => {
     .map((palabra, index) => {
       let palabraOriginal = palabra.trim();
       const palabraLower = palabraOriginal.toLowerCase();
+      
+      // Verificar si es una sigla conocida
+      if (palabraLower in siglasConocidas) {
+        return siglasConocidas[palabraLower];
+      }
       
       // Aplicar correcciones ortográficas primero (antes de cualquier otra transformación)
       let palabraCorregida = correccionesOrtograficas[palabraLower];
@@ -109,7 +235,19 @@ const toTitleCase = (texto) => {
         return primeraLetra + resto;
       }
       
-      // Si es un artículo/preposición, poner en minúsculas (sin importar cómo venga)
+      // "La" después de una sigla (como "CDI La Esperanza") debe ir con mayúscula
+      if (palabraLower === 'la' && index > 0 && resultado.length > 0) {
+        // Verificar si la palabra anterior es una sigla
+        const palabraAnterior = resultado[resultado.length - 1] || '';
+        // Si la anterior es una sigla (mayúsculas) o es "CDI", capitalizar "La"
+        if (palabraAnterior === palabraAnterior.toUpperCase() || palabraAnterior === 'CDI') {
+          return 'La';
+        } else {
+          return 'la';
+        }
+      }
+      
+      // Si es un artículo/preposición/conjunción, poner en minúsculas (sin importar cómo venga)
       if (palabrasMinusculas.includes(palabraLower)) {
         return palabraLower;
       }
@@ -120,6 +258,16 @@ const toTitleCase = (texto) => {
       return primeraLetra + resto;
     })
     .join(' ');
+  
+  // Detectar y encerrar "Sede" entre paréntesis
+  // Patrón 1: " - Sede X" → " (Sede X)" (cuando hay guion antes)
+  textoProcesado = textoProcesado.replace(/\s+-\s+(Sede\s+[^-]+?)(?:\s*-\s*|$)/g, ' ($1)');
+  // Patrón 2: "Sede X" al final del texto (sin guion antes, pero puede haber espacio)
+  textoProcesado = textoProcesado.replace(/\s+(Sede\s+[A-Za-z0-9\s]+?)(?:\s*-\s*|$)/g, ' ($1)');
+  // Limpiar espacios dobles que puedan quedar
+  textoProcesado = textoProcesado.replace(/\s+/g, ' ').trim();
+  
+  return textoProcesado;
 };
 
 /**
@@ -304,7 +452,7 @@ export const obtenerLugares = async () => {
  */
 export const obtenerLugaresConCache = async (cacheTime = 5 * 60 * 1000) => {
   // Versión del caché - cambiar esto invalida el caché anterior
-  const CACHE_VERSION = 'v7-nombres-corregidos';
+  const CACHE_VERSION = 'v11-sede-entre-parentesis';
   const cacheKey = `dime-lugares-cache-${CACHE_VERSION}`;
   const cacheTimestampKey = `dime-lugares-cache-timestamp-${CACHE_VERSION}`;
   

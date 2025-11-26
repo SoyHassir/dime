@@ -184,23 +184,28 @@ function App() {
     }
   };
 
-  // --- FUNCIÓN DE ENTRADA DE VOZ (SPEECH-TO-TEXT) ---
+  // --- FUNCIÓN DE ENTRADA DE VOZ (SPEECH-TO-TEXT) - MEJORADA PARA iPHONE ---
   const activarVozInput = () => {
-    if (!('webkitSpeechRecognition' in window)) {
-      alert("Tu navegador (ej: Safari) no soporta la entrada de voz. Intenta en Chrome.");
+    // A. Compatibilidad cruzada (Chrome vs Safari)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Tu navegador no soporta comandos de voz. Por favor usa el teclado.");
       return;
     }
 
-    const recognition = new window.webkitSpeechRecognition();
+    const recognition = new SpeechRecognition();
     recognition.lang = 'es-CO';
     recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
     recognition.continuous = false;
-    
+
     // Sonido de inicio (estilo Google Voice)
     reproducirSonidoInicio();
     
     // Mostrar modal de escucha
     setEscuchando(true);
+    
     recognition.start();
 
     recognition.onresult = (event) => {
@@ -220,39 +225,37 @@ function App() {
         setEscuchando(false);
       }
     };
-    
+
+    // C. Manejo de Errores de Permiso (Clave para iPhone)
     recognition.onerror = (event) => {
-      // Manejar diferentes tipos de errores
-      let mensajeError = '';
-      switch(event.error) {
-        case 'network':
-          mensajeError = 'Error de conexión. Verifica tu internet e intenta de nuevo.';
-          break;
-        case 'no-speech':
-          mensajeError = 'No se detectó voz. Intenta hablar más fuerte o más cerca del micrófono.';
-          break;
-        case 'audio-capture':
-          mensajeError = 'No se pudo acceder al micrófono. Verifica los permisos.';
-          break;
-        case 'aborted':
-          mensajeError = 'Reconocimiento cancelado.';
-          break;
-        default:
-          mensajeError = `Error: ${event.error}. Intenta de nuevo.`;
-      }
+      console.error("Error de voz:", event.error);
       
-      // Cerrar modal y mostrar mensaje de error
+      // Cerrar modal y detener sonidos
       setEscuchando(false);
       setRespondiendo(false);
       reproducirSonidoFin();
       
-      // Mostrar mensaje de error al usuario
-      if (event.error !== 'aborted') {
-        alert(mensajeError);
+      // Manejar diferentes tipos de errores con mensajes específicos
+      if (event.error === 'not-allowed') {
+        alert("⚠️ Permiso denegado. Ve a Configuración > Safari > Micrófono y permite el acceso a DIME.");
+      } else if (event.error === 'service-not-allowed') {
+        alert("⚠️ Error de servicio. Asegúrate de tener activado el 'Dictado' en la configuración de tu iPhone.");
+      } else if (event.error === 'network') {
+        alert("Error de conexión. Verifica tu internet e intenta de nuevo.");
+      } else if (event.error === 'no-speech') {
+        alert("No se detectó voz. Intenta hablar más fuerte o más cerca del micrófono.");
+      } else if (event.error === 'audio-capture') {
+        alert("No se pudo acceder al micrófono. Verifica los permisos en la configuración de tu dispositivo.");
+      } else if (event.error === 'aborted') {
+        // No mostrar alerta para errores de cancelación
+        return;
+      } else {
+        alert(`No te escuché bien. Intenta acercarte al micrófono. Error: ${event.error}`);
       }
     };
 
     recognition.onend = () => {
+      // Si el reconocimiento terminó sin resultado y el modal sigue abierto, cerrarlo
       if (escuchando) {
         setEscuchando(false);
         reproducirSonidoFin();

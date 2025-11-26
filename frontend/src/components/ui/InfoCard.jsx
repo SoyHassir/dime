@@ -54,10 +54,18 @@ export const InfoCard = ({ titulo, categoria, direccion, onClose }) => {
       </div>
 
       {/* Botón de Acción Principal */}
-      <button className="w-full mt-6 bg-blue-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2">
+      <a 
+        href="tel:+573001234567"
+        className="w-full mt-6 bg-blue-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2 no-underline"
+        onClick={(e) => {
+          // Abrir aplicación de teléfono con número ficticio
+          window.location.href = 'tel:+573001234567';
+          e.preventDefault();
+        }}
+      >
         <Phone className="w-4 h-4" />
         Contactar
-      </button>
+      </a>
 
     </motion.div>
   );
