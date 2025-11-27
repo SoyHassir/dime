@@ -16,7 +16,7 @@
 
 ## 📖 Descripción
 
-DIME es una **Progressive Web App (PWA)** que funciona como directorio inteligente de entidades públicas del municipio de Santiago de Tolú, Colombia. La aplicación combina un mapa interactivo, un asistente de IA conversacional y capacidades de voz para facilitar el acceso a la información de manera intuitiva y accesible.
+DIME es una **Progressive Web App (PWA)** que funciona como directorio inteligente de entidades públicas del municipio de Santiago de Tolú, Colombia. La aplicación combina un mapa interactivo, un asistente de IA conversacional y capacidades de voz para facilitar el acceso a información de manera intuitiva y accesible.
 
 ### Características
 
@@ -161,11 +161,11 @@ dime/
 
 ## 📱 Características PWA
 
-- ✅ **Manifest configurado**: Iconos, tema, display mode
-- ✅ **Service Worker**: Caché offline y actualizaciones automáticas
-- ✅ **Instalable**: Se puede agregar a la pantalla de inicio
-- ✅ **Responsive**: Optimizado para móviles y desktop
-- ✅ **Offline**: Funciona sin conexión (con caché)
+- ✅ Iconos, tema, display mode
+- ✅ Caché offline y actualizaciones automáticas
+- ✅ Se puede agregar a la pantalla de inicio
+- ✅ Optimizado para móviles y desktop
+- ✅ Funciona sin conexión (con caché)
 
 ---
 

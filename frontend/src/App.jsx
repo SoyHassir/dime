@@ -515,7 +515,7 @@ function App() {
               <div className="bg-white rounded-[2rem] shadow-2xl pointer-events-auto border border-gray-100">
                 {/* Header con botón minimizar */}
                 <div className="flex justify-end items-center p-3 pb-0">
-                  {/* Botón Minimizar */}
+                {/* Botón Minimizar */}
                   <button
                     onClick={() => setChatMinimizado(true)}
                     className="text-gray-400 hover:text-gray-600 transition-colors active:scale-90 p-1"
@@ -739,12 +739,12 @@ function App() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Mensaje detallado
                   </label>
-                  <textarea 
-                    value={textoReporte}
-                    onChange={(e) => setTextoReporte(e.target.value)}
+                <textarea 
+                  value={textoReporte}
+                  onChange={(e) => setTextoReporte(e.target.value)}
                     className="w-full bg-gray-50 rounded-xl p-3 text-sm text-gray-700 border border-gray-200 focus:border-blue-500 outline-none h-24 resize-none"
                     placeholder="Describe el error con más detalle... (Ej: El horario indica 8 AM pero en realidad abre a las 7 AM)"
-                  ></textarea>
+                ></textarea>
                 </div>
                 
                 <button 
