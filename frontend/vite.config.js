@@ -36,6 +36,11 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Forzar actualización del service worker para evitar cacheo de versiones viejas
+        skipWaiting: true,
+        clientsClaim: true,
+        // Excluir los iconos de Leaflet del precache para que se carguen directamente
+        globIgnores: ['**/leaflet-icons/**'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.run\.app\/api\/.*/i,
@@ -45,6 +50,21 @@ export default defineConfig({
               expiration: {
                 maxEntries: 50,
                 maxAgeSeconds: 60 * 60 * 24 // 24 horas
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // Cachear los iconos de Leaflet con estrategia CacheFirst
+            urlPattern: /\/leaflet-icons\/.*\.png$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'leaflet-icons-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 año
               },
               cacheableResponse: {
                 statuses: [0, 200]
