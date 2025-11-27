@@ -6,15 +6,11 @@ import 'leaflet/dist/leaflet.css';
 import { InfoCard } from '../../components/ui/InfoCard';
 
 // Fix para los iconos de Leaflet (problema común en React)
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
-
-// Configurar el icono por defecto de Leaflet
+// Usar rutas absolutas desde public para que funcionen en producción
 const DefaultIcon = L.icon({
-  iconUrl: icon,
-  iconRetinaUrl: iconRetina,
-  shadowUrl: iconShadow,
+  iconUrl: '/leaflet-icons/marker-icon.png',
+  iconRetinaUrl: '/leaflet-icons/marker-icon-2x.png',
+  shadowUrl: '/leaflet-icons/marker-shadow.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
