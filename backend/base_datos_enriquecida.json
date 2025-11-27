@@ -13,7 +13,9 @@
       ]
     },
     "coordenadas": "9.52273669176002,-75.5840564886198",
-    "direccion_ia": "Carrera 3, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 3, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EQUIPAMIENTO RELIGIOSO",
@@ -29,7 +31,9 @@
       ]
     },
     "coordenadas": "9.52401545430925,-75.5730361073493",
-    "direccion_ia": "El Edén, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "El Edén, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -45,7 +49,9 @@
       ]
     },
     "coordenadas": "9.45960059805443,-75.5399729781332",
-    "direccion_ia": "Tolú, Toluviejo, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Tolú, Toluviejo, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "ESPACIO PÚBLICO",
@@ -61,7 +67,9 @@
       ]
     },
     "coordenadas": "9.52148805440973,-75.57869781001",
-    "direccion_ia": "Calle 16, El Progreso, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 16, El Progreso, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Progreso",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "COMERCIO Y SERVICIOS",
@@ -77,7 +85,9 @@
       ]
     },
     "coordenadas": "9.52267317830817,-75.5798861057977",
-    "direccion_ia": "Carrera 7, Ciudadela el Golfo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 7, Ciudadela el Golfo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Ciudadela El Golfo",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "ATENCIÓN SOCIAL / DERECHOS HUMANOS",
@@ -93,7 +103,9 @@
       ]
     },
     "coordenadas": "9.52273669176002,-75.5840564886198",
-    "direccion_ia": "Carrera 3, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 3, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -109,7 +121,9 @@
       ]
     },
     "coordenadas": "9.52258811142932,-75.5815942865581",
-    "direccion_ia": "Calle 15, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 15, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -125,7 +139,9 @@
       ]
     },
     "coordenadas": "9.44953836984671,-75.5788984882271",
-    "direccion_ia": "ESCUELA COINST PUERTO VIEJO, Vía Puerto Viejo, Tolú, Sincelejo, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "ESCUELA COINST PUERTO VIEJO, Vía Puerto Viejo, Tolú, Sincelejo, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Puerto Viejo",
+    "tipo_zona": "Cabecera corregimental"
   },
   {
     "categoria": "EQUIPAMIENTO RELIGIOSO",
@@ -141,7 +157,9 @@
       ]
     },
     "coordenadas": "9.52403804649452,-75.5836054642776",
-    "direccion_ia": "Santiago Apóstol, Calle 16, El Progreso, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Santiago Apóstol, Calle 16, El Progreso, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Progreso",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "ESPACIO PÚBLICO",
@@ -157,7 +175,9 @@
       ]
     },
     "coordenadas": "9.61431652902802,-75.5726545577224",
-    "direccion_ia": "Cienaga las Guacamayas, Vía Tolu-Cienaga del Frances, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Cienaga las Guacamayas, Vía Tolu-Cienaga del Frances, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Frances",
+    "tipo_zona": "Subzona"
   },
   {
     "categoria": "ESPACIO PÚBLICO",
@@ -173,7 +193,9 @@
       ]
     },
     "coordenadas": "9.52382997455125,-75.5841855047992",
-    "direccion_ia": "Calle 15, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 15, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "INFRAESTRUCTURA DE TRANSPORTE",
@@ -189,7 +211,9 @@
       ]
     },
     "coordenadas": "9.52185462835008,-75.5865365570509",
-    "direccion_ia": "Carrera 1, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 1, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "ESCENARIO DEPORTIVO",
@@ -205,7 +229,9 @@
       ]
     },
     "coordenadas": "9.52975465542165,-75.5705973356989",
-    "direccion_ia": "Urbanización Tulio Villalobos, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Urbanización Tulio Villalobos, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -221,7 +247,9 @@
       ]
     },
     "coordenadas": "9.52052948287539,-75.5783682691402",
-    "direccion_ia": "Urbanización Golfo de Morrosquillo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Urbanización Golfo de Morrosquillo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -237,7 +265,9 @@
       ]
     },
     "coordenadas": "9.64815695270663,-75.5076023863011",
-    "direccion_ia": "ESCUELA RUR LAS CRUCES, 90, Pita en Medio, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "ESCUELA RUR LAS CRUCES, 90, Pita en Medio, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Pita En Medio",
+    "tipo_zona": "Cabecera corregimental"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -253,7 +283,9 @@
       ]
     },
     "coordenadas": "9.52504232272516,-75.5796789816729",
-    "direccion_ia": "Calle 18, El Edén, Tolú, Morrosquillo, Sucre, 706010, Colombia"
+    "direccion_ia": "Calle 18, El Edén, Tolú, Morrosquillo, Sucre, 706010, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "BIENESTAR SOCIAL / PROGRAMAS SOCIALES",
@@ -269,7 +301,9 @@
       ]
     },
     "coordenadas": "9.52287327029899,-75.5822426842986",
-    "direccion_ia": "Carrera 5, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 5, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Calle Nueva",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "ESCENARIO DEPORTIVO",
@@ -285,7 +319,9 @@
       ]
     },
     "coordenadas": "9.52231503943724,-75.5733220468925",
-    "direccion_ia": "El Edén, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "El Edén, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EQUIPAMIENTO FUNERARIO",
@@ -301,7 +337,9 @@
       ]
     },
     "coordenadas": "9.62744176689855,-75.5103979818878",
-    "direccion_ia": "Calle 1, Pita Abajo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 1, Pita Abajo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Pita Abajo",
+    "tipo_zona": "Cabecera corregimental"
   },
   {
     "categoria": "ESCENARIO DEPORTIVO",
@@ -317,7 +355,9 @@
       ]
     },
     "coordenadas": "9.52135019615221,-75.5732884697161",
-    "direccion_ia": "Urbanización Tulio Villalobos, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Urbanización Tulio Villalobos, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "BIENESTAR SOCIAL / ATENCIÓN POBLACIONAL",
@@ -333,7 +373,9 @@
       ]
     },
     "coordenadas": "9.5193417008916,-75.5826020328267",
-    "direccion_ia": "Calle 10, El Palmar, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 10, El Palmar, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Palmar",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -349,7 +391,9 @@
       ]
     },
     "coordenadas": "9.53233056472996,-75.5804177975628",
-    "direccion_ia": "Carrera 3, San Isidro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 3, San Isidro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "San Isidro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -365,7 +409,9 @@
       ]
     },
     "coordenadas": "9.47514595464937,-75.5311545272908",
-    "direccion_ia": "ESCUELA RUR STA LUCIA, A Fincas, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "ESCUELA RUR STA LUCIA, A Fincas, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EDUCACION",
@@ -381,7 +427,9 @@
       ]
     },
     "coordenadas": "9.52287327029899,-75.5822426842986",
-    "direccion_ia": "Carrera 5, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 5, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Calle Nueva",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -397,7 +445,9 @@
       ]
     },
     "coordenadas": "9.64470299337006,-75.4944722002238",
-    "direccion_ia": "Calle 5, Pita en Medio, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 5, Pita en Medio, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Pita En Medio",
+    "tipo_zona": "Cabecera corregimental"
   },
   {
     "categoria": "ESPACIO PÚBLICO",
@@ -413,7 +463,9 @@
       ]
     },
     "coordenadas": "9.52094182910524,-75.5760301733174",
-    "direccion_ia": "90, El Edén, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "90, El Edén, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EQUIPAMIENTO RELIGIOSO",
@@ -429,7 +481,9 @@
       ]
     },
     "coordenadas": "9.52458397888974,-75.5852622538671",
-    "direccion_ia": "Carrera 1, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 1, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "SEGURIDAD / GESTIÓN DEL RIESGO",
@@ -445,7 +499,9 @@
       ]
     },
     "coordenadas": "9.52140269440158,-75.5778691817576",
-    "direccion_ia": "Calle 15, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 15, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "SALUD",
@@ -461,7 +517,9 @@
       ]
     },
     "coordenadas": "9.52273669176002,-75.5840564886198",
-    "direccion_ia": "Carrera 3, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 3, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "ESPACIO PÚBLICO",
@@ -477,7 +535,9 @@
       ]
     },
     "coordenadas": "9.62934300150709,-75.5117861835655",
-    "direccion_ia": "Pita Abajo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Pita Abajo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Pita Abajo",
+    "tipo_zona": "Cabecera corregimental"
   },
   {
     "categoria": "EQUIPAMIENTO FUNERARIO",
@@ -493,7 +553,9 @@
       ]
     },
     "coordenadas": "9.45056359135718,-75.5860641994072",
-    "direccion_ia": "Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "ESCENARIO DEPORTIVO",
@@ -509,7 +571,9 @@
       ]
     },
     "coordenadas": "9.4494101898708,-75.583171275942",
-    "direccion_ia": "Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "SERVICIOS PÚBLICOS / SANEAMIENTO",
@@ -525,7 +589,9 @@
       ]
     },
     "coordenadas": "9.54197936661002,-75.5720729179309",
-    "direccion_ia": "Playa Hermosa, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Playa Hermosa, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Playa Hermosa",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -541,7 +607,9 @@
       ]
     },
     "coordenadas": "9.51993193419593,-75.585272370616",
-    "direccion_ia": "Carrera 3, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 3, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "SEGURIDAD VIAL / MOVILIDAD",
@@ -557,7 +625,9 @@
       ]
     },
     "coordenadas": "9.52418940189782,-75.5824919763774",
-    "direccion_ia": "Carrera 4, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 4, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Calle Nueva",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "ADMINISTRACIÓN PÚBLICA",
@@ -573,7 +643,9 @@
       ]
     },
     "coordenadas": "9.52418940189782,-75.5824919763774",
-    "direccion_ia": "Carrera 4, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 4, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Calle Nueva",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "CULTURA",
@@ -589,7 +661,9 @@
       ]
     },
     "coordenadas": "9.52816419223338,-75.5823963524813",
-    "direccion_ia": "Calle 20, El Cangrejo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 20, El Cangrejo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Cangrejo",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "SEGURIDAD / ATENCIÓN SOCIAL",
@@ -605,7 +679,9 @@
       ]
     },
     "coordenadas": "9.52418940189782,-75.5824919763774",
-    "direccion_ia": "Carrera 4, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 4, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Calle Nueva",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -621,7 +697,9 @@
       ]
     },
     "coordenadas": "9.52584646314881,-75.5836590421237",
-    "direccion_ia": "ESCUELA URB SEGUNDA DE NIÑAS STA TERESITA, Carrera 2, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "ESCUELA URB SEGUNDA DE NIÑAS STA TERESITA, Carrera 2, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "ESCENARIO DEPORTIVO",
@@ -637,7 +715,9 @@
       ]
     },
     "coordenadas": "9.51795222343201,-75.5806572449542",
-    "direccion_ia": "Calle 9, El Palmar, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 8, Urbanización Betania, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -653,7 +733,9 @@
       ]
     },
     "coordenadas": "9.48681744922552,-75.5697712607316",
-    "direccion_ia": "Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EQUIPAMIENTO FUNERARIO",
@@ -669,7 +751,9 @@
       ]
     },
     "coordenadas": "9.52591503615218,-75.5802701524263",
-    "direccion_ia": "Carrera 6, El Progreso, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 6, El Progreso, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Progreso",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "ESCENARIO DEPORTIVO",
@@ -685,7 +769,9 @@
       ]
     },
     "coordenadas": "9.51839027202368,-75.579027170434",
-    "direccion_ia": "Calle 11, Urbanización Golfo de Morrosquillo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 11, Urbanización Golfo de Morrosquillo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -701,7 +787,9 @@
       ]
     },
     "coordenadas": "9.49224261269115,-75.5178602436866",
-    "direccion_ia": "ESCUELA RUR NVA ERA, Calle 2, Nueva Era, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "ESCUELA RUR NVA ERA, Calle 2, Nueva Era, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Nueva Era",
+    "tipo_zona": "Cabecera corregimental"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -717,7 +805,9 @@
       ]
     },
     "coordenadas": "9.64472570001295,-75.4938946233847",
-    "direccion_ia": "ESCUELA RUR PITA EN MEDIO, Calle 5, Pita en Medio, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "ESCUELA RUR PITA EN MEDIO, Calle 5, Pita en Medio, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Pita En Medio",
+    "tipo_zona": "Cabecera corregimental"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -733,7 +823,9 @@
       ]
     },
     "coordenadas": "9.53164462860307,-75.5804053378",
-    "direccion_ia": "Carrera 24A, La Esperanza, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 24A, La Esperanza, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "La Esperanza",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "CENTRO DE DESARROLLO INFANTIL",
@@ -749,7 +841,9 @@
       ]
     },
     "coordenadas": "9.52904293389563,-75.5777219741769",
-    "direccion_ia": "Urbanización Maravilla, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Urbanización Maravilla, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -765,7 +859,9 @@
       ]
     },
     "coordenadas": "9.52118122265064,-75.5791905885858",
-    "direccion_ia": "Carrera 9, Urbanización Golfo de Morrosquillo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 9, Urbanización Golfo de Morrosquillo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -781,7 +877,9 @@
       ]
     },
     "coordenadas": "9.51966415199429,-75.5859868978089",
-    "direccion_ia": "Calle 9, Mafufo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 9, Mafufo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Mafufo",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -797,7 +895,9 @@
       ]
     },
     "coordenadas": "9.52369869462653,-75.5835449671582",
-    "direccion_ia": "COLEGIO MPAL STA TERESITA, Camellón, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "COLEGIO MPAL STA TERESITA, Camellón, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -813,7 +913,9 @@
       ]
     },
     "coordenadas": "9.52812722961906,-75.582526134094",
-    "direccion_ia": "Calle 20, El Cangrejo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 20, El Cangrejo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Cangrejo",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "SEGURIDAD",
@@ -829,7 +931,9 @@
       ]
     },
     "coordenadas": "9.52418940189782,-75.5824919763774",
-    "direccion_ia": "Carrera 4, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 4, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Calle Nueva",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "CONTROL Y VIGILANCIA / DERECHOS HUMANOS",
@@ -845,7 +949,9 @@
       ]
     },
     "coordenadas": "9.52287327029899,-75.5822426842986",
-    "direccion_ia": "Carrera 5, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 5, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Calle Nueva",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "ESPACIO PÚBLICO",
@@ -861,7 +967,9 @@
       ]
     },
     "coordenadas": "9.51553167912341,-75.5829110241017",
-    "direccion_ia": "Urbanización Betania, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Urbanización Betania, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -877,7 +985,9 @@
       ]
     },
     "coordenadas": "9.52334045344253,-75.5818664816771",
-    "direccion_ia": "Carrera 5, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 5, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Calle Nueva",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -893,7 +1003,9 @@
       ]
     },
     "coordenadas": "9.52063572803664,-75.5834044707978",
-    "direccion_ia": "Calle 11, Urbanización Golfo de Morrosquillo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 11, Urbanización Golfo de Morrosquillo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "ESCENARIO DEPORTIVO",
@@ -909,7 +1021,9 @@
       ]
     },
     "coordenadas": "9.52310647729408,-75.5739925571129",
-    "direccion_ia": "Estadio de futbol, Calle 17, El Edén, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Estadio de futbol, Calle 17, El Edén, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -925,7 +1039,9 @@
       ]
     },
     "coordenadas": "9.47734618618822,-75.6008452417788",
-    "direccion_ia": "Tienda El Paisita de Oro, 90, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Tienda El Paisita de Oro, 90, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "INFRAESTRUCTURA DE TRANSPORTE",
@@ -941,7 +1057,9 @@
       ]
     },
     "coordenadas": "9.51442363065399,-75.5860541143767",
-    "direccion_ia": "Aeropuerto Golfo de Morrosquillo, Vía La Loma, Luis Carlos Galán, Tolú, Morrosquillo, Sucre, 706010, Colombia"
+    "direccion_ia": "Aeropuerto Golfo de Morrosquillo, Vía La Loma, Luis Carlos Galán, Tolú, Morrosquillo, Sucre, 706010, Colombia",
+    "barrio_detectado": "La Loma",
+    "tipo_zona": "Vereda"
   },
   {
     "categoria": "CIENCIA, TECNOLOGÍA E INNOVACIÓN",
@@ -957,7 +1075,9 @@
       ]
     },
     "coordenadas": "9.51088757856396,-75.5805838192435",
-    "direccion_ia": "Tolú Nuevo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Tolú Nuevo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "SEGURIDAD",
@@ -973,7 +1093,9 @@
       ]
     },
     "coordenadas": "9.52352952332221,-75.5822344113478",
-    "direccion_ia": "Calle 16, El Progreso, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 16, El Progreso, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Progreso",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -989,7 +1111,9 @@
       ]
     },
     "coordenadas": "9.63216204364002,-75.5111863956",
-    "direccion_ia": "Calle 7A, Pita Abajo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 7A, Pita Abajo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Pita Abajo",
+    "tipo_zona": "Cabecera corregimental"
   },
   {
     "categoria": "ESPACIO PÚBLICO",
@@ -1005,7 +1129,9 @@
       ]
     },
     "coordenadas": "9.5193354033174,-75.5814474784179",
-    "direccion_ia": "Carrera 7, Ciudadela el Golfo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 7, Ciudadela el Golfo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Ciudadela El Golfo",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "ESPACIO PÚBLICO",
@@ -1021,7 +1147,9 @@
       ]
     },
     "coordenadas": "9.52367638759188,-75.5820278917221",
-    "direccion_ia": "Calle 16, El Progreso, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 16, El Progreso, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Progreso",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -1037,7 +1165,9 @@
       ]
     },
     "coordenadas": "9.5235549701125,-75.5796892413411",
-    "direccion_ia": "Carrera 7, Ciudadela el Golfo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 7, Ciudadela el Golfo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Ciudadela El Golfo",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -1053,7 +1183,9 @@
       ]
     },
     "coordenadas": "9.52460230089717,-75.5827207040782",
-    "direccion_ia": "INSTITUCION FREINET, Calle 17, El Edén, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "INSTITUCION FREINET, Calle 17, El Edén, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "ADMINISTRACIÓN PÚBLICA",
@@ -1069,7 +1201,9 @@
       ]
     },
     "coordenadas": "9.50978834653173,-75.5772978139048",
-    "direccion_ia": "Calle 4H, Tolú Nuevo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 4H, Tolú Nuevo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Zona General",
+    "tipo_zona": "General"
   },
   {
     "categoria": "EDUCACIÓN",
@@ -1085,7 +1219,9 @@
       ]
     },
     "coordenadas": "9.57462232978627,-75.5719388079894",
-    "direccion_ia": "Vía Tolu-Cienaga del Frances, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Vía Tolu-Cienaga del Frances, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Frances",
+    "tipo_zona": "Subzona"
   },
   {
     "categoria": "ADMINISTRACIÓN PÚBLICA",
@@ -1101,7 +1237,9 @@
       ]
     },
     "coordenadas": "9.52413376409301,-75.5847244766944",
-    "direccion_ia": "Carrera 2, Centro, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 2, Centro, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Centro",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "CULTURA",
@@ -1117,7 +1255,9 @@
       ]
     },
     "coordenadas": "9.52682254847148,-75.582146805382",
-    "direccion_ia": "Calle 19, El Cangrejo, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Calle 19, El Cangrejo, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "El Cangrejo",
+    "tipo_zona": "Barrio"
   },
   {
     "categoria": "MEDIO AMBIENTE / DESARROLLO RURAL",
@@ -1133,6 +1273,8 @@
       ]
     },
     "coordenadas": "9.52287327029899,-75.5822426842986",
-    "direccion_ia": "Carrera 5, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia"
+    "direccion_ia": "Carrera 5, Calle Nueva, Tolú, Morrosquillo, Sucre, Colombia",
+    "barrio_detectado": "Calle Nueva",
+    "tipo_zona": "Barrio"
   }
 ]

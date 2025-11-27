@@ -85,6 +85,9 @@ def actualizar_memoria_ia():
                 cat = item.get('categoria', 'General')
                 # Usar direccion_ia (dirección humana) en lugar de zona
                 direccion = item.get('direccion_ia', None)
+                # Nuevos campos: barrio_detectado y tipo_zona
+                barrio_detectado = item.get('barrio_detectado', 'Zona General')
+                tipo_zona = item.get('tipo_zona', 'General')
                 
                 # Formateo inteligente de texto (usa la misma función de corrección)
                 def to_title_case(texto):
@@ -189,12 +192,13 @@ def actualizar_memoria_ia():
                 cat_formateada = to_title_case(cat)
                 
                 # Formato optimizado para que Gemini lea rápido
+                # Nuevo formato: incluye tipo_zona y barrio_detectado
                 if direccion:
-                    texto += f"- {nombre_formateado} ({cat_formateada}). Dirección: {direccion}.\n"
+                    texto += f"- {nombre_formateado} ({cat_formateada}). Ubicado en {tipo_zona}: {barrio_detectado}. Dirección ref: {direccion}.\n"
                 else:
-                    # Si no hay dirección, usar zona como fallback
+                    # Si no hay dirección, usar zona como fallback pero mantener barrio_detectado
                     zona = item.get('zona', 'No registrada')
-                    texto += f"- {nombre_formateado} ({cat_formateada}). Zona: {zona}.\n"
+                    texto += f"- {nombre_formateado} ({cat_formateada}). Ubicado en {tipo_zona}: {barrio_detectado}. Zona: {zona}.\n"
             
             contexto_tolu = texto
             print(f"✅ DIME memorizó {len(datos)} lugares desde archivo enriquecido.")
@@ -579,6 +583,12 @@ async def chat_endpoint(mensaje: MensajeUsuario):
         4. **SÉ EXTREMADAMENTE CONCISO Y DIRECTO**. Limita tu respuesta a un MÁXIMO de dos (2) frases y no más de 30 palabras.
 
         5. Cuando te pregunten por una entidad general (ej: "Alcaldía"), prioriza solo la sede principal o la más relevante (ej: "Palacio Municipal").
+
+        6. **IMPORTANTE - PRECISIÓN TERRITORIAL**: 
+           - Si una entidad está ubicada en una **Vereda** o **Corregimiento** (zona rural), MENCIONA EXPLÍCITAMENTE esto en tu respuesta. 
+           - Ejemplos: "Está ubicada en el Corregimiento de Pita Abajo" o "Se encuentra en la Vereda de...". 
+           - Si está en un **Barrio** (zona urbana), puedes mencionarlo pero no es obligatorio.
+           - Esto es VITAL para que los ciudadanos sepan si deben desplazarse a zona rural, ya que implica mayor distancia y tiempo de viaje.
         
         --- INFORMACIÓN OFICIAL (TU MEMORIA) ---
 

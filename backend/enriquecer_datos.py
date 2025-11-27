@@ -14,6 +14,10 @@ DATASET_ID = "gi7q-5bgv"
 BASE_URL = f"https://www.datos.gov.co/resource/{DATASET_ID}.json"
 API_TOKEN = "CVraNSsLcjWDoVyJlV6LEmEaU"
 
+# Dataset de Barrios de Tolú
+ID_BARRIOS = "njk4-ygvk"
+URL_BARRIOS = f"https://www.datos.gov.co/resource/{ID_BARRIOS}.json?$limit=1000"
+
 # Inicializar geocodificador
 geolocator = Nominatim(user_agent="dime-tolu-app")
 
@@ -51,6 +55,97 @@ def obtener_coordenadas(item):
     except:
         return None, None
 
+def descargar_lista_barrios():
+    """Descarga la lista oficial de barrios, corregimientos y veredas de Tolú"""
+    try:
+        headers = {
+            "X-App-Token": API_TOKEN,
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        response = requests.get(URL_BARRIOS, headers=headers)
+        response.raise_for_status()
+        datos = response.json()
+        
+        lista_barrios = []
+        for item in datos:
+            nombre = item.get('nombre', '').strip()
+            tipo = item.get('tipo', '').strip()
+            
+            if nombre and tipo:
+                # Normalizar nombres y tipos
+                nombre_normalizado = nombre.upper().strip()
+                tipo_normalizado = tipo.capitalize().strip()
+                
+                lista_barrios.append({
+                    'nombre': nombre_normalizado,
+                    'tipo': tipo_normalizado
+                })
+        
+        print(f"✅ Descargados {len(lista_barrios)} barrios/corregimientos/veredas oficiales")
+        return lista_barrios
+        
+    except Exception as e:
+        print(f"⚠️ Error descargando lista de barrios: {e}")
+        return []
+
+def detectar_barrio_hibrido(lat, lng, direccion_original, lista_barrios_oficial):
+    """
+    Detecta el barrio/corregimiento/vereda usando dos métodos:
+    1. Búsqueda por texto en dirección original
+    2. Geocodificación inversa y verificación contra lista oficial
+    """
+    if not lista_barrios_oficial:
+        return "Zona General", "General"
+    
+    # Intento 1: Búsqueda por texto en dirección original
+    if direccion_original:
+        direccion_upper = direccion_original.upper()
+        for barrio in lista_barrios_oficial:
+            nombre_barrio = barrio['nombre']
+            # Buscar coincidencia exacta o parcial del nombre del barrio
+            if nombre_barrio in direccion_upper or direccion_upper.find(nombre_barrio) != -1:
+                return nombre_barrio.title(), barrio['tipo']
+    
+    # Intento 2: Geocodificación inversa
+    try:
+        location = geolocator.reverse((lat, lng), timeout=10, language='es')
+        if location and location.raw:
+            # Buscar en diferentes campos de la respuesta de OpenStreetMap
+            address = location.raw.get('address', {})
+            
+            # Campos posibles donde puede estar el nombre del barrio
+            posibles_nombres = [
+                address.get('neighbourhood'),
+                address.get('village'),
+                address.get('suburb'),
+                address.get('hamlet'),
+                address.get('town'),
+            ]
+            
+            # Verificar si alguno de estos nombres está en la lista oficial
+            for nombre_geo in posibles_nombres:
+                if nombre_geo:
+                    nombre_geo_upper = nombre_geo.upper().strip()
+                    for barrio in lista_barrios_oficial:
+                        if barrio['nombre'] == nombre_geo_upper or nombre_geo_upper in barrio['nombre']:
+                            return barrio['nombre'].title(), barrio['tipo']
+            
+            # Si no hay coincidencia exacta, intentar búsqueda parcial
+            for nombre_geo in posibles_nombres:
+                if nombre_geo:
+                    nombre_geo_upper = nombre_geo.upper().strip()
+                    for barrio in lista_barrios_oficial:
+                        if nombre_geo_upper in barrio['nombre'] or barrio['nombre'] in nombre_geo_upper:
+                            return barrio['nombre'].title(), barrio['tipo']
+    
+    except Exception as e:
+        print(f"⚠️ Error en geocodificación inversa para detección de barrio: {e}")
+    
+    # Si no se encontró coincidencia, retornar "Zona General"
+    return "Zona General", "General"
+
 def geocodificar_inversa(lat, lng, max_intentos=3):
     """Obtiene dirección humana desde coordenadas"""
     for intento in range(max_intentos):
@@ -75,6 +170,10 @@ def enriquecer_datos():
     print("📡 Obteniendo datos de la API...")
     
     try:
+        # Descargar lista oficial de barrios primero
+        print("🏘️ Descargando lista oficial de barrios/corregimientos/veredas...")
+        lista_barrios_oficial = descargar_lista_barrios()
+        
         headers = {
             "X-App-Token": API_TOKEN,
             "Accept": "application/json",
@@ -95,6 +194,7 @@ def enriquecer_datos():
         datos_enriquecidos = []
         exitosos = 0
         fallidos = 0
+        barrios_detectados = 0
         
         for i, item in enumerate(datos):
             lat, lng = obtener_coordenadas(item)
@@ -102,6 +202,8 @@ def enriquecer_datos():
             if lat is None or lng is None:
                 # Si no hay coordenadas válidas, mantener el item sin direccion_ia
                 item['direccion_ia'] = None
+                item['barrio_detectado'] = "Zona General"
+                item['tipo_zona'] = "General"
                 datos_enriquecidos.append(item)
                 fallidos += 1
                 continue
@@ -112,11 +214,27 @@ def enriquecer_datos():
             if direccion_ia:
                 item['direccion_ia'] = direccion_ia
                 exitosos += 1
-                print(f"✅ [{i+1}/{len(datos)}] {item.get('infraestructura', 'Sin nombre')[:30]}... → {direccion_ia[:50]}...")
             else:
                 item['direccion_ia'] = None
                 fallidos += 1
-                print(f"⚠️ [{i+1}/{len(datos)}] No se pudo obtener dirección para {item.get('infraestructura', 'Sin nombre')[:30]}...")
+            
+            # Detectar barrio/corregimiento/vereda
+            barrio_detectado, tipo_zona = detectar_barrio_hibrido(
+                lat, lng, 
+                item.get('direccion_ia') or item.get('zona', ''),
+                lista_barrios_oficial
+            )
+            
+            item['barrio_detectado'] = barrio_detectado
+            item['tipo_zona'] = tipo_zona
+            
+            if barrio_detectado != "Zona General":
+                barrios_detectados += 1
+            
+            if direccion_ia:
+                print(f"✅ [{i+1}/{len(datos)}] {item.get('infraestructura', 'Sin nombre')[:30]}... → {direccion_ia[:50]}... | {tipo_zona}: {barrio_detectado}")
+            else:
+                print(f"⚠️ [{i+1}/{len(datos)}] {item.get('infraestructura', 'Sin nombre')[:30]}... | {tipo_zona}: {barrio_detectado}")
             
             datos_enriquecidos.append(item)
             
@@ -133,6 +251,7 @@ def enriquecer_datos():
         print(f"   - Total procesados: {len(datos_enriquecidos)}")
         print(f"   - Direcciones obtenidas: {exitosos}")
         print(f"   - Sin dirección: {fallidos}")
+        print(f"   - Barrios/corregimientos/veredas detectados: {barrios_detectados}")
         print(f"   - Archivo guardado: {output_file}")
         
         return datos_enriquecidos
