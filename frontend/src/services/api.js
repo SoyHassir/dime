@@ -91,8 +91,13 @@ const toTitleCase = (texto) => {
   if (textoNormalizado.toLowerCase() in correcciones) {
     return correcciones[textoNormalizado.toLowerCase()];
   }
-  if (textoNormalizado.title() in correcciones) {
-    return correcciones[textoNormalizado.title()];
+  // Title case manual (primera letra mayúscula, resto minúsculas por palabra)
+  const textoTitleCase = textoNormalizado
+    .split(' ')
+    .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase())
+    .join(' ');
+  if (textoTitleCase in correcciones) {
+    return correcciones[textoTitleCase];
   }
   
   // Reemplazos especiales de frases completas (antes de procesar palabras individuales)
@@ -288,10 +293,15 @@ const formatearZona = (zona) => {
  * @returns {Array} - Datos transformados
  */
 const transformarDatos = (datos) => {
+  console.log('🔄 transformarDatos() llamado con:', Array.isArray(datos) ? datos.length : typeof datos, 'items');
+  
   if (!datos || !Array.isArray(datos)) {
+    console.warn('⚠️ transformarDatos: datos inválidos o no es array');
     return [];
   }
 
+  console.log('📊 transformarDatos: Procesando', datos.length, 'registros...');
+  
   let validos = 0;
   let invalidos = 0;
   
@@ -364,6 +374,9 @@ const transformarDatos = (datos) => {
     
     return esValido;
   });
+  
+  console.log('✅ transformarDatos: Completado -', validos, 'válidos,', invalidos, 'inválidos');
+  console.log('📦 transformarDatos: Retornando', lugaresTransformados.length, 'lugares transformados');
   
   return lugaresTransformados;
 };
@@ -466,11 +479,18 @@ export const obtenerLugares = async () => {
       return [];
     }
 
+    console.log('🔄 Llamando transformarDatos con', lugares.length, 'lugares...');
     const lugaresTransformados = transformarDatos(lugares);
     console.log('✅ Lugares transformados:', lugaresTransformados.length, 'lugares válidos');
+    
+    if (lugaresTransformados.length === 0) {
+      console.warn('⚠️ transformarDatos retornó array vacío. Primeros 3 items originales:', lugares.slice(0, 3));
+    }
+    
     return lugaresTransformados;
   } catch (error) {
     // En caso de error, lanzar para que el componente pueda manejarlo
+    console.error('❌ Error en obtenerLugares (fallback):', error);
     throw error;
   }
 };
