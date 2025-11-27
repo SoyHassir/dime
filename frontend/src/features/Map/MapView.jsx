@@ -6,25 +6,46 @@ import 'leaflet/dist/leaflet.css';
 import { InfoCard } from '../../components/ui/InfoCard';
 
 // Fix para los iconos de Leaflet (problema común en React)
-// Inicializar iconos dentro del componente para asegurar que se carguen correctamente
-const createDefaultIcon = () => {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+// Crear icono singleton que se reutiliza
+let defaultIconInstance = null;
+
+const getDefaultIcon = () => {
+  if (!defaultIconInstance) {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    
+    defaultIconInstance = L.icon({
+      iconUrl: `${baseUrl}/leaflet-icons/marker-icon.png`,
+      iconRetinaUrl: `${baseUrl}/leaflet-icons/marker-icon-2x.png`,
+      shadowUrl: `${baseUrl}/leaflet-icons/marker-shadow.png`,
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41]
+    });
+    
+    // Pre-cargar las imágenes para asegurar que estén disponibles
+    if (typeof window !== 'undefined') {
+      const preloadImages = [
+        `${baseUrl}/leaflet-icons/marker-icon.png`,
+        `${baseUrl}/leaflet-icons/marker-icon-2x.png`,
+        `${baseUrl}/leaflet-icons/marker-shadow.png`
+      ];
+      
+      preloadImages.forEach(url => {
+        const img = new Image();
+        img.src = url;
+      });
+    }
+  }
   
-  return L.icon({
-    iconUrl: `${baseUrl}/leaflet-icons/marker-icon.png`,
-    iconRetinaUrl: `${baseUrl}/leaflet-icons/marker-icon-2x.png`,
-    shadowUrl: `${baseUrl}/leaflet-icons/marker-shadow.png`,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    tooltipAnchor: [16, -28],
-    shadowSize: [41, 41]
-  });
+  return defaultIconInstance;
 };
 
 // Inicializar el icono por defecto globalmente
-const DefaultIcon = createDefaultIcon();
-L.Marker.prototype.options.icon = DefaultIcon;
+if (typeof window !== 'undefined') {
+  L.Marker.prototype.options.icon = getDefaultIcon();
+}
 
 // Componente interno para mover la cámara (Zoom)
 function FlyToLocation({ coords }) {
@@ -41,7 +62,7 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
   // Asegurar que los iconos se inicialicen cuando el componente se monte
   useEffect(() => {
     // Reinicializar el icono por defecto para asegurar que se cargue
-    const icon = createDefaultIcon();
+    const icon = getDefaultIcon();
     L.Marker.prototype.options.icon = icon;
   }, []);
 
@@ -91,7 +112,7 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
               <Marker 
                 key={lugar.id} 
                 position={[lugar.ubicacion.lat, lugar.ubicacion.lng]}
-                icon={createDefaultIcon()}
+                icon={getDefaultIcon()}
                 eventHandlers={{
                   click: () => onMarkerClick(lugar),
                 }}
