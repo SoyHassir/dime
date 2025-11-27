@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { AnimatePresence } from 'framer-motion';
 import L from 'leaflet';
@@ -6,30 +6,25 @@ import 'leaflet/dist/leaflet.css';
 import { InfoCard } from '../../components/ui/InfoCard';
 
 // Fix para los iconos de Leaflet (problema común en React)
-// Usar rutas absolutas desde public que funcionan en desarrollo y producción
-const getBaseUrl = () => {
-  // En producción, usar la ruta absoluta desde el origen
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-  return '';
+// Inicializar iconos dentro del componente para asegurar que se carguen correctamente
+const createDefaultIcon = () => {
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  
+  return L.icon({
+    iconUrl: `${baseUrl}/leaflet-icons/marker-icon.png`,
+    iconRetinaUrl: `${baseUrl}/leaflet-icons/marker-icon-2x.png`,
+    shadowUrl: `${baseUrl}/leaflet-icons/marker-shadow.png`,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    tooltipAnchor: [16, -28],
+    shadowSize: [41, 41]
+  });
 };
 
-const DefaultIcon = L.icon({
-  iconUrl: `${getBaseUrl()}/leaflet-icons/marker-icon.png`,
-  iconRetinaUrl: `${getBaseUrl()}/leaflet-icons/marker-icon-2x.png`,
-  shadowUrl: `${getBaseUrl()}/leaflet-icons/marker-shadow.png`,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  tooltipAnchor: [16, -28],
-  shadowSize: [41, 41]
-});
-
-// Inicializar el icono por defecto solo una vez
-if (!L.Marker.prototype.options.icon) {
-  L.Marker.prototype.options.icon = DefaultIcon;
-}
+// Inicializar el icono por defecto globalmente
+const DefaultIcon = createDefaultIcon();
+L.Marker.prototype.options.icon = DefaultIcon;
 
 // Componente interno para mover la cámara (Zoom)
 function FlyToLocation({ coords }) {
@@ -42,6 +37,35 @@ function FlyToLocation({ coords }) {
 
 export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
   const centroTolu = [9.524189, -75.582492];
+  
+  // Asegurar que los iconos se inicialicen cuando el componente se monte
+  useEffect(() => {
+    // Reinicializar el icono por defecto para asegurar que se cargue
+    const icon = createDefaultIcon();
+    L.Marker.prototype.options.icon = icon;
+  }, []);
+
+  // Filtrar y validar lugares
+  const lugaresValidos = useMemo(() => {
+    if (!lugares || !Array.isArray(lugares) || lugares.length === 0) {
+      return [];
+    }
+    
+    const validos = lugares.filter(lugar => {
+      const esValido = lugar && 
+             lugar.ubicacion && 
+             typeof lugar.ubicacion.lat === 'number' && 
+             typeof lugar.ubicacion.lng === 'number' &&
+             !isNaN(lugar.ubicacion.lat) && 
+             !isNaN(lugar.ubicacion.lng) &&
+             lugar.ubicacion.lat !== 0 && 
+             lugar.ubicacion.lng !== 0;
+      
+      return esValido;
+    });
+    
+    return validos;
+  }, [lugares]);
 
   return (
     <div className="h-full w-full z-0">
@@ -62,25 +86,12 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
            <FlyToLocation coords={[lugarSeleccionado.ubicacion.lat, lugarSeleccionado.ubicacion.lng]} />
         )}
 
-        {lugares && lugares.length > 0 ? lugares
-          .filter(lugar => {
-            // Validación adicional antes de renderizar
-            const esValido = lugar && 
-                   lugar.ubicacion && 
-                   typeof lugar.ubicacion.lat === 'number' && 
-                   typeof lugar.ubicacion.lng === 'number' &&
-                   !isNaN(lugar.ubicacion.lat) && 
-                   !isNaN(lugar.ubicacion.lng) &&
-                   lugar.ubicacion.lat !== 0 && 
-                   lugar.ubicacion.lng !== 0;
-            
-            return esValido;
-          })
-          .map((lugar) => {
+        {lugaresValidos.length > 0 ? lugaresValidos.map((lugar) => {
             return (
               <Marker 
                 key={lugar.id} 
                 position={[lugar.ubicacion.lat, lugar.ubicacion.lng]}
+                icon={createDefaultIcon()}
                 eventHandlers={{
                   click: () => onMarkerClick(lugar),
                 }}
@@ -91,7 +102,7 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
           }) : (
             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
               <p className="bg-white/90 px-4 py-2 rounded-lg text-sm text-gray-600">
-                No hay lugares para mostrar
+                {lugares && lugares.length === 0 ? 'Cargando lugares...' : 'No hay lugares para mostrar'}
               </p>
             </div>
           )}
