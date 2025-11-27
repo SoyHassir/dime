@@ -17,6 +17,7 @@ function App() {
   const [modalAyuda, setModalAyuda] = useState(false);
   const [enviado, setEnviado] = useState(false);
   const [textoReporte, setTextoReporte] = useState('');
+  const [tipoError, setTipoError] = useState('');
   const [mensajeChat, setMensajeChat] = useState('');
   const [mensajesChat, setMensajesChat] = useState([
     { tipo: 'bot', texto: 'Soy DIME-IA, ¿en qué te puedo ayudar?' }
@@ -679,6 +680,7 @@ function App() {
                 setModalReporte(false);
                 setEnviado(false);
                 setTextoReporte('');
+                setTipoError('');
               }}
             >
               <motion.div 
@@ -695,6 +697,7 @@ function App() {
                 setModalReporte(false);
                 setEnviado(false);
                 setTextoReporte('');
+                setTipoError('');
               }} 
               className="absolute top-4 right-4 bg-gray-50 p-2 rounded-full text-gray-400 hover:text-red-500 transition-colors"
             >
@@ -709,23 +712,54 @@ function App() {
                 <h2 className="text-xl font-bold text-gray-800 mb-2">Reportar inconsistencia</h2>
                 <p className="text-gray-500 text-sm mb-4">¿Encontraste un dato erróneo? Ayuda a DIME a mejorar para todos.</p>
                 
-                <textarea 
-                  value={textoReporte}
-                  onChange={(e) => setTextoReporte(e.target.value)}
-                  className="w-full bg-gray-50 rounded-xl p-3 text-sm text-gray-700 border border-gray-200 focus:border-blue-500 outline-none h-24 resize-none mb-4"
-                  placeholder="Ej: El horario de la biblioteca está mal..."
-                ></textarea>
+                {/* Dropdown de tipo de error */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tipo de error
+                  </label>
+                  <select
+                    value={tipoError}
+                    onChange={(e) => setTipoError(e.target.value)}
+                    className="w-full bg-gray-50 rounded-xl p-3 text-sm text-gray-700 border border-gray-200 focus:border-blue-500 outline-none appearance-none cursor-pointer"
+                  >
+                    <option value="">Selecciona el tipo de error...</option>
+                    <option value="direccion-incorrecta">Dirección incorrecta</option>
+                    <option value="telefono-incorrecto">Número de teléfono incorrecto</option>
+                    <option value="horario-equivocado">Horario equivocado</option>
+                    <option value="nombre-incorrecto">Nombre de la entidad incorrecto</option>
+                    <option value="categoria-incorrecta">Categoría incorrecta</option>
+                    <option value="ubicacion-mapa-incorrecta">Ubicación en el mapa incorrecta</option>
+                    <option value="informacion-desactualizada">Información desactualizada</option>
+                    <option value="entidad-no-existe">Entidad ya no existe</option>
+                    <option value="barrio-zona-incorrecta">Barrio o zona incorrecta</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+                
+                {/* Textarea para mensaje detallado */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Mensaje detallado
+                  </label>
+                  <textarea 
+                    value={textoReporte}
+                    onChange={(e) => setTextoReporte(e.target.value)}
+                    className="w-full bg-gray-50 rounded-xl p-3 text-sm text-gray-700 border border-gray-200 focus:border-blue-500 outline-none h-24 resize-none"
+                    placeholder="Describe el error con más detalle... (Ej: El horario indica 8 AM pero en realidad abre a las 7 AM)"
+                  ></textarea>
+                </div>
                 
                 <button 
                   onClick={() => {
-                    if (textoReporte.trim()) {
+                    if (tipoError && textoReporte.trim()) {
                       setEnviado(true);
                       // Aquí podrías agregar lógica para enviar el reporte a una API
+                      // console.log('Reporte:', { tipoError, mensaje: textoReporte, lugar: lugarSeleccionado });
                     }
                   }}
-                  disabled={!textoReporte.trim()}
+                  disabled={!tipoError || !textoReporte.trim()}
                   className={`w-full font-bold py-3 rounded-xl active:scale-95 transition-all ${
-                    textoReporte.trim() 
+                    tipoError && textoReporte.trim()
                       ? 'bg-gray-900 text-white hover:bg-gray-800' 
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
@@ -745,6 +779,7 @@ function App() {
                     setModalReporte(false);
                     setEnviado(false);
                     setTextoReporte('');
+                    setTipoError('');
                   }} 
                   className="mt-6 text-blue-600 font-semibold text-sm hover:text-blue-700 transition-colors"
                 >
