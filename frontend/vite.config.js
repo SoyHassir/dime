@@ -4,6 +4,16 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        // NO eliminar console.log en producción para debugging
+        drop_console: false,
+        drop_debugger: false,
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({

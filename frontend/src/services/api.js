@@ -373,14 +373,24 @@ const transformarDatos = (datos) => {
  * @returns {Promise<Array>} - Array de lugares transformados
  */
 export const obtenerLugares = async () => {
+  console.log('📡 obtenerLugares() llamado');
+  
   // Detectar si estamos en producción
   const isProduction = typeof window !== 'undefined' && 
     (window.location.hostname !== 'localhost' && 
      window.location.hostname !== '127.0.0.1' &&
      !window.location.hostname.includes('192.168.'));
   
+  console.log('🌍 Entorno detectado:', {
+    hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
+    isProduction,
+    BACKEND_URL
+  });
+  
   // En producción, si BACKEND_URL es localhost, saltar directamente a API directa
   const shouldSkipBackend = isProduction && BACKEND_URL.includes('localhost');
+  
+  console.log('🔀 Estrategia:', shouldSkipBackend ? 'Saltar backend, usar API directa' : 'Intentar backend primero');
   
   // Intentar primero con el backend (solo si no estamos en producción con localhost)
   if (!shouldSkipBackend) {

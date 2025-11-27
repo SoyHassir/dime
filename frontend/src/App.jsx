@@ -35,7 +35,10 @@ function App() {
   
   // Cargar datos desde la API
   useEffect(() => {
+    console.log('🔄 App: useEffect cargarDatos ejecutado');
+    
     const cargarDatos = async () => {
+      console.log('📥 App: Iniciando carga de datos...');
       const inicioTiempo = Date.now();
       const tiempoMinimoPreloader = 2500; // Mínimo 2.5 segundos para ver los mensajes
       
