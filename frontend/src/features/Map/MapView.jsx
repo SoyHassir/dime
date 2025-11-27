@@ -10,13 +10,19 @@ import { InfoCard } from '../../components/ui/InfoCard';
 let defaultIconInstance = null;
 
 const getDefaultIcon = () => {
-  if (!defaultIconInstance) {
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  if (!defaultIconInstance && typeof window !== 'undefined') {
+    // Usar ruta absoluta desde el origen actual
+    const baseUrl = window.location.origin;
+    
+    // Construir URLs absolutas para los iconos
+    const iconUrl = `${baseUrl}/leaflet-icons/marker-icon.png`;
+    const iconRetinaUrl = `${baseUrl}/leaflet-icons/marker-icon-2x.png`;
+    const shadowUrl = `${baseUrl}/leaflet-icons/marker-shadow.png`;
     
     defaultIconInstance = L.icon({
-      iconUrl: `${baseUrl}/leaflet-icons/marker-icon.png`,
-      iconRetinaUrl: `${baseUrl}/leaflet-icons/marker-icon-2x.png`,
-      shadowUrl: `${baseUrl}/leaflet-icons/marker-shadow.png`,
+      iconUrl: iconUrl,
+      iconRetinaUrl: iconRetinaUrl,
+      shadowUrl: shadowUrl,
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
@@ -25,18 +31,18 @@ const getDefaultIcon = () => {
     });
     
     // Pre-cargar las imágenes para asegurar que estén disponibles
-    if (typeof window !== 'undefined') {
-      const preloadImages = [
-        `${baseUrl}/leaflet-icons/marker-icon.png`,
-        `${baseUrl}/leaflet-icons/marker-icon-2x.png`,
-        `${baseUrl}/leaflet-icons/marker-shadow.png`
-      ];
-      
-      preloadImages.forEach(url => {
-        const img = new Image();
-        img.src = url;
-      });
-    }
+    const preloadImages = [iconUrl, iconRetinaUrl, shadowUrl];
+    
+    preloadImages.forEach(url => {
+      const img = new Image();
+      img.onerror = () => {
+        console.error('❌ Error al cargar icono:', url);
+      };
+      img.onload = () => {
+        console.log('✅ Icono cargado:', url);
+      };
+      img.src = url;
+    });
   }
   
   return defaultIconInstance;
@@ -87,6 +93,17 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
     
     return validos;
   }, [lugares]);
+
+  // Debug: Log temporal para verificar datos
+  useEffect(() => {
+    if (lugares && lugares.length > 0) {
+      console.log('📍 Lugares cargados:', lugares.length);
+      console.log('✅ Lugares válidos:', lugaresValidos.length);
+      if (lugaresValidos.length > 0) {
+        console.log('📍 Primer lugar válido:', lugaresValidos[0]);
+      }
+    }
+  }, [lugares, lugaresValidos]);
 
   return (
     <div className="h-full w-full z-0">

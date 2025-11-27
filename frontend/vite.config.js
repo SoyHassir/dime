@@ -36,11 +36,14 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Excluir los iconos de Leaflet del precache para que se carguen directamente desde el servidor
+        globIgnores: ['**/leaflet-icons/**'],
         // Forzar actualización del service worker para evitar cacheo de versiones viejas
         skipWaiting: true,
         clientsClaim: true,
-        // Excluir los iconos de Leaflet del precache para que se carguen directamente
-        globIgnores: ['**/leaflet-icons/**'],
+        // No interceptar requests a archivos estáticos que no están en precache
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/leaflet-icons\//, /^\/assets\//],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.run\.app\/api\/.*/i,
@@ -57,15 +60,10 @@ export default defineConfig({
             }
           },
           {
-            // Cachear los iconos de Leaflet con estrategia CacheFirst
+            // NO cachear los iconos de Leaflet - cargarlos siempre desde el servidor
             urlPattern: /\/leaflet-icons\/.*\.png$/,
-            handler: 'CacheFirst',
+            handler: 'NetworkOnly',
             options: {
-              cacheName: 'leaflet-icons-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 año
-              },
               cacheableResponse: {
                 statuses: [0, 200]
               }
