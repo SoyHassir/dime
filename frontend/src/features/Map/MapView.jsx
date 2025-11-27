@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { AnimatePresence } from 'framer-motion';
 import L from 'leaflet';
@@ -10,48 +10,54 @@ import { InfoCard } from '../../components/ui/InfoCard';
 let defaultIconInstance = null;
 
 const getDefaultIcon = () => {
-  if (!defaultIconInstance && typeof window !== 'undefined') {
-    // Usar ruta absoluta desde el origen actual
-    const baseUrl = window.location.origin;
-    
-    // Construir URLs absolutas para los iconos
-    const iconUrl = `${baseUrl}/leaflet-icons/marker-icon.png`;
-    const iconRetinaUrl = `${baseUrl}/leaflet-icons/marker-icon-2x.png`;
-    const shadowUrl = `${baseUrl}/leaflet-icons/marker-shadow.png`;
-    
-    defaultIconInstance = L.icon({
-      iconUrl: iconUrl,
-      iconRetinaUrl: iconRetinaUrl,
-      shadowUrl: shadowUrl,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      tooltipAnchor: [16, -28],
-      shadowSize: [41, 41]
-    });
-    
-    // Pre-cargar las imágenes para asegurar que estén disponibles
-    const preloadImages = [iconUrl, iconRetinaUrl, shadowUrl];
-    
-    preloadImages.forEach(url => {
-      const img = new Image();
-      img.onerror = () => {
-        console.error('❌ Error al cargar icono:', url);
-      };
-      img.onload = () => {
-        console.log('✅ Icono cargado:', url);
-      };
-      img.src = url;
-    });
+  // Asegurar que window esté disponible
+  if (typeof window === 'undefined') {
+    console.warn('⚠️ window no está disponible, usando icono por defecto de Leaflet');
+    return L.Icon.Default.prototype;
   }
+  
+  // Si ya existe, retornarlo
+  if (defaultIconInstance) {
+    return defaultIconInstance;
+  }
+  
+  // Crear nuevo icono
+  const baseUrl = window.location.origin;
+  
+  // Construir URLs absolutas para los iconos
+  const iconUrl = `${baseUrl}/leaflet-icons/marker-icon.png`;
+  const iconRetinaUrl = `${baseUrl}/leaflet-icons/marker-icon-2x.png`;
+  const shadowUrl = `${baseUrl}/leaflet-icons/marker-shadow.png`;
+  
+  console.log('🔧 Creando icono con URLs:', { iconUrl, iconRetinaUrl, shadowUrl });
+  
+  defaultIconInstance = L.icon({
+    iconUrl: iconUrl,
+    iconRetinaUrl: iconRetinaUrl,
+    shadowUrl: shadowUrl,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    tooltipAnchor: [16, -28],
+    shadowSize: [41, 41]
+  });
+  
+  // Pre-cargar las imágenes para asegurar que estén disponibles
+  const preloadImages = [iconUrl, iconRetinaUrl, shadowUrl];
+  
+  preloadImages.forEach(url => {
+    const img = new Image();
+    img.onerror = () => {
+      console.error('❌ Error al cargar icono:', url);
+    };
+    img.onload = () => {
+      console.log('✅ Icono cargado exitosamente:', url);
+    };
+    img.src = url;
+  });
   
   return defaultIconInstance;
 };
-
-// Inicializar el icono por defecto globalmente
-if (typeof window !== 'undefined') {
-  L.Marker.prototype.options.icon = getDefaultIcon();
-}
 
 // Componente interno para mover la cámara (Zoom)
 function FlyToLocation({ coords }) {
@@ -64,12 +70,19 @@ function FlyToLocation({ coords }) {
 
 export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
   const centroTolu = [9.524189, -75.582492];
+  const [iconoListo, setIconoListo] = useState(false);
   
   // Asegurar que los iconos se inicialicen cuando el componente se monte
   useEffect(() => {
     // Reinicializar el icono por defecto para asegurar que se cargue
     const icon = getDefaultIcon();
-    L.Marker.prototype.options.icon = icon;
+    if (icon) {
+      L.Marker.prototype.options.icon = icon;
+      setIconoListo(true);
+      console.log('✅ Icono inicializado y asignado a L.Marker.prototype');
+    } else {
+      console.error('❌ No se pudo crear el icono');
+    }
   }, []);
 
   // Filtrar y validar lugares
@@ -124,12 +137,18 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
            <FlyToLocation coords={[lugarSeleccionado.ubicacion.lat, lugarSeleccionado.ubicacion.lng]} />
         )}
 
-        {lugaresValidos.length > 0 ? lugaresValidos.map((lugar) => {
+        {lugaresValidos.length > 0 && iconoListo ? lugaresValidos.map((lugar) => {
+            const icon = getDefaultIcon();
+            if (!icon) {
+              console.error('❌ No hay icono disponible para el marcador');
+              return null;
+            }
+            
             return (
               <Marker 
                 key={lugar.id} 
                 position={[lugar.ubicacion.lat, lugar.ubicacion.lng]}
-                icon={getDefaultIcon()}
+                icon={icon}
                 eventHandlers={{
                   click: () => onMarkerClick(lugar),
                 }}
