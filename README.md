@@ -4,8 +4,6 @@
 
 ![DIME](frontend/public/dime-icon.png)
 
-**Directorio interactivo de entidades públicas de Santiago de Tolú**
-
 [![React](https://img.shields.io/badge/React-19.1.0-61DAFB?logo=react)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python)](https://www.python.org/)
