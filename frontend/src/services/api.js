@@ -199,70 +199,76 @@ const toTitleCase = (texto) => {
     return false;
   };
   
-  return textoProcesado
+  const palabras = textoProcesado
     .split(' ')
-    .filter(palabra => palabra.trim().length > 0) // Filtrar espacios vacíos
-    .map((palabra, index) => {
-      let palabraOriginal = palabra.trim();
-      const palabraLower = palabraOriginal.toLowerCase();
-      
-      // Verificar si es una sigla conocida
-      if (palabraLower in siglasConocidas) {
-        return siglasConocidas[palabraLower];
-      }
-      
-      // Aplicar correcciones ortográficas primero (antes de cualquier otra transformación)
-      let palabraCorregida = correccionesOrtograficas[palabraLower];
-      if (palabraCorregida) {
-        // Si hay corrección ortográfica, usarla pero aplicar formato según posición
-        if (index === 0) {
-          // Primera palabra: mantener la corrección tal cual (ya tiene formato correcto)
-          return palabraCorregida;
-        } else {
-          // No es primera palabra: verificar si es artículo/preposición
-          const palabraCorregidaLower = palabraCorregida.toLowerCase();
-          if (palabrasMinusculas.includes(palabraCorregidaLower)) {
-            return palabraCorregidaLower;
-          }
-          return palabraCorregida;
-        }
-      }
-      
-      // Si es una sigla, mantenerla en mayúsculas
-      if (esSigla(palabraOriginal)) {
-        return palabraOriginal.toUpperCase();
-      }
-      
-      // Si es la primera palabra, siempre capitalizar (primera letra mayúscula, resto minúsculas)
+    .filter(palabra => palabra.trim().length > 0); // Filtrar espacios vacíos
+  
+  // Primera pasada: procesar todas las palabras
+  const resultado = palabras.map((palabra, index) => {
+    let palabraOriginal = palabra.trim();
+    const palabraLower = palabraOriginal.toLowerCase();
+    
+    // Verificar si es una sigla conocida
+    if (palabraLower in siglasConocidas) {
+      return siglasConocidas[palabraLower];
+    }
+    
+    // Aplicar correcciones ortográficas primero (antes de cualquier otra transformación)
+    let palabraCorregida = correccionesOrtograficas[palabraLower];
+    if (palabraCorregida) {
+      // Si hay corrección ortográfica, usarla pero aplicar formato según posición
       if (index === 0) {
-        const primeraLetra = palabraOriginal.charAt(0).toUpperCase();
-        const resto = palabraOriginal.slice(1).toLowerCase();
-        return primeraLetra + resto;
-      }
-      
-      // "La" después de una sigla (como "CDI La Esperanza") debe ir con mayúscula
-      if (palabraLower === 'la' && index > 0 && resultado.length > 0) {
-        // Verificar si la palabra anterior es una sigla
-        const palabraAnterior = resultado[resultado.length - 1] || '';
-        // Si la anterior es una sigla (mayúsculas) o es "CDI", capitalizar "La"
-        if (palabraAnterior === palabraAnterior.toUpperCase() || palabraAnterior === 'CDI') {
-          return 'La';
-        } else {
-          return 'la';
+        // Primera palabra: mantener la corrección tal cual (ya tiene formato correcto)
+        return palabraCorregida;
+      } else {
+        // No es primera palabra: verificar si es artículo/preposición
+        const palabraCorregidaLower = palabraCorregida.toLowerCase();
+        if (palabrasMinusculas.includes(palabraCorregidaLower)) {
+          return palabraCorregidaLower;
         }
+        return palabraCorregida;
       }
-      
-      // Si es un artículo/preposición/conjunción, poner en minúsculas (sin importar cómo venga)
-      if (palabrasMinusculas.includes(palabraLower)) {
-        return palabraLower;
-      }
-      
-      // Para el resto, capitalizar primera letra y resto en minúsculas
+    }
+    
+    // Si es una sigla, mantenerla en mayúsculas
+    if (esSigla(palabraOriginal)) {
+      return palabraOriginal.toUpperCase();
+    }
+    
+    // Si es la primera palabra, siempre capitalizar (primera letra mayúscula, resto minúsculas)
+    if (index === 0) {
       const primeraLetra = palabraOriginal.charAt(0).toUpperCase();
       const resto = palabraOriginal.slice(1).toLowerCase();
       return primeraLetra + resto;
-    })
-    .join(' ');
+    }
+    
+    // Si es un artículo/preposición/conjunción, poner en minúsculas (sin importar cómo venga)
+    if (palabrasMinusculas.includes(palabraLower)) {
+      return palabraLower;
+    }
+    
+    // Para el resto, capitalizar primera letra y resto en minúsculas
+    const primeraLetra = palabraOriginal.charAt(0).toUpperCase();
+    const resto = palabraOriginal.slice(1).toLowerCase();
+    return primeraLetra + resto;
+  });
+  
+  // Segunda pasada: ajustar "La" después de siglas
+  const resultadoFinal = resultado.map((palabra, index) => {
+    if (palabra.toLowerCase() === 'la' && index > 0) {
+      // Verificar si la palabra anterior es una sigla
+      const palabraAnterior = resultado[index - 1] || '';
+      // Si la anterior es una sigla (mayúsculas) o es "CDI", capitalizar "La"
+      if (palabraAnterior === palabraAnterior.toUpperCase() || palabraAnterior === 'CDI') {
+        return 'La';
+      } else {
+        return 'la';
+      }
+    }
+    return palabra;
+  });
+  
+  return resultadoFinal.join(' ');
   
   // Detectar y encerrar "Sede" entre paréntesis
   // Patrón 1: " - Sede X" → " (Sede X)" (cuando hay guion antes)
