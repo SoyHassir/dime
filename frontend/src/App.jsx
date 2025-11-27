@@ -35,10 +35,7 @@ function App() {
   
   // Cargar datos desde la API
   useEffect(() => {
-    console.log('🔄 App: useEffect cargarDatos ejecutado');
-    
     const cargarDatos = async () => {
-      console.log('📥 App: Iniciando carga de datos...');
       const inicioTiempo = Date.now();
       const tiempoMinimoPreloader = 2500; // Mínimo 2.5 segundos para ver los mensajes
       
@@ -58,16 +55,12 @@ function App() {
         ]);
         
         if (lugaresData && lugaresData.length > 0) {
-          console.log('✅ App: Lugares cargados exitosamente:', lugaresData.length);
           setLugares(lugaresData);
         } else {
-          // Si no hay datos, usar array vacío
-          console.warn('⚠️ App: No se obtuvieron lugares o el array está vacío');
           setLugares([]);
         }
       } catch (error) {
         setErrorCarga(error.message);
-        // En caso de error, usar array vacío
         setLugares([]);
       } finally {
         // Calcular cuánto tiempo ha pasado

@@ -12,7 +12,6 @@ let defaultIconInstance = null;
 const getDefaultIcon = () => {
   // Asegurar que window esté disponible
   if (typeof window === 'undefined') {
-    console.warn('⚠️ window no está disponible, usando icono por defecto de Leaflet');
     return L.Icon.Default.prototype;
   }
   
@@ -28,8 +27,6 @@ const getDefaultIcon = () => {
   const iconUrl = `${baseUrl}/leaflet-icons/marker-icon.png`;
   const iconRetinaUrl = `${baseUrl}/leaflet-icons/marker-icon-2x.png`;
   const shadowUrl = `${baseUrl}/leaflet-icons/marker-shadow.png`;
-  
-  console.log('🔧 Creando icono con URLs:', { iconUrl, iconRetinaUrl, shadowUrl });
   
   defaultIconInstance = L.icon({
     iconUrl: iconUrl,
@@ -48,10 +45,7 @@ const getDefaultIcon = () => {
   preloadImages.forEach(url => {
     const img = new Image();
     img.onerror = () => {
-      console.error('❌ Error al cargar icono:', url);
-    };
-    img.onload = () => {
-      console.log('✅ Icono cargado exitosamente:', url);
+      // Error silencioso - usar fallback de Leaflet
     };
     img.src = url;
   });
@@ -75,32 +69,24 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
   
   // Asegurar que los iconos se inicialicen cuando el componente se monte
   useEffect(() => {
-    // Esperar un momento para asegurar que window.location esté disponible
     const initIcon = () => {
       try {
         const icon = getDefaultIcon();
         if (icon && icon.options && icon.options.iconUrl) {
           L.Marker.prototype.options.icon = icon;
           setIconoListo(true);
-          console.log('✅ Icono inicializado y asignado a L.Marker.prototype');
-          console.log('📍 URL del icono:', icon.options.iconUrl);
         } else {
-          console.error('❌ No se pudo crear el icono - icon inválido');
           setIconoError(true);
         }
       } catch (error) {
-        console.error('❌ Error al inicializar icono:', error);
         setIconoError(true);
       }
     };
     
-    // Intentar inmediatamente
     initIcon();
     
-    // Si falla, intentar después de un pequeño delay
     const timeout = setTimeout(() => {
       if (!iconoListo) {
-        console.log('🔄 Reintentando inicialización de icono...');
         initIcon();
       }
     }, 100);
@@ -130,32 +116,6 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
     return validos;
   }, [lugares]);
 
-  // Debug: Log temporal para verificar datos
-  useEffect(() => {
-    console.log('🔍 Estado de MapView:', {
-      lugaresTotal: lugares?.length || 0,
-      lugaresValidos: lugaresValidos.length,
-      iconoListo,
-      iconoError,
-      primerLugar: lugaresValidos[0] || null
-    });
-    
-    if (lugares && lugares.length > 0) {
-      console.log('📍 Lugares cargados:', lugares.length);
-      console.log('✅ Lugares válidos:', lugaresValidos.length);
-      if (lugaresValidos.length > 0) {
-        console.log('📍 Primer lugar válido:', lugaresValidos[0]);
-        console.log('📍 Coordenadas del primer lugar:', lugaresValidos[0].ubicacion);
-      } else {
-        console.warn('⚠️ Hay lugares pero ninguno es válido');
-        if (lugares.length > 0) {
-          console.log('📍 Primer lugar (inválido):', lugares[0]);
-        }
-      }
-    } else {
-      console.warn('⚠️ No hay lugares cargados');
-    }
-  }, [lugares, lugaresValidos, iconoListo, iconoError]);
 
   return (
     <div className="h-full w-full z-0">

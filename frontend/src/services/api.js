@@ -299,14 +299,9 @@ const formatearZona = (zona) => {
  * @returns {Array} - Datos transformados
  */
 const transformarDatos = (datos) => {
-  console.log('🔄 transformarDatos() llamado con:', Array.isArray(datos) ? datos.length : typeof datos, 'items');
-  
   if (!datos || !Array.isArray(datos)) {
-    console.warn('⚠️ transformarDatos: datos inválidos o no es array');
     return [];
   }
-
-  console.log('📊 transformarDatos: Procesando', datos.length, 'registros...');
   
   let validos = 0;
   let invalidos = 0;
@@ -381,9 +376,6 @@ const transformarDatos = (datos) => {
     return esValido;
   });
   
-  console.log('✅ transformarDatos: Completado -', validos, 'válidos,', invalidos, 'inválidos');
-  console.log('📦 transformarDatos: Retornando', lugaresTransformados.length, 'lugares transformados');
-  
   return lugaresTransformados;
 };
 
@@ -392,32 +384,20 @@ const transformarDatos = (datos) => {
  * @returns {Promise<Array>} - Array de lugares transformados
  */
 export const obtenerLugares = async () => {
-  console.log('📡 obtenerLugares() llamado');
-  
   // Detectar si estamos en producción
   const isProduction = typeof window !== 'undefined' && 
     (window.location.hostname !== 'localhost' && 
      window.location.hostname !== '127.0.0.1' &&
      !window.location.hostname.includes('192.168.'));
   
-  console.log('🌍 Entorno detectado:', {
-    hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
-    isProduction,
-    BACKEND_URL
-  });
-  
   // En producción, si BACKEND_URL es localhost, saltar directamente a API directa
   const shouldSkipBackend = isProduction && BACKEND_URL.includes('localhost');
-  
-  console.log('🔀 Estrategia:', shouldSkipBackend ? 'Saltar backend, usar API directa' : 'Intentar backend primero');
   
   // Intentar primero con el backend (solo si no estamos en producción con localhost)
   if (!shouldSkipBackend) {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000); // Timeout de 3 segundos
-      
-      console.log('🔗 Intentando conectar con backend:', BACKEND_URL);
       
       const response = await fetch(BACKEND_URL, {
         method: 'GET',
@@ -434,7 +414,6 @@ export const obtenerLugares = async () => {
         const data = await response.json();
         // El backend ya devuelve los datos formateados, solo validar que sea un array
         if (Array.isArray(data)) {
-          console.log('✅ Datos obtenidos del backend:', data.length, 'lugares');
           return data;
         } else if (data.error) {
           throw new Error(data.error);
@@ -442,16 +421,12 @@ export const obtenerLugares = async () => {
       }
     } catch (backendError) {
       // Si el backend falla (no disponible, timeout, CORS, etc.), usar API directa
-      console.log('⚠️ Backend no disponible, usando API directa:', backendError.message);
+      // Continuar con fallback silenciosamente
     }
-  } else {
-    console.log('⚠️ En producción sin backend configurado, usando API directa');
   }
   
   // Fallback: Obtener desde la API directa de datos.gov.co
   try {
-    console.log('🌐 Obteniendo datos desde API directa de datos.gov.co...');
-    
     // Configurar headers con autenticación SODA3
     const headers = {
       'X-App-Token': API_TOKEN,
@@ -472,7 +447,6 @@ export const obtenerLugares = async () => {
     }
 
     const data = await response.json();
-    console.log('📦 Datos recibidos de API directa:', Array.isArray(data) ? data.length : 'no es array', 'registros');
     
     // La API devuelve directamente un array de objetos
     let lugares = [];
@@ -485,18 +459,11 @@ export const obtenerLugares = async () => {
       return [];
     }
 
-    console.log('🔄 Llamando transformarDatos con', lugares.length, 'lugares...');
     const lugaresTransformados = transformarDatos(lugares);
-    console.log('✅ Lugares transformados:', lugaresTransformados.length, 'lugares válidos');
-    
-    if (lugaresTransformados.length === 0) {
-      console.warn('⚠️ transformarDatos retornó array vacío. Primeros 3 items originales:', lugares.slice(0, 3));
-    }
-    
     return lugaresTransformados;
   } catch (error) {
     // En caso de error, lanzar para que el componente pueda manejarlo
-    console.error('❌ Error en obtenerLugares (fallback):', error);
+    console.error('Error al obtener lugares:', error);
     throw error;
   }
 };
