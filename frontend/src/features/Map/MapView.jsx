@@ -6,11 +6,15 @@ import 'leaflet/dist/leaflet.css';
 import { InfoCard } from '../../components/ui/InfoCard';
 
 // Fix para los iconos de Leaflet (problema común en React)
-// Usar rutas absolutas desde public para que funcionen en producción
+// Usar imports directos desde assets para que Vite los procese correctamente
+import markerIcon from '../../assets/marker-icon.png';
+import markerIconRetina from '../../assets/marker-icon-2x.png';
+import markerShadow from '../../assets/marker-shadow.png';
+
 const DefaultIcon = L.icon({
-  iconUrl: '/leaflet-icons/marker-icon.png',
-  iconRetinaUrl: '/leaflet-icons/marker-icon-2x.png',
-  shadowUrl: '/leaflet-icons/marker-shadow.png',
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIconRetina,
+  shadowUrl: markerShadow,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
@@ -18,7 +22,10 @@ const DefaultIcon = L.icon({
   shadowSize: [41, 41]
 });
 
-L.Marker.prototype.options.icon = DefaultIcon;
+// Inicializar el icono por defecto solo una vez
+if (!L.Marker.prototype.options.icon) {
+  L.Marker.prototype.options.icon = DefaultIcon;
+}
 
 // Componente interno para mover la cámara (Zoom)
 function FlyToLocation({ coords }) {
