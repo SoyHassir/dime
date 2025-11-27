@@ -55,9 +55,11 @@ function App() {
         ]);
         
         if (lugaresData && lugaresData.length > 0) {
+          console.log('✅ App: Lugares cargados exitosamente:', lugaresData.length);
           setLugares(lugaresData);
         } else {
           // Si no hay datos, usar array vacío
+          console.warn('⚠️ App: No se obtuvieron lugares o el array está vacío');
           setLugares([]);
         }
       } catch (error) {

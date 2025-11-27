@@ -373,38 +373,56 @@ const transformarDatos = (datos) => {
  * @returns {Promise<Array>} - Array de lugares transformados
  */
 export const obtenerLugares = async () => {
-  // Intentar primero con el backend local
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // Timeout de 3 segundos
-    
-    const response = await fetch(BACKEND_URL, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
-    
-    if (response.ok) {
-      const data = await response.json();
-      // El backend ya devuelve los datos formateados, solo validar que sea un array
-      if (Array.isArray(data)) {
-        return data;
-      } else if (data.error) {
-        throw new Error(data.error);
+  // Detectar si estamos en producción
+  const isProduction = typeof window !== 'undefined' && 
+    (window.location.hostname !== 'localhost' && 
+     window.location.hostname !== '127.0.0.1' &&
+     !window.location.hostname.includes('192.168.'));
+  
+  // En producción, si BACKEND_URL es localhost, saltar directamente a API directa
+  const shouldSkipBackend = isProduction && BACKEND_URL.includes('localhost');
+  
+  // Intentar primero con el backend (solo si no estamos en producción con localhost)
+  if (!shouldSkipBackend) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // Timeout de 3 segundos
+      
+      console.log('🔗 Intentando conectar con backend:', BACKEND_URL);
+      
+      const response = await fetch(BACKEND_URL, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        const data = await response.json();
+        // El backend ya devuelve los datos formateados, solo validar que sea un array
+        if (Array.isArray(data)) {
+          console.log('✅ Datos obtenidos del backend:', data.length, 'lugares');
+          return data;
+        } else if (data.error) {
+          throw new Error(data.error);
+        }
       }
+    } catch (backendError) {
+      // Si el backend falla (no disponible, timeout, CORS, etc.), usar API directa
+      console.log('⚠️ Backend no disponible, usando API directa:', backendError.message);
     }
-  } catch (backendError) {
-    // Si el backend falla (no disponible, timeout, CORS, etc.), usar API directa
-    // Fallback silencioso a API directa
+  } else {
+    console.log('⚠️ En producción sin backend configurado, usando API directa');
   }
   
   // Fallback: Obtener desde la API directa de datos.gov.co
   try {
+    console.log('🌐 Obteniendo datos desde API directa de datos.gov.co...');
+    
     // Configurar headers con autenticación SODA3
     const headers = {
       'X-App-Token': API_TOKEN,
@@ -425,6 +443,7 @@ export const obtenerLugares = async () => {
     }
 
     const data = await response.json();
+    console.log('📦 Datos recibidos de API directa:', Array.isArray(data) ? data.length : 'no es array', 'registros');
     
     // La API devuelve directamente un array de objetos
     let lugares = [];
@@ -438,6 +457,7 @@ export const obtenerLugares = async () => {
     }
 
     const lugaresTransformados = transformarDatos(lugares);
+    console.log('✅ Lugares transformados:', lugaresTransformados.length, 'lugares válidos');
     return lugaresTransformados;
   } catch (error) {
     // En caso de error, lanzar para que el componente pueda manejarlo
