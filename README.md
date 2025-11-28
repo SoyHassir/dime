@@ -14,8 +14,6 @@
 
 **https://dime-ia.web.app/**
 
-[🔗 Acceder a DIME](https://dime-ia.web.app/)
-
 </div>
 
 ---
@@ -183,6 +181,6 @@ dime/
 
 **https://dime-ia.web.app/**
 
-[🔗 Acceder a DIME](https://dime-ia.web.app/) · [Reportar un problema](https://github.com/SoyHassir/dime/issues) · [Solicitar una feature](https://github.com/SoyHassir/dime/issues)
+[Reportar un problema](https://github.com/SoyHassir/dime/issues) · [Solicitar una feature](https://github.com/SoyHassir/dime/issues)
 
 </div>
