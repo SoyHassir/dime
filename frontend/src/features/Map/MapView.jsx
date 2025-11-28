@@ -5,25 +5,18 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { InfoCard } from '../../components/ui/InfoCard';
 
-// Fix para los iconos de Leaflet (problema común en React)
-// Crear icono singleton que se reutiliza
 let defaultIconInstance = null;
 
 const getDefaultIcon = () => {
-  // Asegurar que window esté disponible
   if (typeof window === 'undefined') {
     return L.Icon.Default.prototype;
   }
   
-  // Si ya existe, retornarlo
   if (defaultIconInstance) {
     return defaultIconInstance;
   }
   
-  // Crear nuevo icono
   const baseUrl = window.location.origin;
-  
-  // Construir URLs absolutas para los iconos
   const iconUrl = `${baseUrl}/leaflet-icons/marker-icon.png`;
   const iconRetinaUrl = `${baseUrl}/leaflet-icons/marker-icon-2x.png`;
   const shadowUrl = `${baseUrl}/leaflet-icons/marker-shadow.png`;
@@ -39,21 +32,17 @@ const getDefaultIcon = () => {
     shadowSize: [41, 41]
   });
   
-  // Pre-cargar las imágenes para asegurar que estén disponibles
   const preloadImages = [iconUrl, iconRetinaUrl, shadowUrl];
   
   preloadImages.forEach(url => {
     const img = new Image();
-    img.onerror = () => {
-      // Error silencioso - usar fallback de Leaflet
-    };
+    img.onerror = () => {};
     img.src = url;
   });
   
   return defaultIconInstance;
 };
 
-// Componente interno para mover la cámara (Zoom)
 function FlyToLocation({ coords }) {
   const map = useMap();
   if (coords) {
@@ -67,7 +56,6 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
   const [iconoListo, setIconoListo] = useState(false);
   const [iconoError, setIconoError] = useState(false);
   
-  // Asegurar que los iconos se inicialicen cuando el componente se monte
   useEffect(() => {
     const initIcon = () => {
       try {
@@ -94,7 +82,6 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
     return () => clearTimeout(timeout);
   }, []);
 
-  // Filtrar y validar lugares
   const lugaresValidos = useMemo(() => {
     if (!lugares || !Array.isArray(lugares) || lugares.length === 0) {
       return [];
@@ -119,7 +106,6 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
 
   return (
     <div className="h-full w-full z-0">
-      {/* CAMBIO: zoomControl={false} elimina los botones de la esquina */}
       <MapContainer 
         center={centroTolu} 
         zoom={15} 
@@ -131,17 +117,12 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
             attribution='&copy; OpenStreetMap contributors'
         />
         
-        {/* Efecto de vuelo si hay selección */}
         {lugarSeleccionado && (
            <FlyToLocation coords={[lugarSeleccionado.ubicacion.lat, lugarSeleccionado.ubicacion.lng]} />
         )}
 
         {lugaresValidos.length > 0 ? lugaresValidos.map((lugar) => {
-            // Siempre obtener el icono, incluso si iconoListo es false
-            // Esto asegura que los marcadores se rendericen
             const icon = getDefaultIcon();
-            
-            // Si no hay icono válido, usar el por defecto de Leaflet
             const iconToUse = icon || L.Icon.Default.prototype;
             
             return (
@@ -153,7 +134,6 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
                   click: () => onMarkerClick(lugar),
                 }}
               >
-                 {/* Opcional: Popup nativo de Leaflet, o usamos nuestra Card flotante */}
               </Marker>
             );
           }) : (
@@ -165,12 +145,9 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
           )}
       </MapContainer>
 
-      {/* Aquí inyectamos nuestra Card flotante sobre el mapa */}
       <AnimatePresence>
         {lugarSeleccionado && (
           <div className="absolute inset-0 z-[1100] flex items-center justify-center p-6 pointer-events-none">
-            
-            {/* Wrapper para capturar clicks (pointer-events-auto) y limitar ancho */}
             <div className="w-full max-w-sm pointer-events-auto">
                <InfoCard 
                   key={lugarSeleccionado.id}

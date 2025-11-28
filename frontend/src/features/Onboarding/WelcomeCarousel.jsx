@@ -5,7 +5,6 @@ import { MapPin, Mic, WifiOff, ArrowRight, Check } from 'lucide-react';
 export const WelcomeCarousel = ({ onComplete }) => {
   const [paso, setPaso] = useState(0);
 
-  // Los 3 Pasos de tu Onboarding
   const slides = [
     {
       id: 1,
@@ -34,14 +33,12 @@ export const WelcomeCarousel = ({ onComplete }) => {
     if (paso < slides.length - 1) {
       setPaso(paso + 1);
     } else {
-      onComplete(); // Avisa a App.jsx que terminamos
+      onComplete();
     }
   };
 
   return (
     <div className="fixed inset-0 z-[4000] bg-white flex flex-col items-center justify-between p-8 font-sans">
-      
-      {/* Botón Saltar (arriba derecha) */}
       <button 
         onClick={onComplete}
         className="self-end text-gray-400 font-medium text-sm hover:text-blue-600"
@@ -49,7 +46,6 @@ export const WelcomeCarousel = ({ onComplete }) => {
         Saltar
       </button>
 
-      {/* --- EL CONTENIDO DESLIZABLE --- */}
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm text-center">
         <AnimatePresence mode="wait">
           <motion.div
@@ -60,7 +56,6 @@ export const WelcomeCarousel = ({ onComplete }) => {
             transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
             className="flex flex-col items-center"
           >
-            {/* Círculo del Icono */}
             <motion.div 
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
@@ -70,7 +65,6 @@ export const WelcomeCarousel = ({ onComplete }) => {
               {slides[paso].icono}
             </motion.div>
 
-            {/* Textos */}
             <motion.h2 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -91,10 +85,7 @@ export const WelcomeCarousel = ({ onComplete }) => {
         </AnimatePresence>
       </div>
 
-      {/* --- CONTROLES INFERIORES --- */}
       <div className="w-full max-w-sm flex items-center justify-between mt-8">
-        
-        {/* Indicadores de Puntos (Dots) */}
         <div className="flex gap-2">
           {slides.map((_, index) => (
             <div 
@@ -106,15 +97,14 @@ export const WelcomeCarousel = ({ onComplete }) => {
           ))}
         </div>
 
-        {/* Botón Siguiente / Empezar */}
         <button
           onClick={siguientePaso}
           className="bg-blue-600 text-white p-4 rounded-full shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-90 transition-all flex items-center justify-center"
         >
           {paso === slides.length - 1 ? (
-            <Check className="w-6 h-6" /> // Check si es el último
+            <Check className="w-6 h-6" />
           ) : (
-            <ArrowRight className="w-6 h-6" /> // Flecha si faltan
+            <ArrowRight className="w-6 h-6" />
           )}
         </button>
       </div>

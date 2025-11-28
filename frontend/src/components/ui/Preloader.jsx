@@ -5,7 +5,6 @@ import dimeIcon from '../../assets/dime-icon.png';
 export const Preloader = () => {
   const [mensaje, setMensaje] = useState("Iniciando DIME...");
 
-  // Efecto para cambiar los mensajes y reducir la ansiedad de espera
   useEffect(() => {
     const mensajes = [
       "Conectando con Santiago de Tolú...",
@@ -29,7 +28,6 @@ export const Preloader = () => {
       exit={{ opacity: 0, transition: { duration: 0.5 } }}
       className="fixed inset-0 z-[5000] bg-white flex flex-col items-center justify-center font-sans"
     >
-      {/* 1. EL LOGO PULSANDO */}
       <motion.div
         animate={{ 
           scale: [1, 1.2, 1], 
@@ -49,17 +47,14 @@ export const Preloader = () => {
         />
       </motion.div>
 
-      {/* 2. EL TÍTULO */}
       <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: '#1c528b' }}>
         D I M E
       </h1>
 
-      {/* 3. EL TEXTO DINÁMICO */}
       <p className="text-gray-400 text-sm font-medium animate-pulse">
         {mensaje}
       </p>
 
-      {/* 4. BARRA DE PROGRESO DECORATIVA (Opcional) */}
       <div className="w-32 h-1 bg-gray-100 rounded-full mt-8 overflow-hidden">
         <motion.div 
           className="h-full bg-blue-500"

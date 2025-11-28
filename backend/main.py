@@ -7,37 +7,26 @@ import os
 import re
 from dotenv import load_dotenv
 
-# Cargar variables de entorno desde .env
 load_dotenv()
 
 app = FastAPI()
 
-# --- CONFIGURACIÓN GEMINI AI ---
-# API Key de Google Gemini
-# IMPORTANTE: La API key debe configurarse como variable de entorno
-# En producción, configura GEMINI_API_KEY en Cloud Run
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
-    # Usar gemini-2.0-flash que está disponible y es rápido
     try:
         model = genai.GenerativeModel('gemini-2.0-flash')
     except:
-        # Fallback a gemini-pro si el anterior no funciona
         model = genai.GenerativeModel('gemini-pro')
 else:
     model = None
     print("⚠️ GEMINI_API_KEY no configurada. El chat no funcionará hasta configurarla.")
 
-# Memoria Caché para no llamar a SODA en cada chat
 contexto_tolu = ""
 
-# --- 1. PERMISOS (CORS) ---
-# Configuración de CORS: permite desarrollo local y producción
 ALLOWED_ORIGINS_ENV = os.getenv("ALLOWED_ORIGINS", "")
 if ALLOWED_ORIGINS_ENV:
-    # Si hay variable de entorno, usar esos orígenes + localhost para desarrollo
     allowed_origins = ALLOWED_ORIGINS_ENV.split(",") + [
         "http://localhost:5173",
         "http://localhost:3000",
@@ -45,7 +34,6 @@ if ALLOWED_ORIGINS_ENV:
         "http://127.0.0.1:3000",
     ]
 else:
-    # Por defecto, permitir todos (desarrollo)
     allowed_origins = ["*"]
 
 app.add_middleware(
@@ -56,15 +44,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- 2. CONFIGURACIÓN SODA (DATOS ABIERTOS) ---
 DATASET_ID = "gi7q-5bgv" 
 BASE_URL = f"https://www.datos.gov.co/resource/{DATASET_ID}.json"
-API_TOKEN = "CVraNSsLcjWDoVyJlV6LEmEaU"  # Token para autenticación SODA3
+API_TOKEN = "CVraNSsLcjWDoVyJlV6LEmEaU"
 
 class MensajeUsuario(BaseModel):
     pregunta: str
 
-# --- FUNCIÓN DE CARGA DE DATOS PARA IA (ETL) ---
 def actualizar_memoria_ia():
     global contexto_tolu
     print("🧠 Entrenando a DIME con datos frescos...")
@@ -72,7 +58,6 @@ def actualizar_memoria_ia():
         import json
         import os
         
-        # Cargar desde archivo local enriquecido
         archivo_enriquecido = "base_datos_enriquecida.json"
         
         if os.path.exists(archivo_enriquecido):
@@ -83,25 +68,20 @@ def actualizar_memoria_ia():
             for item in datos:
                 nombre = item.get('infraestructura', 'Entidad')
                 cat = item.get('categoria', 'General')
-                # Usar direccion_ia (dirección humana) en lugar de zona
                 direccion = item.get('direccion_ia', None)
-                # Nuevos campos: barrio_detectado y tipo_zona
                 barrio_detectado = item.get('barrio_detectado', 'Zona General')
                 tipo_zona = item.get('tipo_zona', 'General')
                 
-                # Formateo inteligente de texto (usa la misma función de corrección)
                 def to_title_case(texto):
                     if not texto or not isinstance(texto, str):
                         return texto
                     
-                    # Normalizar: si todo está en mayúsculas, convertir a minúsculas primero
                     texto_original = texto.strip()
                     if texto_original.isupper() and len(texto_original) > 1:
                         texto = texto_original.lower()
                     else:
                         texto = texto_original
                     
-                    # Diccionario de correcciones específicas (mismo que en /api/lugares)
                     correcciones = {
                         'I.E. PAULO Freire': 'Institución Educativa Paulo Freire',
                         'Intitucion Educativa JOSE Yemail TOUS - SEDE SAN Isidro': 'Institución Educativa José Yemail Tous - Sede San Isidro',
@@ -136,13 +116,11 @@ def actualizar_memoria_ia():
                         'PISTA DE PATNAJE': 'Pista de Patinaje',
                     }
                     
-                    # Verificar si hay una corrección exacta (tanto original como normalizado)
                     if texto_original in correcciones:
                         return correcciones[texto_original]
                     if texto in correcciones:
                         return correcciones[texto]
                     
-                    # Si no hay corrección exacta, aplicar formateo inteligente
                     palabras_minusculas = ['de', 'del', 'la', 'las', 'los', 'el', 'en', 'por', 'para']
                     texto = texto.replace('INSTITUCION EDUCATIVA', 'Institución Educativa').replace('INSTITUCIÓN EDUCATIVA', 'Institución Educativa')
                     texto = texto.replace('Intitucion', 'Institución').replace('INTITUCION', 'Institución')
@@ -191,19 +169,15 @@ def actualizar_memoria_ia():
                 nombre_formateado = to_title_case(nombre)
                 cat_formateada = to_title_case(cat)
                 
-                # Formato optimizado para que Gemini lea rápido
-                # Nuevo formato: incluye tipo_zona y barrio_detectado
                 if direccion:
                     texto += f"- {nombre_formateado} ({cat_formateada}). Ubicado en {tipo_zona}: {barrio_detectado}. Dirección ref: {direccion}.\n"
                 else:
-                    # Si no hay dirección, usar zona como fallback pero mantener barrio_detectado
                     zona = item.get('zona', 'No registrada')
                     texto += f"- {nombre_formateado} ({cat_formateada}). Ubicado en {tipo_zona}: {barrio_detectado}. Zona: {zona}.\n"
             
             contexto_tolu = texto
             print(f"✅ DIME memorizó {len(datos)} lugares desde archivo enriquecido.")
         else:
-            # Fallback: cargar desde API si no existe el archivo
             print("⚠️ Archivo enriquecido no encontrado, cargando desde API...")
             headers = {
                 "X-App-Token": API_TOKEN,
@@ -234,7 +208,6 @@ def actualizar_memoria_ia():
         print(f"❌ Error cargando memoria: {e}")
         contexto_tolu = "Error cargando datos."
 
-# Cargamos datos al iniciar la app
 @app.on_event("startup")
 async def startup_event():
     actualizar_memoria_ia()
@@ -248,22 +221,19 @@ def obtener_lugares():
     print("📡 Conectando con datos.gov.co...")
     
     try:
-        # Headers con autenticación SODA3
         headers = {
             "X-App-Token": API_TOKEN,
             "Accept": "application/json",
             "Content-Type": "application/json"
         }
         
-        # CONSULTA INTELIGENTE (SoQL)
-        # Pedimos solo lo que tenga coordenadas para no ensuciar el mapa
         params = {
             "$limit": 5000,
             "$where": "coordenadas IS NOT NULL OR geo_loc IS NOT NULL OR (latitud IS NOT NULL AND longitud IS NOT NULL)"
         }
         
         response = requests.get(BASE_URL, params=params, headers=headers)
-        response.raise_for_status()  # Lanza excepción si hay error HTTP
+        response.raise_for_status()
         datos_crudos = response.json()
         
         datos_limpios = []
@@ -271,31 +241,25 @@ def obtener_lugares():
         print(f"✅ Descargados {len(datos_crudos)} registros. Procesando...")
 
         for index, item in enumerate(datos_crudos):
-            # 1. Limpieza de Coordenadas
             lat, lng = None, None
             
-            # Intento de extracción de coordenadas (múltiples formatos)
             try:
-                # Prioridad 1: geo_loc (GeoJSON Point)
                 if 'geo_loc' in item and item['geo_loc'] and 'coordinates' in item['geo_loc']:
                     coords = item['geo_loc']['coordinates']
                     if isinstance(coords, list) and len(coords) >= 2:
-                        lng = float(coords[0])  # Longitud primero en GeoJSON
-                        lat = float(coords[1])  # Latitud segundo
+                        lng = float(coords[0])
+                        lat = float(coords[1])
                 
-                # Prioridad 2: latitud y longitud (campos separados)
                 elif 'latitud' in item and 'longitud' in item:
                     lat = float(item['latitud']) if item['latitud'] else None
                     lng = float(item['longitud']) if item['longitud'] else None
                 
-                # Prioridad 3: coordenadas (string "lat,lng")
                 elif 'coordenadas' in item and item['coordenadas']:
                     parts = str(item['coordenadas']).replace('"', '').replace("'", "").split(',')
                     if len(parts) >= 2:
                         lat = float(parts[0].strip())
                         lng = float(parts[1].strip())
                 
-                # Validar coordenadas
                 if lat is None or lng is None or lat == 0 or lng == 0:
                     continue
                 if lat < -90 or lat > 90 or lng < -180 or lng > 180:
@@ -303,17 +267,14 @@ def obtener_lugares():
                     
             except (ValueError, TypeError, KeyError) as e:
                 print(f"⚠️ Error procesando coordenadas para item {index}: {e}")
-                continue  # Si falla, ignoramos este lugar
+                continue
 
-            # 2. Formateo inteligente de texto (Title Case)
             def to_title_case(texto):
                 if not texto or not isinstance(texto, str):
                     return texto
                 
-                # Normalizar espacios múltiples a uno solo y trim
                 texto_original = re.sub(r'\s+', ' ', texto.strip())
                 
-                # Diccionario de correcciones específicas (con todas las variaciones posibles)
                 correcciones = {
                     'I.E. PAULO Freire': 'Institución Educativa Paulo Freire',
                     'Intitucion Educativa JOSE Yemail TOUS - SEDE SAN Isidro': 'Institución Educativa José Yemail Tous (Sede San Isidro)',
@@ -585,10 +546,17 @@ async def chat_endpoint(mensaje: MensajeUsuario):
         5. Cuando te pregunten por una entidad general (ej: "Alcaldía"), prioriza solo la sede principal o la más relevante (ej: "Palacio Municipal").
 
         6. **IMPORTANTE - PRECISIÓN TERRITORIAL**: 
-           - Si una entidad está ubicada en una **Vereda** o **Corregimiento** (zona rural), MENCIONA EXPLÍCITAMENTE esto en tu respuesta. 
-           - Ejemplos: "Está ubicada en el Corregimiento de Pita Abajo" o "Se encuentra en la Vereda de...". 
-           - Si está en un **Barrio** (zona urbana), puedes mencionarlo pero no es obligatorio.
+           - Si una entidad está ubicada en una Vereda o Corregimiento (zona rural), MENCIONA EXPLÍCITAMENTE esto en tu respuesta. 
+           - Ejemplos: "Está ubicada en el Corregimiento de Pita Abajo" o "Se encuentra en la Vereda La Loma". 
+           - Si está en un Barrio (zona urbana), puedes mencionarlo pero no es obligatorio.
            - Esto es VITAL para que los ciudadanos sepan si deben desplazarse a zona rural, ya que implica mayor distancia y tiempo de viaje.
+
+        7. **FORMATO DE RESPUESTA - TEXTO PLANO**: 
+           - NUNCA uses markdown, asteriscos (**), negritas, cursivas ni ningún formato especial.
+           - La respuesta debe ser TEXTO PLANO limpio, sin símbolos ni caracteres especiales de formato.
+           - Esto es CRÍTICO para que el text-to-speech funcione correctamente en todos los dispositivos.
+           - Ejemplo CORRECTO: "El Aeropuerto Golfo de Morrosquillo está ubicado en la Vereda La Loma. Es importante saber que se encuentra en zona rural."
+           - Ejemplo INCORRECTO: "El Aeropuerto Golfo de Morrosquillo está ubicado en la **Vereda La Loma**. Es importante saber que se encuentra en zona rural."
         
         --- INFORMACIÓN OFICIAL (TU MEMORIA) ---
 
@@ -598,12 +566,17 @@ async def chat_endpoint(mensaje: MensajeUsuario):
         
         Pregunta del ciudadano: {mensaje.pregunta}
         
-        Respuesta (debe ser el mensaje final que se le dirá al usuario, máximo 2 frases):
+        Respuesta (debe ser el mensaje final que se le dirá al usuario, máximo 2 frases, SOLO TEXTO PLANO sin markdown ni asteriscos):
 
         """
         
         response = model.generate_content(prompt)
-        return {"respuesta": response.text}
+        respuesta_texto = response.text
+        
+        # Limpiar markdown y formato para text-to-speech
+        respuesta_limpia = respuesta_texto.replace('**', '').replace('*', '').replace('__', '').replace('_', '').strip()
+        
+        return {"respuesta": respuesta_limpia}
     
     except Exception as e:
         print(f"❌ Error Gemini: {e}")

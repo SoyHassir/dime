@@ -1,34 +1,12 @@
-/**
- * Servicio para obtener lugares desde el backend de DIME o API directa
- * Prioridad: Backend local → API directa datos.gov.co
- */
-
-// URL del backend de DIME (usa variable de entorno en producción)
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000/api/lugares';
-
-// Token de autenticación para la API SODA3 (fallback)
 const API_TOKEN = 'CVraNSsLcjWDoVyJlV6LEmEaU';
-
-// URL de la API de datos.gov.co (SODA3) - Fallback
 const API_URL = 'https://www.datos.gov.co/resource/gi7q-5bgv.json';
 
-/**
- * Convierte un texto a Title Case inteligente:
- * - Mantiene siglas en mayúsculas (CDI, I.E., etc.)
- * - Pone artículos/preposiciones en minúsculas (de, del, la, los, etc.)
- * - Capitaliza la primera letra de las demás palabras
- * - Aplica reemplazos especiales (Institución Educativa → I.E.)
- * - Aplica correcciones ortográficas (Tolu → Tolú)
- * @param {string} texto - Texto a convertir
- * @returns {string} - Texto en Title Case inteligente
- */
 const toTitleCase = (texto) => {
   if (!texto || typeof texto !== 'string') return texto;
   
-  // Normalizar espacios múltiples a uno solo
   const textoNormalizado = texto.replace(/\s+/g, ' ').trim();
   
-  // Diccionario de correcciones específicas (igual que en el backend)
   const correcciones = {
     'I.E. PAULO Freire': 'Institución Educativa Paulo Freire',
     'Intitucion Educativa JOSE Yemail TOUS - SEDE SAN Isidro': 'Institución Educativa José Yemail Tous (Sede San Isidro)',
@@ -81,7 +59,6 @@ const toTitleCase = (texto) => {
     'CDI la Esperanza de los Niños': 'CDI La Esperanza de los Niños',
   };
   
-  // Verificar correcciones en múltiples formatos
   if (textoNormalizado in correcciones) {
     return correcciones[textoNormalizado];
   }
@@ -91,7 +68,6 @@ const toTitleCase = (texto) => {
   if (textoNormalizado.toLowerCase() in correcciones) {
     return correcciones[textoNormalizado.toLowerCase()];
   }
-  // Title case manual (primera letra mayúscula, resto minúsculas por palabra)
   const textoTitleCase = textoNormalizado
     .split(' ')
     .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase())
@@ -100,7 +76,6 @@ const toTitleCase = (texto) => {
     return correcciones[textoTitleCase];
   }
   
-  // Reemplazos especiales de frases completas (antes de procesar palabras individuales)
   const reemplazosEspeciales = [
     { 
       patron: /\b(INSTITUCION|INSTITUCIÓN)\s+EDUCATIVA\b/gi, 
@@ -116,13 +91,11 @@ const toTitleCase = (texto) => {
     }
   ];
   
-  // Aplicar reemplazos especiales
   let textoProcesado = textoNormalizado;
   for (const { patron, reemplazo } of reemplazosEspeciales) {
     textoProcesado = textoProcesado.replace(patron, reemplazo);
   }
   
-  // Correcciones ortográficas (se aplicarán durante el procesamiento de palabras)
   const correccionesOrtograficas = {
     'tolu': 'Tolú',
     'turistico': 'Turístico',
@@ -142,13 +115,10 @@ const toTitleCase = (texto) => {
     'patnaje': 'Patinaje'
   };
   
-  // Si todo está en mayúsculas, normalizar primero
   if (textoProcesado === textoProcesado.toUpperCase() && textoProcesado.length > 1) {
     textoProcesado = textoProcesado.toLowerCase();
   }
   
-  // Palabras que deben ir en minúsculas (excepto si son la primera palabra)
-  // Nota: "y" va en minúsculas, "la" va en minúsculas excepto cuando es primera palabra o después de sigla
   const palabrasMinusculas = [
     'de', 'del', 'la', 'las', 'los', 'el', 'en', 'por', 'para', 
     'con', 'sin', 'sobre', 'bajo', 'entre', 'hasta', 'desde', 
@@ -156,7 +126,6 @@ const toTitleCase = (texto) => {
     'y', 'o', 'a', 'un', 'una', 'unos', 'unas'
   ];
   
-  // Lista de siglas conocidas (deben mantenerse en mayúsculas)
   const siglasConocidas = {
     'cdi': 'CDI',
     'idtolu': 'IDTOLÚ',
@@ -164,32 +133,25 @@ const toTitleCase = (texto) => {
     'i.e.': 'I.E.',
   };
   
-  // Detectar siglas (palabras cortas que están completamente en mayúsculas o tienen puntos)
   const esSigla = (palabra) => {
     const palabraLower = palabra.toLowerCase();
     
-    // Verificar si es una sigla conocida
     if (palabraLower in siglasConocidas) {
       return true;
     }
     
-    // Si tiene puntos, probablemente es una sigla (I.E., C.D.I., etc.)
     if (palabra.includes('.')) return true;
     
-    // Si es muy corta (2-6 caracteres) y está en mayúsculas, probablemente es sigla
     if (palabra.length >= 2 && palabra.length <= 6 && palabra === palabra.toUpperCase() && !palabrasMinusculas.includes(palabraLower)) {
       return true;
     }
     
-    // Si tiene números mezclados con letras mayúsculas, probablemente es sigla
     if (/^[A-Z0-9]+$/.test(palabra) && palabra.length <= 6) return true;
     
-    // Si es muy corta (2-3 caracteres) y está en mayúsculas o title case
     if (palabra.length >= 2 && palabra.length <= 3) {
       const esMayusculas = palabra === palabra.toUpperCase();
       const esTitleCase = palabra[0] === palabra[0].toUpperCase() && palabra.slice(1) === palabra.slice(1).toLowerCase();
       if (esMayusculas || esTitleCase) {
-        // Verificar que no sea una palabra común
         if (!palabrasMinusculas.includes(palabraLower) && palabraLower !== 'y') {
           return true;
         }
@@ -201,27 +163,21 @@ const toTitleCase = (texto) => {
   
   const palabras = textoProcesado
     .split(' ')
-    .filter(palabra => palabra.trim().length > 0); // Filtrar espacios vacíos
+    .filter(palabra => palabra.trim().length > 0);
   
-  // Primera pasada: procesar todas las palabras
   const resultado = palabras.map((palabra, index) => {
     let palabraOriginal = palabra.trim();
     const palabraLower = palabraOriginal.toLowerCase();
     
-    // Verificar si es una sigla conocida
     if (palabraLower in siglasConocidas) {
       return siglasConocidas[palabraLower];
     }
     
-    // Aplicar correcciones ortográficas primero (antes de cualquier otra transformación)
     let palabraCorregida = correccionesOrtograficas[palabraLower];
     if (palabraCorregida) {
-      // Si hay corrección ortográfica, usarla pero aplicar formato según posición
       if (index === 0) {
-        // Primera palabra: mantener la corrección tal cual (ya tiene formato correcto)
         return palabraCorregida;
       } else {
-        // No es primera palabra: verificar si es artículo/preposición
         const palabraCorregidaLower = palabraCorregida.toLowerCase();
         if (palabrasMinusculas.includes(palabraCorregidaLower)) {
           return palabraCorregidaLower;
@@ -230,35 +186,28 @@ const toTitleCase = (texto) => {
       }
     }
     
-    // Si es una sigla, mantenerla en mayúsculas
     if (esSigla(palabraOriginal)) {
       return palabraOriginal.toUpperCase();
     }
     
-    // Si es la primera palabra, siempre capitalizar (primera letra mayúscula, resto minúsculas)
     if (index === 0) {
       const primeraLetra = palabraOriginal.charAt(0).toUpperCase();
       const resto = palabraOriginal.slice(1).toLowerCase();
       return primeraLetra + resto;
     }
     
-    // Si es un artículo/preposición/conjunción, poner en minúsculas (sin importar cómo venga)
     if (palabrasMinusculas.includes(palabraLower)) {
       return palabraLower;
     }
     
-    // Para el resto, capitalizar primera letra y resto en minúsculas
     const primeraLetra = palabraOriginal.charAt(0).toUpperCase();
     const resto = palabraOriginal.slice(1).toLowerCase();
     return primeraLetra + resto;
   });
   
-  // Segunda pasada: ajustar "La" después de siglas
   const resultadoFinal = resultado.map((palabra, index) => {
     if (palabra.toLowerCase() === 'la' && index > 0) {
-      // Verificar si la palabra anterior es una sigla
       const palabraAnterior = resultado[index - 1] || '';
-      // Si la anterior es una sigla (mayúsculas) o es "CDI", capitalizar "La"
       if (palabraAnterior === palabraAnterior.toUpperCase() || palabraAnterior === 'CDI') {
         return 'La';
       } else {
@@ -268,24 +217,14 @@ const toTitleCase = (texto) => {
     return palabra;
   });
   
-  return resultadoFinal.join(' ');
+  let textoFinal = resultadoFinal.join(' ');
+  textoFinal = textoFinal.replace(/\s+-\s+(Sede\s+[^-]+?)(?:\s*-\s*|$)/g, ' ($1)');
+  textoFinal = textoFinal.replace(/\s+(Sede\s+[A-Za-z0-9\s]+?)(?:\s*-\s*|$)/g, ' ($1)');
+  textoFinal = textoFinal.replace(/\s+/g, ' ').trim();
   
-  // Detectar y encerrar "Sede" entre paréntesis
-  // Patrón 1: " - Sede X" → " (Sede X)" (cuando hay guion antes)
-  textoProcesado = textoProcesado.replace(/\s+-\s+(Sede\s+[^-]+?)(?:\s*-\s*|$)/g, ' ($1)');
-  // Patrón 2: "Sede X" al final del texto (sin guion antes, pero puede haber espacio)
-  textoProcesado = textoProcesado.replace(/\s+(Sede\s+[A-Za-z0-9\s]+?)(?:\s*-\s*|$)/g, ' ($1)');
-  // Limpiar espacios dobles que puedan quedar
-  textoProcesado = textoProcesado.replace(/\s+/g, ' ').trim();
-  
-  return textoProcesado;
+  return textoFinal;
 };
 
-/**
- * Formatea la zona para mostrarla correctamente
- * @param {string} zona - Zona (URBANA, RURAL, etc.)
- * @returns {string} - Zona formateada como "Zona: Urbana" o "Zona: Rural"
- */
 const formatearZona = (zona) => {
   if (!zona || typeof zona !== 'string') return 'Dirección no disponible';
   
@@ -293,37 +232,24 @@ const formatearZona = (zona) => {
   return `Zona: ${zonaFormateada}`;
 };
 
-/**
- * Transforma los datos de la API al formato que usa la aplicación
- * @param {Array} datos - Datos crudos de la API
- * @returns {Array} - Datos transformados
- */
 const transformarDatos = (datos) => {
   if (!datos || !Array.isArray(datos)) {
     return [];
   }
   
-  let validos = 0;
-  let invalidos = 0;
-  
   const lugaresTransformados = datos.map((item, index) => {
-    // Extraer coordenadas según la estructura real de la API
-    // La BD tiene: latitud (Número), longitud (Número)
     let lat = null;
     let lng = null;
     
-    // Intentar obtener de latitud y longitud (pueden ser número o string)
     if (item.latitud !== undefined && item.latitud !== null && 
         item.longitud !== undefined && item.longitud !== null) {
       lat = typeof item.latitud === 'string' ? parseFloat(item.latitud) : Number(item.latitud);
       lng = typeof item.longitud === 'string' ? parseFloat(item.longitud) : Number(item.longitud);
     } else if (item.coordenadas) {
-      // También puede venir como string "lat,lng"
       const coords = item.coordenadas.split(',');
       lat = parseFloat(coords[0]);
       lng = parseFloat(coords[1]);
     } else if (item.geo_loc && item.geo_loc.coordinates && Array.isArray(item.geo_loc.coordinates)) {
-      // O desde geo_loc: [longitud, latitud] (formato GeoJSON)
       lng = typeof item.geo_loc.coordinates[0] === 'string' 
         ? parseFloat(item.geo_loc.coordinates[0]) 
         : Number(item.geo_loc.coordinates[0]);
@@ -332,20 +258,13 @@ const transformarDatos = (datos) => {
         : Number(item.geo_loc.coordinates[1]);
     }
 
-    // Validar que las coordenadas sean válidas y estén en un rango razonable
-    // Latitud válida: entre -90 y 90
-    // Longitud válida: entre -180 y 180
-    // Para Tolú, aproximadamente: lat ~9.5, lng ~-75.5
     if (isNaN(lat) || isNaN(lng) || 
         lat === 0 || lng === 0 ||
         lat === null || lng === null ||
         lat < -90 || lat > 90 ||
         lng < -180 || lng > 180) {
-      invalidos++;
       return null;
     }
-    
-    validos++;
 
     const nombreFormateado = item.infraestructura ? toTitleCase(item.infraestructura) : 'Sin nombre';
     const categoriaFormateada = item.categoria ? toTitleCase(item.categoria) : 'Otros';
@@ -361,7 +280,6 @@ const transformarDatos = (datos) => {
       direccion: formatearZona(item.zona)
     };
   }).filter(item => {
-    // Filtro adicional para asegurar que el item y sus coordenadas sean válidas
     const esValido = item !== null && 
            item.ubicacion && 
            typeof item.ubicacion.lat === 'number' && 
@@ -369,35 +287,24 @@ const transformarDatos = (datos) => {
            !isNaN(item.ubicacion.lat) && 
            !isNaN(item.ubicacion.lng);
     
-    if (!esValido && item) {
-      invalidos++;
-    }
-    
     return esValido;
   });
   
   return lugaresTransformados;
 };
 
-/**
- * Obtiene los lugares desde el backend de DIME (prioridad) o API directa (fallback)
- * @returns {Promise<Array>} - Array de lugares transformados
- */
 export const obtenerLugares = async () => {
-  // Detectar si estamos en producción
   const isProduction = typeof window !== 'undefined' && 
     (window.location.hostname !== 'localhost' && 
      window.location.hostname !== '127.0.0.1' &&
      !window.location.hostname.includes('192.168.'));
   
-  // En producción, si BACKEND_URL es localhost, saltar directamente a API directa
   const shouldSkipBackend = isProduction && BACKEND_URL.includes('localhost');
   
-  // Intentar primero con el backend (solo si no estamos en producción con localhost)
   if (!shouldSkipBackend) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // Timeout de 3 segundos
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
       
       const response = await fetch(BACKEND_URL, {
         method: 'GET',
@@ -412,7 +319,6 @@ export const obtenerLugares = async () => {
       
       if (response.ok) {
         const data = await response.json();
-        // El backend ya devuelve los datos formateados, solo validar que sea un array
         if (Array.isArray(data)) {
           return data;
         } else if (data.error) {
@@ -420,21 +326,16 @@ export const obtenerLugares = async () => {
         }
       }
     } catch (backendError) {
-      // Si el backend falla (no disponible, timeout, CORS, etc.), usar API directa
-      // Continuar con fallback silenciosamente
     }
   }
   
-  // Fallback: Obtener desde la API directa de datos.gov.co
   try {
-    // Configurar headers con autenticación SODA3
     const headers = {
       'X-App-Token': API_TOKEN,
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     };
     
-    // URL con límite para obtener todos los registros
     const urlConLimite = `${API_URL}?$limit=5000`;
     
     const response = await fetch(urlConLimite, {
@@ -448,7 +349,6 @@ export const obtenerLugares = async () => {
 
     const data = await response.json();
     
-    // La API devuelve directamente un array de objetos
     let lugares = [];
     
     if (Array.isArray(data)) {
@@ -462,24 +362,16 @@ export const obtenerLugares = async () => {
     const lugaresTransformados = transformarDatos(lugares);
     return lugaresTransformados;
   } catch (error) {
-    // En caso de error, lanzar para que el componente pueda manejarlo
     console.error('Error al obtener lugares:', error);
     throw error;
   }
 };
 
-/**
- * Obtiene los lugares con caché (para evitar múltiples llamadas)
- * @param {number} cacheTime - Tiempo de caché en milisegundos (default: 5 minutos)
- * @returns {Promise<Array>} - Array de lugares transformados
- */
 export const obtenerLugaresConCache = async (cacheTime = 5 * 60 * 1000) => {
-  // Versión del caché - cambiar esto invalida el caché anterior
   const CACHE_VERSION = 'v11-sede-entre-parentesis';
   const cacheKey = `dime-lugares-cache-${CACHE_VERSION}`;
   const cacheTimestampKey = `dime-lugares-cache-timestamp-${CACHE_VERSION}`;
   
-  // Limpiar cachés antiguos (versiones anteriores)
   try {
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -490,10 +382,8 @@ export const obtenerLugaresConCache = async (cacheTime = 5 * 60 * 1000) => {
     }
     keysToRemove.forEach(key => localStorage.removeItem(key));
   } catch (e) {
-    // Error al limpiar cachés antiguos - ignorar silenciosamente
   }
   
-  // Verificar si hay datos en caché
   const cachedData = localStorage.getItem(cacheKey);
   const cachedTimestamp = localStorage.getItem(cacheTimestampKey);
   
@@ -502,17 +392,14 @@ export const obtenerLugaresConCache = async (cacheTime = 5 * 60 * 1000) => {
     const cacheAge = now - parseInt(cachedTimestamp);
     
     if (cacheAge < cacheTime) {
-      // Los datos en caché son válidos
       const datosCache = JSON.parse(cachedData);
       return datosCache;
     }
   }
   
-  // Obtener datos frescos de la API
   try {
     const lugares = await obtenerLugares();
     
-    // Guardar en caché solo si hay datos
     if (lugares.length > 0) {
       localStorage.setItem(cacheKey, JSON.stringify(lugares));
       localStorage.setItem(cacheTimestampKey, Date.now().toString());
@@ -520,7 +407,6 @@ export const obtenerLugaresConCache = async (cacheTime = 5 * 60 * 1000) => {
     
     return lugares;
   } catch (error) {
-    // Si hay error y hay caché, intentar usar el caché aunque esté expirado
     if (cachedData) {
       return JSON.parse(cachedData);
     }
