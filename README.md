@@ -10,7 +10,11 @@
 [![Firebase](https://img.shields.io/badge/Firebase-Hosting-FFCA28?logo=firebase)](https://firebase.google.com/)
 [![Google Cloud](https://img.shields.io/badge/Google%20Cloud-Run-4285F4?logo=googlecloud)](https://cloud.google.com/run)
 
-**[🌐 Ver DIME en vivo](https://dime-ia.web.app/)** ·
+### 🌐 **Aplicación en vivo**
+
+**https://dime-ia.web.app/**
+
+[🔗 Acceder a DIME](https://dime-ia.web.app/)
 
 </div>
 
@@ -175,6 +179,10 @@ dime/
 
 **DIME - Conectando a Tolú con tecnología** 🚀
 
-**[🌐 Ver DIME en vivo](https://dime-ia.web.app/)** · [Reportar un problema](https://github.com/SoyHassir/dime/issues) · [Solicitar una feature](https://github.com/SoyHassir/dime/issues)
+### 🌐 **URL de la aplicación**
+
+**https://dime-ia.web.app/**
+
+[🔗 Acceder a DIME](https://dime-ia.web.app/) · [Reportar un problema](https://github.com/SoyHassir/dime/issues) · [Solicitar una feature](https://github.com/SoyHassir/dime/issues)
 
 </div>
