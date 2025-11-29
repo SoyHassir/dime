@@ -12,11 +12,11 @@
 
 ### 🌐 **Aplicación en vivo**
 
-**https://dime-ia.web.app/**
+**https://dime-ia.web.app**
 
 ### 🎬 **Demo en video**
 
-[Ver demo rápida](https://youtube.com/shorts/N_vfx-CGA44?feature=share)
+[Ver demo](https://youtube.com/shorts/N_vfx-CGA44?feature=share)
 
 </div>
 
@@ -187,7 +187,7 @@ dime/
 
 ### 🎬 **Demo en video**
 
-[Ver demo rápida en YouTube](https://youtube.com/shorts/N_vfx-CGA44?feature=share)
+[Ver demo](https://youtube.com/shorts/N_vfx-CGA44?feature=share)
 
 [Reportar un problema](https://github.com/SoyHassir/dime/issues) · [Solicitar una feature](https://github.com/SoyHassir/dime/issues)
 
