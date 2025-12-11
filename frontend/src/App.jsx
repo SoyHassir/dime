@@ -327,6 +327,16 @@ function App() {
     setShowOnboarding(false);
   };
 
+  // Minimizar chatbot cuando se abre una tarjeta y restaurarlo cuando se cierra
+  useEffect(() => {
+    if (lugarSeleccionado) {
+      // Si se abre una tarjeta, minimizar el chatbot con transición suave
+      setChatMinimizado(true);
+    } else {
+      // Si se cierra la tarjeta, restaurar el chatbot a su estado normal (expandido)
+      setChatMinimizado(false);
+    }
+  }, [lugarSeleccionado]);
 
   const manejarClickEnMarcador = (lugar) => {
     setLugarSeleccionado(lugar);
