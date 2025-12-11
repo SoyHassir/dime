@@ -5,108 +5,109 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { InfoCard } from '../../components/ui/InfoCard';
 
-// Mapeo de categorías a colores
+// Mapeo de categorías a colores - Paleta basada en DIME (#1c528b)
+// Colores muy tenues y sutiles que armonizan con la marca
 const getColorPorCategoria = (categoria) => {
-  if (!categoria) return '#6B7280'; // Gris por defecto
+  if (!categoria) return '#94A3B8'; // Gris tenue por defecto
   
   const categoriaNormalizada = categoria.toUpperCase().trim();
   
-  // Educación
+  // Educación - Variación clara del azul DIME
   if (categoriaNormalizada.includes('EDUCACIÓN') || 
       categoriaNormalizada.includes('EDUCACION') ||
       categoriaNormalizada.includes('CENTRO DE DESARROLLO INFANTIL')) {
-    return '#60A5FA'; // Azul tenue
+    return '#7C9BC4'; // Azul DIME muy claro y tenue
   }
   
-  // Salud
+  // Salud - Complementario sutil
   if (categoriaNormalizada.includes('SALUD')) {
-    return '#F87171'; // Rojo tenue
+    return '#C4A5A5'; // Rosa salmón muy tenue
   }
   
-  // Seguridad
+  // Seguridad - Variación cálida sutil
   if (categoriaNormalizada.includes('SEGURIDAD') || 
       categoriaNormalizada.includes('GESTIÓN DEL RIESGO') ||
       categoriaNormalizada.includes('CONTROL Y VIGILANCIA')) {
-    return '#FBBF24'; // Ámbar/Naranja tenue
+    return '#B8A57C'; // Beige cálido muy tenue
   }
   
-  // Espacios públicos
+  // Espacios públicos - Verde complementario muy sutil
   if (categoriaNormalizada.includes('ESPACIO PÚBLICO') || 
       categoriaNormalizada.includes('ESPACIO PUBLICO')) {
-    return '#34D399'; // Verde tenue
+    return '#9BC4A5'; // Verde menta muy tenue
   }
   
-  // Administración
+  // Administración - Variación azul DIME
   if (categoriaNormalizada.includes('ADMINISTRACIÓN') || 
       categoriaNormalizada.includes('ADMINISTRACION')) {
-    return '#A78BFA'; // Morado tenue
+    return '#8BA5C4'; // Azul DIME claro
   }
   
-  // Cultura
+  // Cultura - Variación púrpura muy sutil
   if (categoriaNormalizada.includes('CULTURA')) {
-    return '#C084FC'; // Púrpura tenue
+    return '#A59BC4'; // Lavanda muy tenue
   }
   
-  // Deportes
+  // Deportes - Naranja muy sutil
   if (categoriaNormalizada.includes('DEPORTIVO') || 
       categoriaNormalizada.includes('DEPORTE')) {
-    return '#FB923C'; // Naranja tenue
+    return '#C4A58B'; // Naranja beige muy tenue
   }
   
-  // Religioso
+  // Religioso - Dorado muy sutil
   if (categoriaNormalizada.includes('RELIGIOSO')) {
-    return '#FCD34D'; // Dorado/Ámbar tenue
+    return '#C4B88B'; // Dorado beige muy tenue
   }
   
-  // Bienestar social
+  // Bienestar social - Rosa muy sutil
   if (categoriaNormalizada.includes('BIENESTAR') || 
       categoriaNormalizada.includes('ATENCIÓN SOCIAL') ||
       categoriaNormalizada.includes('ATENCION SOCIAL') ||
       categoriaNormalizada.includes('DERECHOS HUMANOS')) {
-    return '#F9A8D4'; // Rosa tenue
+    return '#C4A5B8'; // Rosa pálido muy tenue
   }
   
-  // Transporte
+  // Transporte - Cian muy sutil
   if (categoriaNormalizada.includes('TRANSPORTE') || 
       categoriaNormalizada.includes('MOVILIDAD') ||
       categoriaNormalizada.includes('VIAL')) {
-    return '#22D3EE'; // Cian tenue
+    return '#8BC4B8'; // Cian menta muy tenue
   }
   
-  // Servicios públicos
+  // Servicios públicos - Verde muy sutil
   if (categoriaNormalizada.includes('SERVICIOS PÚBLICOS') || 
       categoriaNormalizada.includes('SERVICIOS PUBLICOS') ||
       categoriaNormalizada.includes('SANEAMIENTO')) {
-    return '#4ADE80'; // Verde esmeralda tenue
+    return '#9BC4A5'; // Verde menta muy tenue
   }
   
-  // Comercio
+  // Comercio - Variación azul DIME
   if (categoriaNormalizada.includes('COMERCIO')) {
-    return '#818CF8'; // Índigo tenue
+    return '#7C9BC4'; // Azul DIME claro
   }
   
-  // Funerario
+  // Funerario - Gris neutro
   if (categoriaNormalizada.includes('FUNERARIO')) {
-    return '#6B7280'; // Gris medio
+    return '#94A3B8'; // Gris azulado tenue
   }
   
-  // Medio ambiente
+  // Medio ambiente - Verde muy sutil
   if (categoriaNormalizada.includes('MEDIO AMBIENTE') || 
       categoriaNormalizada.includes('DESARROLLO RURAL')) {
-    return '#4ADE80'; // Verde tenue
+    return '#9BC4A5'; // Verde menta muy tenue
   }
   
-  // Ciencia y tecnología
+  // Ciencia y tecnología - Variación azul DIME
   if (categoriaNormalizada.includes('CIENCIA') || 
       categoriaNormalizada.includes('TECNOLOGÍA') ||
       categoriaNormalizada.includes('TECNOLOGIA') ||
       categoriaNormalizada.includes('INNOVACIÓN') ||
       categoriaNormalizada.includes('INNOVACION')) {
-    return '#A78BFA'; // Violeta tenue
+    return '#8BA5C4'; // Azul DIME claro
   }
   
-  // Por defecto: gris
-  return '#6B7280';
+  // Por defecto: gris tenue
+  return '#94A3B8';
 };
 
 // Crear icono personalizado con color
