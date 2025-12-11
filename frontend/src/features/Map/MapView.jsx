@@ -15,47 +15,47 @@ const getColorPorCategoria = (categoria) => {
   if (categoriaNormalizada.includes('EDUCACIÓN') || 
       categoriaNormalizada.includes('EDUCACION') ||
       categoriaNormalizada.includes('CENTRO DE DESARROLLO INFANTIL')) {
-    return '#2563EB'; // Azul
+    return '#60A5FA'; // Azul tenue
   }
   
   // Salud
   if (categoriaNormalizada.includes('SALUD')) {
-    return '#DC2626'; // Rojo
+    return '#F87171'; // Rojo tenue
   }
   
   // Seguridad
   if (categoriaNormalizada.includes('SEGURIDAD') || 
       categoriaNormalizada.includes('GESTIÓN DEL RIESGO') ||
       categoriaNormalizada.includes('CONTROL Y VIGILANCIA')) {
-    return '#F59E0B'; // Ámbar/Naranja
+    return '#FBBF24'; // Ámbar/Naranja tenue
   }
   
   // Espacios públicos
   if (categoriaNormalizada.includes('ESPACIO PÚBLICO') || 
       categoriaNormalizada.includes('ESPACIO PUBLICO')) {
-    return '#10B981'; // Verde
+    return '#34D399'; // Verde tenue
   }
   
   // Administración
   if (categoriaNormalizada.includes('ADMINISTRACIÓN') || 
       categoriaNormalizada.includes('ADMINISTRACION')) {
-    return '#7C3AED'; // Morado
+    return '#A78BFA'; // Morado tenue
   }
   
   // Cultura
   if (categoriaNormalizada.includes('CULTURA')) {
-    return '#9333EA'; // Púrpura
+    return '#C084FC'; // Púrpura tenue
   }
   
   // Deportes
   if (categoriaNormalizada.includes('DEPORTIVO') || 
       categoriaNormalizada.includes('DEPORTE')) {
-    return '#EA580C'; // Naranja
+    return '#FB923C'; // Naranja tenue
   }
   
   // Religioso
   if (categoriaNormalizada.includes('RELIGIOSO')) {
-    return '#D97706'; // Dorado/Ámbar oscuro
+    return '#FCD34D'; // Dorado/Ámbar tenue
   }
   
   // Bienestar social
@@ -63,37 +63,37 @@ const getColorPorCategoria = (categoria) => {
       categoriaNormalizada.includes('ATENCIÓN SOCIAL') ||
       categoriaNormalizada.includes('ATENCION SOCIAL') ||
       categoriaNormalizada.includes('DERECHOS HUMANOS')) {
-    return '#EC4899'; // Rosa
+    return '#F9A8D4'; // Rosa tenue
   }
   
   // Transporte
   if (categoriaNormalizada.includes('TRANSPORTE') || 
       categoriaNormalizada.includes('MOVILIDAD') ||
       categoriaNormalizada.includes('VIAL')) {
-    return '#0891B2'; // Cian
+    return '#22D3EE'; // Cian tenue
   }
   
   // Servicios públicos
   if (categoriaNormalizada.includes('SERVICIOS PÚBLICOS') || 
       categoriaNormalizada.includes('SERVICIOS PUBLICOS') ||
       categoriaNormalizada.includes('SANEAMIENTO')) {
-    return '#059669'; // Verde esmeralda
+    return '#4ADE80'; // Verde esmeralda tenue
   }
   
   // Comercio
   if (categoriaNormalizada.includes('COMERCIO')) {
-    return '#6366F1'; // Índigo
+    return '#818CF8'; // Índigo tenue
   }
   
   // Funerario
   if (categoriaNormalizada.includes('FUNERARIO')) {
-    return '#4B5563'; // Gris oscuro
+    return '#6B7280'; // Gris medio
   }
   
   // Medio ambiente
   if (categoriaNormalizada.includes('MEDIO AMBIENTE') || 
       categoriaNormalizada.includes('DESARROLLO RURAL')) {
-    return '#16A34A'; // Verde
+    return '#4ADE80'; // Verde tenue
   }
   
   // Ciencia y tecnología
@@ -102,7 +102,7 @@ const getColorPorCategoria = (categoria) => {
       categoriaNormalizada.includes('TECNOLOGIA') ||
       categoriaNormalizada.includes('INNOVACIÓN') ||
       categoriaNormalizada.includes('INNOVACION')) {
-    return '#8B5CF6'; // Violeta
+    return '#A78BFA'; // Violeta tenue
   }
   
   // Por defecto: gris
