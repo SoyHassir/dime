@@ -1,46 +1,158 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import React, { useMemo } from 'react';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import { AnimatePresence } from 'framer-motion';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { InfoCard } from '../../components/ui/InfoCard';
 
-let defaultIconInstance = null;
+// Mapeo de categorías a colores
+const getColorPorCategoria = (categoria) => {
+  if (!categoria) return '#6B7280'; // Gris por defecto
+  
+  const categoriaNormalizada = categoria.toUpperCase().trim();
+  
+  // Educación
+  if (categoriaNormalizada.includes('EDUCACIÓN') || 
+      categoriaNormalizada.includes('EDUCACION') ||
+      categoriaNormalizada.includes('CENTRO DE DESARROLLO INFANTIL')) {
+    return '#2563EB'; // Azul
+  }
+  
+  // Salud
+  if (categoriaNormalizada.includes('SALUD')) {
+    return '#DC2626'; // Rojo
+  }
+  
+  // Seguridad
+  if (categoriaNormalizada.includes('SEGURIDAD') || 
+      categoriaNormalizada.includes('GESTIÓN DEL RIESGO') ||
+      categoriaNormalizada.includes('CONTROL Y VIGILANCIA')) {
+    return '#F59E0B'; // Ámbar/Naranja
+  }
+  
+  // Espacios públicos
+  if (categoriaNormalizada.includes('ESPACIO PÚBLICO') || 
+      categoriaNormalizada.includes('ESPACIO PUBLICO')) {
+    return '#10B981'; // Verde
+  }
+  
+  // Administración
+  if (categoriaNormalizada.includes('ADMINISTRACIÓN') || 
+      categoriaNormalizada.includes('ADMINISTRACION')) {
+    return '#7C3AED'; // Morado
+  }
+  
+  // Cultura
+  if (categoriaNormalizada.includes('CULTURA')) {
+    return '#9333EA'; // Púrpura
+  }
+  
+  // Deportes
+  if (categoriaNormalizada.includes('DEPORTIVO') || 
+      categoriaNormalizada.includes('DEPORTE')) {
+    return '#EA580C'; // Naranja
+  }
+  
+  // Religioso
+  if (categoriaNormalizada.includes('RELIGIOSO')) {
+    return '#D97706'; // Dorado/Ámbar oscuro
+  }
+  
+  // Bienestar social
+  if (categoriaNormalizada.includes('BIENESTAR') || 
+      categoriaNormalizada.includes('ATENCIÓN SOCIAL') ||
+      categoriaNormalizada.includes('ATENCION SOCIAL') ||
+      categoriaNormalizada.includes('DERECHOS HUMANOS')) {
+    return '#EC4899'; // Rosa
+  }
+  
+  // Transporte
+  if (categoriaNormalizada.includes('TRANSPORTE') || 
+      categoriaNormalizada.includes('MOVILIDAD') ||
+      categoriaNormalizada.includes('VIAL')) {
+    return '#0891B2'; // Cian
+  }
+  
+  // Servicios públicos
+  if (categoriaNormalizada.includes('SERVICIOS PÚBLICOS') || 
+      categoriaNormalizada.includes('SERVICIOS PUBLICOS') ||
+      categoriaNormalizada.includes('SANEAMIENTO')) {
+    return '#059669'; // Verde esmeralda
+  }
+  
+  // Comercio
+  if (categoriaNormalizada.includes('COMERCIO')) {
+    return '#6366F1'; // Índigo
+  }
+  
+  // Funerario
+  if (categoriaNormalizada.includes('FUNERARIO')) {
+    return '#4B5563'; // Gris oscuro
+  }
+  
+  // Medio ambiente
+  if (categoriaNormalizada.includes('MEDIO AMBIENTE') || 
+      categoriaNormalizada.includes('DESARROLLO RURAL')) {
+    return '#16A34A'; // Verde
+  }
+  
+  // Ciencia y tecnología
+  if (categoriaNormalizada.includes('CIENCIA') || 
+      categoriaNormalizada.includes('TECNOLOGÍA') ||
+      categoriaNormalizada.includes('TECNOLOGIA') ||
+      categoriaNormalizada.includes('INNOVACIÓN') ||
+      categoriaNormalizada.includes('INNOVACION')) {
+    return '#8B5CF6'; // Violeta
+  }
+  
+  // Por defecto: gris
+  return '#6B7280';
+};
 
-const getDefaultIcon = () => {
-  if (typeof window === 'undefined') {
-    return L.Icon.Default.prototype;
+// Crear icono personalizado con color
+const crearIconoColoreado = (color) => {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `
+      <div style="
+        background-color: ${color};
+        width: 24px;
+        height: 24px;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        position: relative;
+      ">
+        <div style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotate(45deg);
+          width: 8px;
+          height: 8px;
+          background-color: white;
+          border-radius: 50%;
+        "></div>
+      </div>
+    `,
+    iconSize: [24, 24],
+    iconAnchor: [12, 24],
+    popupAnchor: [0, -24],
+  });
+};
+
+// Cache de iconos por color
+const iconosCache = new Map();
+
+const getIconoPorCategoria = (categoria) => {
+  const color = getColorPorCategoria(categoria);
+  
+  if (!iconosCache.has(color)) {
+    iconosCache.set(color, crearIconoColoreado(color));
   }
   
-  if (defaultIconInstance) {
-    return defaultIconInstance;
-  }
-  
-  const baseUrl = window.location.origin;
-  const iconUrl = `${baseUrl}/leaflet-icons/marker-icon.png`;
-  const iconRetinaUrl = `${baseUrl}/leaflet-icons/marker-icon-2x.png`;
-  const shadowUrl = `${baseUrl}/leaflet-icons/marker-shadow.png`;
-  
-  defaultIconInstance = L.icon({
-    iconUrl: iconUrl,
-    iconRetinaUrl: iconRetinaUrl,
-    shadowUrl: shadowUrl,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    tooltipAnchor: [16, -28],
-    shadowSize: [41, 41]
-  });
-  
-  const preloadImages = [iconUrl, iconRetinaUrl, shadowUrl];
-  
-  preloadImages.forEach(url => {
-    const img = new Image();
-    img.onerror = () => {};
-    img.src = url;
-  });
-  
-  return defaultIconInstance;
+  return iconosCache.get(color);
 };
 
 function FlyToLocation({ coords }) {
@@ -53,34 +165,6 @@ function FlyToLocation({ coords }) {
 
 export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
   const centroTolu = [9.524189, -75.582492];
-  const [iconoListo, setIconoListo] = useState(false);
-  const [iconoError, setIconoError] = useState(false);
-  
-  useEffect(() => {
-    const initIcon = () => {
-      try {
-        const icon = getDefaultIcon();
-        if (icon && icon.options && icon.options.iconUrl) {
-          L.Marker.prototype.options.icon = icon;
-          setIconoListo(true);
-        } else {
-          setIconoError(true);
-        }
-      } catch (error) {
-        setIconoError(true);
-      }
-    };
-    
-    initIcon();
-    
-    const timeout = setTimeout(() => {
-      if (!iconoListo) {
-        initIcon();
-      }
-    }, 100);
-    
-    return () => clearTimeout(timeout);
-  }, []);
 
   const lugaresValidos = useMemo(() => {
     if (!lugares || !Array.isArray(lugares) || lugares.length === 0) {
@@ -122,14 +206,13 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick }) => {
         )}
 
         {lugaresValidos.length > 0 ? lugaresValidos.map((lugar) => {
-            const icon = getDefaultIcon();
-            const iconToUse = icon || L.Icon.Default.prototype;
+            const iconoColoreado = getIconoPorCategoria(lugar.categoria);
             
             return (
               <Marker 
                 key={lugar.id} 
                 position={[lugar.ubicacion.lat, lugar.ubicacion.lng]}
-                icon={iconToUse}
+                icon={iconoColoreado}
                 eventHandlers={{
                   click: () => onMarkerClick(lugar),
                 }}

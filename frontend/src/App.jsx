@@ -352,7 +352,7 @@ function App() {
             transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
             className="absolute top-4 left-4 right-4 z-[1000] flex justify-center pointer-events-none"
           >
-            <div className="bg-white w-full px-5 py-3 rounded-full shadow-xl flex items-center justify-between pointer-events-auto border border-gray-100">
+            <div className="bg-white w-full px-5 py-3 rounded-2xl shadow-lg flex items-center justify-between pointer-events-auto border border-gray-100">
           
           <div className="flex items-center gap-1.5">
             <div className="bg-blue-50 p-2 rounded-full">
@@ -427,7 +427,7 @@ function App() {
             transition={{ duration: 0.4, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
             className={`absolute left-4 right-4 flex flex-col justify-end pointer-events-none ${
               tecladoVisible ? 'z-[99999]' : 'z-[1000]'
-            }`}
+            } ${modalReporte || modalAyuda ? 'hidden' : ''}`}
             style={{ 
               bottom: posicionChat,
               paddingBottom: tecladoVisible ? '0' : 'max(1rem, env(safe-area-inset-bottom))',

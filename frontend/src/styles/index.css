@@ -26,3 +26,19 @@ html, body {
     padding-right: env(safe-area-inset-right);
   }
 }
+
+/* Estilos para marcadores personalizados coloreados */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.custom-marker > div {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.custom-marker:hover > div {
+  transform: rotate(-45deg) scale(1.15);
+}
