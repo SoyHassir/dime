@@ -2,7 +2,7 @@
  * Pagina principal: mapa, chat y menu.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion as Motion, useReducedMotion } from 'framer-motion';
 import { MapView } from '../features/Map/MapView';
 import {
@@ -57,6 +57,7 @@ export function HomePage({ lugares }) {
   ]);
   const [cargandoRespuesta, setCargandoRespuesta] = useState(false);
   const [chatMinimizado, setChatMinimizado] = useState(false);
+  const chatMinimizadoPorUsuarioRef = useRef(false);
   const [tecladoVisible, setTecladoVisible] = useState(false);
   const [posicionChat, setPosicionChat] = useState('1rem');
   const [vozActiva, setVozActiva] = useState(true);
@@ -230,6 +231,16 @@ export function HomePage({ lugares }) {
     mostrarToast('info', 'Conversación borrada.');
   };
 
+  const abrirChat = () => {
+    setChatMinimizado(false);
+    chatMinimizadoPorUsuarioRef.current = false;
+  };
+
+  const minimizarChat = () => {
+    setChatMinimizado(true);
+    chatMinimizadoPorUsuarioRef.current = true;
+  };
+
   useEffect(() => {
     // Mantener el textarea ajustado al contenido al re-render (ej. borrar conversación)
     const el = document.querySelector('textarea[aria-label="Mensaje para DIME-IA"]');
@@ -269,10 +280,6 @@ export function HomePage({ lugares }) {
     return () => window.removeEventListener('keydown', onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [escuchando]);
-
-  useEffect(() => {
-    setChatMinimizado(!!lugarSeleccionado);
-  }, [lugarSeleccionado]);
 
   useEffect(() => {
     if (!chatMinimizado) return;
@@ -393,10 +400,12 @@ export function HomePage({ lugares }) {
           onMarkerClick={(lugar) => {
             if (!lugar) {
               setLugarSeleccionado(null);
+              setChatMinimizado(chatMinimizadoPorUsuarioRef.current);
               return;
             }
             trackMarkerClick(lugar.id, lugar.nombre);
             setLugarSeleccionado(lugar);
+            setChatMinimizado(true);
           }}
         />
       </Motion.div>
@@ -419,7 +428,7 @@ export function HomePage({ lugares }) {
           <div className="pointer-events-auto flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setChatMinimizado(false)}
+              onClick={abrirChat}
               className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-border bg-surface shadow-dime-lg transition-all hover:bg-surface-muted active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               aria-label="Abrir asistente DIME-IA"
             >
@@ -429,7 +438,7 @@ export function HomePage({ lugares }) {
             {!tecladoVisible && !modalReporte && !modalAyuda && (
               <button
                 type="button"
-                onClick={() => setChatMinimizado(false)}
+                onClick={abrirChat}
                 className="hidden max-w-[72vw] items-center rounded-full border border-border bg-surface/95 px-3 py-2 text-left text-sm font-semibold text-dime-700 shadow-dime-md backdrop-blur-sm transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface sm:flex"
                 aria-label="Abrir asistente y ver sugerencias"
                 title="Abrir asistente"
@@ -466,7 +475,7 @@ export function HomePage({ lugares }) {
               </button>
               <button
                 type="button"
-                onClick={() => setChatMinimizado(true)}
+                onClick={minimizarChat}
                 className="p-1 text-fg-subtle transition-colors hover:text-fg-muted active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 title="Minimizar chat"
                 aria-label="Minimizar chat"
