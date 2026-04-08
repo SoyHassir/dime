@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Volume2,
   VolumeX,
+  Trash2,
 } from 'lucide-react';
 import { DimeRobotIcon } from '../components/ui/DimeRobotIcon';
 import { Toast } from '../components/ui/Toast';
@@ -36,6 +37,9 @@ const EASE = [0.33, 1, 0.68, 1];
 export function HomePage({ lugares }) {
   const prefersReducedMotion = useReducedMotion();
   const userName = getUserName();
+  const initialBotMessage = userName
+    ? `Hola, ${userName}. Soy DIME-IA, ¿en qué te puedo ayudar?`
+    : 'Soy DIME-IA, ¿en qué te puedo ayudar?';
   const [lugarSeleccionado, setLugarSeleccionado] = useState(null);
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [modalReporte, setModalReporte] = useState(false);
@@ -48,9 +52,7 @@ export function HomePage({ lugares }) {
   const [mensajesChat, setMensajesChat] = useState([
     {
       tipo: 'bot',
-      texto: userName
-        ? `Hola, ${userName}. Soy DIME-IA, ¿en qué te puedo ayudar?`
-        : 'Soy DIME-IA, ¿en qué te puedo ayudar?',
+      texto: initialBotMessage,
     },
   ]);
   const [cargandoRespuesta, setCargandoRespuesta] = useState(false);
@@ -60,6 +62,7 @@ export function HomePage({ lugares }) {
   const [vozActiva, setVozActiva] = useState(true);
   const [escuchando, setEscuchando] = useState(false);
   const [respondiendo, setRespondiendo] = useState(false);
+  const hasText = !!mensajeChat.trim();
 
   const hablar = (texto) => {
     if (!vozActiva || !window.speechSynthesis) {
@@ -217,6 +220,13 @@ export function HomePage({ lugares }) {
     } finally {
       setCargandoRespuesta(false);
     }
+  };
+
+  const borrarConversacion = () => {
+    setMensajesChat([{ tipo: 'bot', texto: initialBotMessage }]);
+    setMensajeChat('');
+    window.speechSynthesis?.cancel();
+    mostrarToast('info', 'Conversación borrada.');
   };
 
   useEffect(() => {
@@ -388,7 +398,17 @@ export function HomePage({ lugares }) {
           </button>
         ) : (
           <div className="pointer-events-auto rounded-dime-2xl border border-border bg-surface shadow-dime-lg">
-            <div className="flex items-center justify-end p-3 pb-0">
+            <div className="flex items-center justify-end gap-2 p-3 pb-0">
+              <button
+                type="button"
+                onClick={borrarConversacion}
+                className="p-1 text-fg-subtle transition-colors hover:text-dime-600 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50"
+                title="Borrar conversación"
+                aria-label="Borrar conversación"
+                disabled={mensajesChat.length <= 1 && !mensajeChat.trim()}
+              >
+                <Trash2 className="h-5 w-5" />
+              </button>
               <button
                 type="button"
                 onClick={() => setChatMinimizado(true)}
@@ -467,21 +487,7 @@ export function HomePage({ lugares }) {
                 >
                   {vozActiva ? <Volume2 className="h-6 w-6" /> : <VolumeX className="h-6 w-6" />}
                 </button>
-                <button
-                  type="button"
-                  onClick={activarVozInput}
-                  className={`transition-colors active:scale-90 ${
-                    escuchando || respondiendo
-                      ? 'text-dime-600'
-                      : 'text-fg-subtle hover:text-dime-600'
-                  }`}
-                  title={escuchando || respondiendo ? 'Escuchando...' : 'Hablar'}
-                  disabled={escuchando || respondiendo}
-                  aria-label={escuchando || respondiendo ? 'Escuchando' : 'Hablar'}
-                >
-                  <Mic className="h-6 w-6" />
-                </button>
-                <div className="flex h-10 flex-1 items-center rounded-full border border-transparent bg-surface-muted px-4 transition-[box-shadow,border-color] focus-within:border-dime-200 focus-within:ring-2 focus-within:ring-dime-100">
+                <div className="flex h-10 flex-1 items-center gap-2 rounded-full border border-transparent bg-surface-muted px-3 transition-[box-shadow,border-color] focus-within:border-dime-200 focus-within:ring-2 focus-within:ring-dime-100">
                   <input
                     type="text"
                     value={mensajeChat}
@@ -494,22 +500,33 @@ export function HomePage({ lugares }) {
                     className="w-full bg-transparent text-sm text-fg outline-none placeholder:text-fg-subtle"
                     aria-label="Mensaje para DIME-IA"
                   />
+                  {/* Acción estilo WhatsApp/Telegram: mic si vacío, enviar si hay texto */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (hasText) enviarMensaje(mensajeChat);
+                      else activarVozInput();
+                    }}
+                    disabled={cargandoRespuesta || escuchando || respondiendo || (!hasText && !vozActiva)}
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-dime-600 text-fg-on-dime shadow-dime-sm transition-[transform,background-color,opacity] hover:bg-dime-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                    title={
+                      hasText
+                        ? 'Enviar'
+                        : !vozActiva
+                          ? 'Voz desactivada'
+                          : escuchando || respondiendo
+                            ? 'Escuchando...'
+                            : 'Hablar'
+                    }
+                    aria-label={hasText ? 'Enviar mensaje' : 'Hablar'}
+                  >
+                    {hasText ? (
+                      <Send className="h-5 w-5" aria-hidden />
+                    ) : (
+                      <Mic className="h-5 w-5" aria-hidden />
+                    )}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    mensajeChat.trim() && !cargandoRespuesta && enviarMensaje(mensajeChat)
-                  }
-                  disabled={!mensajeChat.trim() || cargandoRespuesta}
-                  className={`transition-all active:scale-90 ${
-                    mensajeChat.trim() && !cargandoRespuesta
-                      ? 'text-dime-600 hover:text-dime-700'
-                      : 'cursor-not-allowed text-fg-subtle'
-                  }`}
-                  aria-label="Enviar mensaje"
-                >
-                  <Send className="h-6 w-6" />
-                </button>
               </div>
             </div>
           </div>
