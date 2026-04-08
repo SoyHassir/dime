@@ -34,8 +34,8 @@ export const WelcomeCarousel = ({ onComplete }) => {
       texto:
         'No importa. DIME-IA guarda el directorio en tu celular para que lo consultes en cualquier lugar.',
       Icon: WifiOff,
-      circleClass: 'bg-warning-muted',
-      iconClass: 'text-warning',
+      circleClass: 'bg-dime-100',
+      iconClass: 'text-dime-700',
     },
   ];
 

@@ -344,6 +344,7 @@ export function HomePage({ lugares }) {
         <MapView
           lugares={lugares}
           lugarSeleccionado={lugarSeleccionado}
+          showExploreHint={!chatMinimizado && !tecladoVisible && !modalReporte && !modalAyuda}
           onMarkerClick={(lugar) => {
             if (!lugar) {
               setLugarSeleccionado(null);
