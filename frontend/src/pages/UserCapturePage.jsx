@@ -40,7 +40,7 @@ export function UserCapturePage({ onComplete }) {
           transition={{ delay: 0.08, duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
           className="mb-6 flex justify-center"
         >
-          <div className="rounded-dime-2xl bg-dime-50 p-5 shadow-dime-sm">
+          <div className="rounded-full bg-dime-50 p-5 shadow-dime-sm">
             <img src={dimeIcon} alt="DIME" className="h-16 w-16 object-contain" />
           </div>
         </Motion.div>

@@ -439,7 +439,7 @@ export function HomePage({ lugares }) {
               <button
                 type="button"
                 onClick={abrirChat}
-                className="hidden max-w-[72vw] items-center rounded-full border border-border bg-surface/95 px-3 py-2 text-left text-sm font-semibold text-dime-700 shadow-dime-md backdrop-blur-sm transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface sm:flex"
+                className="flex max-w-[72vw] items-center rounded-full border border-border bg-surface/95 px-3 py-2 text-left text-sm font-semibold text-dime-700 shadow-dime-md backdrop-blur-sm transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 aria-label="Abrir asistente y ver sugerencias"
                 title="Abrir asistente"
               >
@@ -467,7 +467,7 @@ export function HomePage({ lugares }) {
                   setVozActiva(!vozActiva);
                   window.speechSynthesis?.cancel();
                 }}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-muted text-fg-subtle transition-colors hover:bg-dime-50 hover:text-dime-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                className="p-1 text-fg-subtle transition-colors hover:text-dime-700 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 aria-label={vozActiva ? 'Silenciar voz' : 'Activar voz'}
                 title={vozActiva ? 'Voz activada (tocar para silenciar)' : 'Voz silenciada (tocar para activar)'}
               >
