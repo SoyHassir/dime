@@ -15,6 +15,8 @@ import {
   X,
   Check,
   ChevronDown,
+  Volume2,
+  VolumeX,
   Trash2,
 } from 'lucide-react';
 import { DimeRobotIcon } from '../components/ui/DimeRobotIcon';
@@ -229,6 +231,14 @@ export function HomePage({ lugares }) {
   };
 
   useEffect(() => {
+    // Mantener el textarea ajustado al contenido al re-render (ej. borrar conversación)
+    const el = document.querySelector('textarea[aria-label="Mensaje para DIME-IA"]');
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 112)}px`;
+  }, [mensajeChat]);
+
+  useEffect(() => {
     const handleViewportChange = () => {
       if (typeof window !== 'undefined' && window.visualViewport) {
         const diff = window.innerHeight - window.visualViewport.height;
@@ -429,7 +439,7 @@ export function HomePage({ lugares }) {
             )}
           </div>
         ) : (
-          <div className="pointer-events-auto rounded-dime-2xl border border-border bg-surface shadow-dime-lg">
+          <div className="pointer-events-auto flex max-h-[72vh] min-h-[14rem] flex-col rounded-dime-2xl border border-border bg-surface shadow-dime-lg">
             <div className="flex items-center justify-end gap-2 p-3 pb-0">
               <button
                 type="button"
@@ -448,11 +458,11 @@ export function HomePage({ lugares }) {
                   setVozActiva(!vozActiva);
                   window.speechSynthesis?.cancel();
                 }}
-                className="rounded-full bg-surface-muted px-2.5 py-1.5 text-xs font-semibold text-fg-muted transition-colors hover:bg-dime-50 hover:text-dime-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-muted text-fg-subtle transition-colors hover:bg-dime-50 hover:text-dime-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 aria-label={vozActiva ? 'Silenciar voz' : 'Activar voz'}
                 title={vozActiva ? 'Voz activada (tocar para silenciar)' : 'Voz silenciada (tocar para activar)'}
               >
-                {vozActiva ? 'Voz: On' : 'Voz: Off'}
+                {vozActiva ? <Volume2 className="h-5 w-5" aria-hidden /> : <VolumeX className="h-5 w-5" aria-hidden />}
               </button>
               <button
                 type="button"
@@ -464,10 +474,10 @@ export function HomePage({ lugares }) {
                 <ChevronDown className="h-5 w-5" />
               </button>
             </div>
-            <div className="px-5 pb-5">
+            <div className="flex flex-1 flex-col px-5 pb-5">
               <div
                 id="chat-messages"
-                className="mb-4 max-h-64 space-y-3 overflow-y-auto pr-2"
+                className="mb-3 flex-1 space-y-3 overflow-y-auto pr-2"
                 style={{ scrollBehavior: 'smooth' }}
               >
                 {mensajesChat.map((mensaje, index) => (
@@ -523,7 +533,12 @@ export function HomePage({ lugares }) {
                 <div className="flex min-h-10 flex-1 items-end gap-2 rounded-dime-2xl border border-transparent bg-surface-muted px-3 py-2 transition-[box-shadow,border-color] focus-within:border-dime-200 focus-within:ring-2 focus-within:ring-dime-100">
                   <textarea
                     value={mensajeChat}
-                    onChange={(e) => setMensajeChat(e.target.value)}
+                    onChange={(e) => {
+                      setMensajeChat(e.target.value);
+                      // Auto-grow: ajusta altura al contenido (hasta max-h)
+                      e.currentTarget.style.height = 'auto';
+                      e.currentTarget.style.height = `${Math.min(e.currentTarget.scrollHeight, 112)}px`;
+                    }}
                     onKeyDown={(e) => {
                       // WhatsApp-like:
                       // - Enter envía
