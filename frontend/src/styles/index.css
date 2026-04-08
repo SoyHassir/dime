@@ -1,7 +1,96 @@
 @import "tailwindcss";
 
-/* Aquí puedes agregar estilos globales extras si quieres */
-html, body {
+/*
+ * DIME — Fase 0: tokens de diseño (Tailwind v4 @theme)
+ * Uso: bg-dime-500, text-fg-muted, border-border, rounded-dime-lg, shadow-dime-sm, etc.
+ * Referencia rápida:
+ *   Marca: dime-50 … dime-900 (acento #1c528b = dime-500)
+ *   Superficies: surface, surface-muted, surface-raised
+ *   Texto: fg, fg-muted, fg-subtle
+ *   Bordes: border, border-strong
+ *   Estados: danger, danger-muted, warning, warning-muted, success, success-muted
+ */
+
+@theme {
+  /* Tipografía */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Marca DIME (base alineada con theme-color #1c528b) */
+  --color-dime-50: #eef6fc;
+  --color-dime-100: #d4e8f5;
+  --color-dime-200: #a9d0eb;
+  --color-dime-300: #6caed8;
+  --color-dime-400: #3d87c4;
+  --color-dime-500: #1c528b;
+  --color-dime-600: #174673;
+  --color-dime-700: #153a5f;
+  --color-dime-800: #15324f;
+  --color-dime-900: #132a42;
+
+  /* Superficies */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+  --color-surface-raised: #ffffff;
+
+  /* Texto */
+  --color-fg: #0f172a;
+  --color-fg-muted: #64748b;
+  --color-fg-subtle: #94a3b8;
+  --color-fg-on-dime: #ffffff;
+
+  /* Bordes */
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+
+  /* Estados */
+  --color-danger: #dc2626;
+  --color-danger-muted: #fef2f2;
+  --color-warning: #d97706;
+  --color-warning-muted: #fffbeb;
+  --color-success: #16a34a;
+  --color-success-muted: #f0fdf4;
+
+  /* Radios */
+  --radius-dime-sm: 0.375rem;
+  --radius-dime-md: 0.5rem;
+  --radius-dime-lg: 0.75rem;
+  --radius-dime-xl: 1rem;
+  --radius-dime-2xl: 1.25rem;
+
+  /* Sombras discretas */
+  --shadow-dime-xs: 0 1px 2px rgb(15 23 42 / 0.04);
+  --shadow-dime-sm: 0 1px 3px rgb(15 23 42 / 0.06), 0 1px 2px rgb(15 23 42 / 0.04);
+  --shadow-dime-md: 0 4px 6px -1px rgb(15 23 42 / 0.07), 0 2px 4px -2px rgb(15 23 42 / 0.05);
+  --shadow-dime-lg: 0 10px 15px -3px rgb(15 23 42 / 0.08), 0 4px 6px -4px rgb(15 23 42 / 0.05);
+
+  /* Curvas de animación (referencia en CSS o Framer Motion) */
+  --ease-dime-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-dime-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@layer base {
+  html,
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply text-fg bg-surface;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html,
+body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;

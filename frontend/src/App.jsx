@@ -7,6 +7,7 @@ import { HomePage } from './pages/HomePage';
 import { obtenerLugaresConCache } from './services/lugaresService';
 import { hasUserSession } from './services/userService';
 import { startSession, endSession, initSessionTracking } from './services/analyticsService';
+import { PRELOADER_MIN_MS } from './constants/uiTiming';
 
 initSessionTracking();
 
@@ -20,7 +21,7 @@ function App() {
     if (!userReady) return;
     const cargarDatos = async () => {
       const inicioTiempo = Date.now();
-      const tiempoMinimoPreloader = 2500;
+      const tiempoMinimoPreloader = PRELOADER_MIN_MS;
       try {
         setLoading(true);
         const timeoutPromise = new Promise((_, reject) =>

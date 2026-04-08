@@ -1,9 +1,26 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const backendUrl = env.VITE_BACKEND_URL || ''
+  // Solo modo qa: en Firebase no existe "localhost" del servidor; .env.local suele romper el deploy
+  if (mode === 'qa') {
+    const invalid =
+      !backendUrl ||
+      /localhost|127\.0\.0\.1/i.test(backendUrl)
+    if (invalid) {
+      throw new Error(
+        '[Vite] modo qa: VITE_BACKEND_URL debe ser la URL publica de Cloud Run (https://....run.app), no localhost.\n' +
+          'Nota: .env.local pisa a .env.qa; usa frontend/.env.qa.local con la URL, o quita localhost de .env.local.\n' +
+          'Ver docs/DEPLOY_QA.md'
+      )
+    }
+  }
+
+  return {
   build: {
     minify: 'terser',
     terserOptions: {
@@ -87,4 +104,5 @@ export default defineConfig({
     host: true, // Expone el servidor en la red (0.0.0.0)
     port: 5173,
   },
+  }
 })
