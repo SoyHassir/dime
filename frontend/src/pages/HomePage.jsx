@@ -19,6 +19,7 @@ import {
   VolumeX,
 } from 'lucide-react';
 import { DimeRobotIcon } from '../components/ui/DimeRobotIcon';
+import { Toast } from '../components/ui/Toast';
 import dimeIcon from '../assets/dime-icon.png';
 import { enviarMensajeChat } from '../services/chatService';
 import {
@@ -37,6 +38,7 @@ export function HomePage({ lugares }) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [modalReporte, setModalReporte] = useState(false);
   const [modalAyuda, setModalAyuda] = useState(false);
+  const [toast, setToast] = useState({ open: false, variant: 'info', message: '' });
   const [enviado, setEnviado] = useState(false);
   const [textoReporte, setTextoReporte] = useState('');
   const [tipoError, setTipoError] = useState('');
@@ -121,10 +123,28 @@ export function HomePage({ lugares }) {
     }
   };
 
+  const mostrarToast = (variant, message) => {
+    setToast({ open: true, variant, message });
+  };
+
+  const cerrarTodo = () => {
+    setMenuAbierto(false);
+    setModalAyuda(false);
+    setModalReporte(false);
+    setToast((t) => ({ ...t, open: false }));
+    if (escuchando) {
+      window.currentRecognition?.stop();
+      window.speechSynthesis?.cancel();
+      setEscuchando(false);
+      setRespondiendo(false);
+      reproducirSonidoFin();
+    }
+  };
+
   const activarVozInput = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('Tu navegador no soporta comandos de voz. Por favor usa el teclado.');
+      mostrarToast('warning', 'Tu navegador no soporta comandos de voz. Usa el teclado.');
       return;
     }
     const recognition = new SpeechRecognition();
@@ -146,10 +166,16 @@ export function HomePage({ lugares }) {
       setEscuchando(false);
       setRespondiendo(false);
       reproducirSonidoFin();
-      if (e.error === 'not-allowed')
-        alert('Permiso denegado. Permite el acceso al microfono en la configuracion.');
-      else if (e.error === 'no-speech') alert('No se detecto voz. Intenta hablar mas fuerte.');
-      else if (e.error !== 'aborted') alert(`Error: ${e.error}`);
+      if (e.error === 'not-allowed') {
+        mostrarToast(
+          'error',
+          'Permiso denegado. Permite el acceso al micrófono en la configuración del navegador.'
+        );
+      } else if (e.error === 'no-speech') {
+        mostrarToast('warning', 'No se detectó voz. Intenta hablar un poco más fuerte.');
+      } else if (e.error !== 'aborted') {
+        mostrarToast('error', `Error de voz: ${e.error}`);
+      }
     };
     recognition.onend = () => {
       if (escuchando) {
@@ -180,6 +206,7 @@ export function HomePage({ lugares }) {
       const texto = `Lo siento, hubo un problema. ${error.apiMessage || error.message || 'Intenta de nuevo.'}`;
       setMensajesChat((prev) => [...prev, { tipo: 'bot', texto }]);
       if (desdeVoz) hablar(texto);
+      mostrarToast('error', 'No se pudo enviar el mensaje. Revisa tu conexión e inténtalo de nuevo.');
     } finally {
       setCargandoRespuesta(false);
     }
@@ -208,6 +235,16 @@ export function HomePage({ lugares }) {
   }, []);
 
   useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key !== 'Escape') return;
+      cerrarTodo();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [escuchando]);
+
+  useEffect(() => {
     setChatMinimizado(!!lugarSeleccionado);
   }, [lugarSeleccionado]);
 
@@ -225,6 +262,12 @@ export function HomePage({ lugares }) {
       transition={prefersReducedMotion ? { duration: 0.15 } : { duration: 0.45, ease: EASE }}
       className="relative flex h-full w-full flex-col overflow-hidden bg-surface-muted font-sans"
     >
+      <Toast
+        open={toast.open}
+        variant={toast.variant}
+        message={toast.message}
+        onClose={() => setToast((t) => ({ ...t, open: false }))}
+      />
       {/* Header */}
       <Motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: -12 }}
@@ -243,7 +286,7 @@ export function HomePage({ lugares }) {
             <button
               type="button"
               onClick={() => setMenuAbierto(!menuAbierto)}
-              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-surface-muted transition-colors hover:bg-dime-50 active:scale-95"
+              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-surface-muted transition-colors hover:bg-dime-50 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               aria-expanded={menuAbierto}
               aria-label="Menú"
             >
@@ -330,7 +373,7 @@ export function HomePage({ lugares }) {
           <button
             type="button"
             onClick={() => setChatMinimizado(false)}
-            className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full border-2 border-border bg-surface shadow-dime-lg transition-all hover:bg-surface-muted active:scale-95"
+            className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full border-2 border-border bg-surface shadow-dime-lg transition-all hover:bg-surface-muted active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             aria-label="Abrir asistente DIME-IA"
           >
             <DimeRobotIcon className="h-10 w-10" />
@@ -341,7 +384,7 @@ export function HomePage({ lugares }) {
               <button
                 type="button"
                 onClick={() => setChatMinimizado(true)}
-                className="p-1 text-fg-subtle transition-colors hover:text-fg-muted active:scale-90"
+                className="p-1 text-fg-subtle transition-colors hover:text-fg-muted active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 title="Minimizar chat"
                 aria-label="Minimizar chat"
               >
@@ -386,15 +429,19 @@ export function HomePage({ lugares }) {
                       <DimeRobotIcon className="h-8 w-8" />
                     </div>
                     <div className="rounded-dime-xl rounded-tl-none bg-surface-muted px-4 py-2 text-sm font-medium text-fg shadow-dime-xs">
-                      <span className="inline-flex items-center gap-1">
-                        <span className="animate-bounce">.</span>
-                        <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>
-                          .
+                      {prefersReducedMotion ? (
+                        <span aria-label="Cargando">…</span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1" aria-label="Cargando">
+                          <span className="animate-bounce">.</span>
+                          <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>
+                            .
+                          </span>
+                          <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>
+                            .
+                          </span>
                         </span>
-                        <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>
-                          .
-                        </span>
-                      </span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -406,7 +453,7 @@ export function HomePage({ lugares }) {
                     setVozActiva(!vozActiva);
                     window.speechSynthesis?.cancel();
                   }}
-                  className="text-fg-subtle transition-colors hover:text-dime-600 active:scale-90"
+                  className="text-fg-subtle transition-colors hover:text-dime-600 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                   title={vozActiva ? 'Silenciar voz' : 'Activar voz'}
                   aria-label={vozActiva ? 'Silenciar voz' : 'Activar voz'}
                 >
@@ -478,11 +525,14 @@ export function HomePage({ lugares }) {
             transition={{ duration: 0.35, ease: EASE }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-sm rounded-dime-2xl border border-border bg-surface p-6 shadow-dime-lg"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Reportar inconsistencia"
           >
             <button
               type="button"
               onClick={cerrarModalReporte}
-              className="absolute right-4 top-4 rounded-full bg-surface-muted p-2 text-fg-subtle transition-colors hover:text-danger"
+              className="absolute right-4 top-4 rounded-full bg-surface-muted p-2 text-fg-subtle transition-colors hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               aria-label="Cerrar"
             >
               <X className="h-5 w-5" />
@@ -574,11 +624,14 @@ export function HomePage({ lugares }) {
             transition={{ duration: 0.35, ease: EASE }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-sm rounded-dime-2xl border border-border bg-surface p-6 text-center shadow-dime-lg"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Ayuda y acerca de"
           >
             <button
               type="button"
               onClick={() => setModalAyuda(false)}
-              className="absolute right-4 top-4 rounded-full bg-surface-muted p-2 text-fg-subtle transition-colors hover:text-danger"
+              className="absolute right-4 top-4 rounded-full bg-surface-muted p-2 text-fg-subtle transition-colors hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               aria-label="Cerrar"
             >
               <X className="h-5 w-5" />
@@ -635,7 +688,7 @@ export function HomePage({ lugares }) {
               setRespondiendo(false);
               reproducirSonidoFin();
             }}
-            className="absolute right-4 top-4 z-[3001] flex h-10 w-10 items-center justify-center rounded-full bg-surface-muted transition-colors hover:bg-border"
+            className="absolute right-4 top-4 z-[3001] flex h-10 w-10 items-center justify-center rounded-full bg-surface-muted transition-colors hover:bg-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             title="Cerrar"
             aria-label="Cerrar escucha"
           >
