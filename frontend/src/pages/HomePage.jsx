@@ -15,8 +15,6 @@ import {
   X,
   Check,
   ChevronDown,
-  Volume2,
-  VolumeX,
   Trash2,
 } from 'lucide-react';
 import { DimeRobotIcon } from '../components/ui/DimeRobotIcon';
@@ -63,6 +61,7 @@ export function HomePage({ lugares }) {
   const [escuchando, setEscuchando] = useState(false);
   const [respondiendo, setRespondiendo] = useState(false);
   const hasText = !!mensajeChat.trim();
+  const [minHintShown, setMinHintShown] = useState(false);
 
   const hablar = (texto) => {
     if (!vozActiva || !window.speechSynthesis) {
@@ -265,6 +264,25 @@ export function HomePage({ lugares }) {
     setChatMinimizado(!!lugarSeleccionado);
   }, [lugarSeleccionado]);
 
+  useEffect(() => {
+    if (!chatMinimizado) return;
+    if (minHintShown) return;
+    try {
+      const key = 'dime_chat_min_hint_seen';
+      const seen = localStorage.getItem(key) === 'true';
+      if (!seen) {
+        mostrarToast('info', 'Tip: toca un pin para ver detalles. Abre DIME‑IA para buscar o preguntar.');
+        localStorage.setItem(key, 'true');
+      }
+    } catch {
+      // Si localStorage falla, mostramos el tip una vez por sesión.
+      mostrarToast('info', 'Tip: toca un pin para ver detalles. Abre DIME‑IA para buscar o preguntar.');
+    } finally {
+      setMinHintShown(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatMinimizado]);
+
   const cerrarModalReporte = () => {
     setModalReporte(false);
     setEnviado(false);
@@ -388,14 +406,28 @@ export function HomePage({ lugares }) {
         }}
       >
         {chatMinimizado ? (
-          <button
-            type="button"
-            onClick={() => setChatMinimizado(false)}
-            className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full border-2 border-border bg-surface shadow-dime-lg transition-all hover:bg-surface-muted active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-            aria-label="Abrir asistente DIME-IA"
-          >
-            <DimeRobotIcon className="h-10 w-10" />
-          </button>
+          <div className="pointer-events-auto flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setChatMinimizado(false)}
+              className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-border bg-surface shadow-dime-lg transition-all hover:bg-surface-muted active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+              aria-label="Abrir asistente DIME-IA"
+            >
+              <DimeRobotIcon className="h-10 w-10" />
+            </button>
+
+            {!tecladoVisible && !modalReporte && !modalAyuda && (
+              <button
+                type="button"
+                onClick={() => setChatMinimizado(false)}
+                className="hidden max-w-[72vw] items-center rounded-full border border-border bg-surface/95 px-3 py-2 text-left text-sm font-semibold text-dime-700 shadow-dime-md backdrop-blur-sm transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface sm:flex"
+                aria-label="Abrir asistente y ver sugerencias"
+                title="Abrir asistente"
+              >
+                Toca un pin o pregúntale a DIME‑IA
+              </button>
+            )}
+          </div>
         ) : (
           <div className="pointer-events-auto rounded-dime-2xl border border-border bg-surface shadow-dime-lg">
             <div className="flex items-center justify-end gap-2 p-3 pb-0">
@@ -408,6 +440,19 @@ export function HomePage({ lugares }) {
                 disabled={mensajesChat.length <= 1 && !mensajeChat.trim()}
               >
                 <Trash2 className="h-5 w-5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setVozActiva(!vozActiva);
+                  window.speechSynthesis?.cancel();
+                }}
+                className="rounded-full bg-surface-muted px-2.5 py-1.5 text-xs font-semibold text-fg-muted transition-colors hover:bg-dime-50 hover:text-dime-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                aria-label={vozActiva ? 'Silenciar voz' : 'Activar voz'}
+                title={vozActiva ? 'Voz activada (tocar para silenciar)' : 'Voz silenciada (tocar para activar)'}
+              >
+                {vozActiva ? 'Voz: On' : 'Voz: Off'}
               </button>
               <button
                 type="button"
@@ -474,59 +519,53 @@ export function HomePage({ lugares }) {
                   </div>
                 )}
               </div>
-              <div className="mt-2 flex items-center gap-3 pl-1 sm:gap-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVozActiva(!vozActiva);
-                    window.speechSynthesis?.cancel();
-                  }}
-                  className="text-fg-subtle transition-colors hover:text-dime-600 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-                  title={vozActiva ? 'Silenciar voz' : 'Activar voz'}
-                  aria-label={vozActiva ? 'Silenciar voz' : 'Activar voz'}
-                >
-                  {vozActiva ? <Volume2 className="h-6 w-6" /> : <VolumeX className="h-6 w-6" />}
-                </button>
-                <div className="flex h-10 flex-1 items-center gap-2 rounded-full border border-transparent bg-surface-muted px-3 transition-[box-shadow,border-color] focus-within:border-dime-200 focus-within:ring-2 focus-within:ring-dime-100">
-                  <input
-                    type="text"
+              <div className="mt-2 flex items-end gap-3 pl-1 sm:gap-4">
+                <div className="flex min-h-10 flex-1 items-end gap-2 rounded-dime-2xl border border-transparent bg-surface-muted px-3 py-2 transition-[box-shadow,border-color] focus-within:border-dime-200 focus-within:ring-2 focus-within:ring-dime-100">
+                  <textarea
                     value={mensajeChat}
                     onChange={(e) => setMensajeChat(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && mensajeChat.trim() && !cargandoRespuesta)
-                        enviarMensaje(mensajeChat);
+                      // WhatsApp-like:
+                      // - Enter envía
+                      // - Shift+Enter inserta salto de línea
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (mensajeChat.trim() && !cargandoRespuesta) enviarMensaje(mensajeChat);
+                      }
                     }}
                     placeholder="Escribe o habla..."
-                    className="w-full bg-transparent text-sm text-fg outline-none placeholder:text-fg-subtle"
+                    rows={1}
+                    className="max-h-28 w-full resize-none bg-transparent text-sm text-fg outline-none placeholder:text-fg-subtle"
                     aria-label="Mensaje para DIME-IA"
                   />
-                  {/* Acción estilo WhatsApp/Telegram: mic si vacío, enviar si hay texto */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (hasText) enviarMensaje(mensajeChat);
-                      else activarVozInput();
-                    }}
-                    disabled={cargandoRespuesta || escuchando || respondiendo || (!hasText && !vozActiva)}
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-dime-600 text-fg-on-dime shadow-dime-sm transition-[transform,background-color,opacity] hover:bg-dime-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-                    title={
-                      hasText
-                        ? 'Enviar'
-                        : !vozActiva
-                          ? 'Voz desactivada'
-                          : escuchando || respondiendo
-                            ? 'Escuchando...'
-                            : 'Hablar'
-                    }
-                    aria-label={hasText ? 'Enviar mensaje' : 'Hablar'}
-                  >
-                    {hasText ? (
-                      <Send className="h-5 w-5" aria-hidden />
-                    ) : (
-                      <Mic className="h-5 w-5" aria-hidden />
-                    )}
-                  </button>
                 </div>
+
+                {/* Acción estilo WhatsApp/Telegram: mic si vacío, enviar si hay texto */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (hasText) enviarMensaje(mensajeChat);
+                    else activarVozInput();
+                  }}
+                  disabled={cargandoRespuesta || escuchando || respondiendo || (!hasText && !vozActiva)}
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-dime-600 text-fg-on-dime shadow-dime-md transition-[transform,background-color,opacity] hover:bg-dime-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                  title={
+                    hasText
+                      ? 'Enviar'
+                      : !vozActiva
+                        ? 'Voz desactivada'
+                        : escuchando || respondiendo
+                          ? 'Escuchando...'
+                          : 'Hablar'
+                  }
+                  aria-label={hasText ? 'Enviar mensaje' : 'Hablar'}
+                >
+                  {hasText ? (
+                    <Send className="h-5 w-5" aria-hidden />
+                  ) : (
+                    <Mic className="h-5 w-5" aria-hidden />
+                  )}
+                </button>
               </div>
             </div>
           </div>
