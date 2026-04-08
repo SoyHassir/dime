@@ -5,110 +5,11 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { InfoCard } from '../../components/ui/InfoCard';
 
-// Mapeo de categorías a colores - Paleta basada en DIME (#1c528b)
-// Colores muy tenues y sutiles que armonizan con la marca
-const getColorPorCategoria = (categoria) => {
-  if (!categoria) return '#94A3B8'; // Gris tenue por defecto
-  
-  const categoriaNormalizada = categoria.toUpperCase().trim();
-  
-  // Educación - Variación clara del azul DIME
-  if (categoriaNormalizada.includes('EDUCACIÓN') || 
-      categoriaNormalizada.includes('EDUCACION') ||
-      categoriaNormalizada.includes('CENTRO DE DESARROLLO INFANTIL')) {
-    return '#7C9BC4'; // Azul DIME muy claro y tenue
-  }
-  
-  // Salud - Complementario sutil
-  if (categoriaNormalizada.includes('SALUD')) {
-    return '#C4A5A5'; // Rosa salmón muy tenue
-  }
-  
-  // Seguridad - Variación cálida sutil
-  if (categoriaNormalizada.includes('SEGURIDAD') || 
-      categoriaNormalizada.includes('GESTIÓN DEL RIESGO') ||
-      categoriaNormalizada.includes('CONTROL Y VIGILANCIA')) {
-    return '#B8A57C'; // Beige cálido muy tenue
-  }
-  
-  // Espacios públicos - Verde complementario muy sutil
-  if (categoriaNormalizada.includes('ESPACIO PÚBLICO') || 
-      categoriaNormalizada.includes('ESPACIO PUBLICO')) {
-    return '#9BC4A5'; // Verde menta muy tenue
-  }
-  
-  // Administración - Variación azul DIME
-  if (categoriaNormalizada.includes('ADMINISTRACIÓN') || 
-      categoriaNormalizada.includes('ADMINISTRACION')) {
-    return '#8BA5C4'; // Azul DIME claro
-  }
-  
-  // Cultura - Variación púrpura muy sutil
-  if (categoriaNormalizada.includes('CULTURA')) {
-    return '#A59BC4'; // Lavanda muy tenue
-  }
-  
-  // Deportes - Naranja muy sutil
-  if (categoriaNormalizada.includes('DEPORTIVO') || 
-      categoriaNormalizada.includes('DEPORTE')) {
-    return '#C4A58B'; // Naranja beige muy tenue
-  }
-  
-  // Religioso - Dorado muy sutil
-  if (categoriaNormalizada.includes('RELIGIOSO')) {
-    return '#C4B88B'; // Dorado beige muy tenue
-  }
-  
-  // Bienestar social - Rosa muy sutil
-  if (categoriaNormalizada.includes('BIENESTAR') || 
-      categoriaNormalizada.includes('ATENCIÓN SOCIAL') ||
-      categoriaNormalizada.includes('ATENCION SOCIAL') ||
-      categoriaNormalizada.includes('DERECHOS HUMANOS')) {
-    return '#C4A5B8'; // Rosa pálido muy tenue
-  }
-  
-  // Transporte - Cian muy sutil
-  if (categoriaNormalizada.includes('TRANSPORTE') || 
-      categoriaNormalizada.includes('MOVILIDAD') ||
-      categoriaNormalizada.includes('VIAL')) {
-    return '#8BC4B8'; // Cian menta muy tenue
-  }
-  
-  // Servicios públicos - Verde muy sutil
-  if (categoriaNormalizada.includes('SERVICIOS PÚBLICOS') || 
-      categoriaNormalizada.includes('SERVICIOS PUBLICOS') ||
-      categoriaNormalizada.includes('SANEAMIENTO')) {
-    return '#9BC4A5'; // Verde menta muy tenue
-  }
-  
-  // Comercio - Variación azul DIME
-  if (categoriaNormalizada.includes('COMERCIO')) {
-    return '#7C9BC4'; // Azul DIME claro
-  }
-  
-  // Funerario - Gris neutro
-  if (categoriaNormalizada.includes('FUNERARIO')) {
-    return '#94A3B8'; // Gris azulado tenue
-  }
-  
-  // Medio ambiente - Verde muy sutil
-  if (categoriaNormalizada.includes('MEDIO AMBIENTE') || 
-      categoriaNormalizada.includes('DESARROLLO RURAL')) {
-    return '#9BC4A5'; // Verde menta muy tenue
-  }
-  
-  // Ciencia y tecnología - Variación azul DIME
-  if (categoriaNormalizada.includes('CIENCIA') || 
-      categoriaNormalizada.includes('TECNOLOGÍA') ||
-      categoriaNormalizada.includes('TECNOLOGIA') ||
-      categoriaNormalizada.includes('INNOVACIÓN') ||
-      categoriaNormalizada.includes('INNOVACION')) {
-    return '#8BA5C4'; // Azul DIME claro
-  }
-  
-  // Por defecto: gris tenue
-  return '#94A3B8';
-};
+// Enfoque: “ver todo a la vez”
+// - Pins uniformes para reducir ruido visual
+// - El pin seleccionado se destaca ligeramente
+const COLOR_PIN_DEFAULT = '#1c528b'; // DIME
+const COLOR_PIN_SELECTED = '#153a5f'; // DIME más oscuro
 
 // Crear icono personalizado con color
 const crearIconoColoreado = (color) => {
@@ -146,13 +47,8 @@ const crearIconoColoreado = (color) => {
 // Cache de iconos por color
 const iconosCache = new Map();
 
-const getIconoPorCategoria = (categoria) => {
-  const color = getColorPorCategoria(categoria);
-  
-  if (!iconosCache.has(color)) {
-    iconosCache.set(color, crearIconoColoreado(color));
-  }
-  
+const getIconoPorColor = (color) => {
+  if (!iconosCache.has(color)) iconosCache.set(color, crearIconoColoreado(color));
   return iconosCache.get(color);
 };
 
@@ -207,7 +103,8 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick, showExplore
         )}
 
         {lugaresValidos.length > 0 ? lugaresValidos.map((lugar) => {
-            const iconoColoreado = getIconoPorCategoria(lugar.categoria);
+            const isSelected = lugarSeleccionado?.id === lugar.id;
+            const iconoColoreado = getIconoPorColor(isSelected ? COLOR_PIN_SELECTED : COLOR_PIN_DEFAULT);
             
             return (
               <Marker 

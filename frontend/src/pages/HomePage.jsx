@@ -29,11 +29,13 @@ import {
   trackVoiceInput,
   trackReportSubmitted,
 } from '../services/analyticsService';
+import { getUserName } from '../services/userService';
 
 const EASE = [0.33, 1, 0.68, 1];
 
 export function HomePage({ lugares }) {
   const prefersReducedMotion = useReducedMotion();
+  const userName = getUserName();
   const [lugarSeleccionado, setLugarSeleccionado] = useState(null);
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [modalReporte, setModalReporte] = useState(false);
@@ -44,7 +46,12 @@ export function HomePage({ lugares }) {
   const [tipoError, setTipoError] = useState('');
   const [mensajeChat, setMensajeChat] = useState('');
   const [mensajesChat, setMensajesChat] = useState([
-    { tipo: 'bot', texto: 'Soy DIME-IA, ¿en qué te puedo ayudar?' },
+    {
+      tipo: 'bot',
+      texto: userName
+        ? `Hola, ${userName}. Soy DIME-IA, ¿en qué te puedo ayudar?`
+        : 'Soy DIME-IA, ¿en qué te puedo ayudar?',
+    },
   ]);
   const [cargandoRespuesta, setCargandoRespuesta] = useState(false);
   const [chatMinimizado, setChatMinimizado] = useState(false);
@@ -702,9 +709,7 @@ export function HomePage({ lugares }) {
             className="flex flex-col items-center"
           >
             <div
-              className={`relative flex h-20 w-20 items-center justify-center rounded-full shadow-dime-lg ${
-                respondiendo ? 'bg-success' : 'bg-dime-600'
-              }`}
+              className="relative flex h-20 w-20 items-center justify-center rounded-full bg-dime-600 shadow-dime-lg"
             >
               {respondiendo ? (
                 <DimeRobotIcon className="h-10 w-10" />
