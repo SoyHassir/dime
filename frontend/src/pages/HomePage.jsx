@@ -34,6 +34,10 @@ import { getUserName } from '../services/userService';
 
 const EASE = [0.33, 1, 0.68, 1];
 
+// Inyectado por Vite (vite.config.js -> define)
+// eslint-disable-next-line no-undef
+const BUILD_ID = typeof __DIME_BUILD_ID__ !== 'undefined' ? __DIME_BUILD_ID__ : 'dev';
+
 export function HomePage({ lugares }) {
   const prefersReducedMotion = useReducedMotion();
   const chatInputRef = useRef(null);
@@ -279,7 +283,8 @@ export function HomePage({ lugares }) {
         const diff = window.innerHeight - window.visualViewport.height;
         const visible = diff > 150;
         setTecladoVisible(visible);
-        setPosicionChat(visible ? '8px' : '1rem');
+        // Subir el chat por encima del teclado (móvil)
+        setPosicionChat(visible ? `${Math.max(8, Math.round(diff) + 8)}px` : '1rem');
       }
     };
     if (typeof window !== 'undefined') {
@@ -763,6 +768,9 @@ export function HomePage({ lugares }) {
             <h2 className="mb-1 text-2xl font-bold text-dime-600">DIME</h2>
             <p className="mb-6 text-xs font-medium uppercase tracking-widest text-fg-subtle">
               Versión Prototipo 1.0
+            </p>
+            <p className="mb-6 text-[11px] font-semibold tracking-wide text-fg-subtle">
+              Build: <span className="font-mono">{BUILD_ID}</span>
             </p>
             <div className="mb-6 space-y-4 text-left">
               <div className="flex gap-3">
