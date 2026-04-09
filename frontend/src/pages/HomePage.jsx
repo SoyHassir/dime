@@ -448,8 +448,8 @@ export function HomePage({ lugares }) {
             )}
           </div>
         ) : (
-          <div className="dime-glass-chat pointer-events-auto flex max-h-[72vh] min-h-[14rem] flex-col">
-            <div className="flex items-center justify-end gap-2 p-3 pb-0">
+          <div className="dime-glass-chat pointer-events-auto flex max-h-[72vh] min-h-[14rem] flex-col overflow-hidden">
+            <div className="flex shrink-0 items-center justify-end gap-2 p-3 pb-0">
               <button
                 type="button"
                 onClick={borrarConversacion}
@@ -483,10 +483,10 @@ export function HomePage({ lugares }) {
                 <ChevronDown className="h-5 w-5" />
               </button>
             </div>
-            <div className="flex flex-1 flex-col px-5 pb-5">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-5 pb-5">
               <div
                 id="chat-messages"
-                className="mb-3 flex-1 space-y-3 overflow-y-auto pr-2"
+                className="mb-3 min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden pr-2"
                 style={{ scrollBehavior: 'smooth' }}
               >
                 {mensajesChat.map((mensaje, index) => (
@@ -538,7 +538,7 @@ export function HomePage({ lugares }) {
                   </div>
                 )}
               </div>
-              <div className="mt-2 flex items-end gap-3 pl-1 sm:gap-4">
+              <div className="mt-2 flex shrink-0 items-end gap-3 pl-1 sm:gap-4">
                 <div className="flex min-h-10 flex-1 items-end gap-2 rounded-dime-2xl border border-transparent bg-surface-muted px-3 py-2 transition-[box-shadow,border-color] focus-within:border-dime-200 focus-within:ring-2 focus-within:ring-dime-100">
                   <textarea
                     value={mensajeChat}
