@@ -36,6 +36,7 @@ const EASE = [0.33, 1, 0.68, 1];
 
 export function HomePage({ lugares }) {
   const prefersReducedMotion = useReducedMotion();
+  const chatInputRef = useRef(null);
   const userName = getUserName();
   const initialBotMessage = userName
     ? `Hola, ${userName}. Soy DIME-IA, ¿en qué te puedo ayudar?`
@@ -213,6 +214,12 @@ export function HomePage({ lugares }) {
     setMensajesChat((prev) => [...prev, { tipo: 'usuario', texto: mensaje.trim() }]);
     setMensajeChat('');
     setCargandoRespuesta(true);
+
+    // UX móvil: mantener el teclado abierto para seguir escribiendo
+    if (!desdeVoz) {
+      requestAnimationFrame(() => chatInputRef.current?.focus());
+    }
+
     try {
       const data = await enviarMensajeChat(mensaje);
       const depth = mensajesChat.length + 2;
@@ -222,6 +229,7 @@ export function HomePage({ lugares }) {
       setTimeout(() => {
         const el = document.getElementById('chat-messages');
         if (el) el.scrollTop = el.scrollHeight;
+        if (!desdeVoz) chatInputRef.current?.focus();
       }, 100);
     } catch (error) {
       const texto = `Lo siento, hubo un problema. ${error.apiMessage || error.message || 'Intenta de nuevo.'}`;
@@ -550,6 +558,7 @@ export function HomePage({ lugares }) {
               <div className="mt-2 flex shrink-0 items-end gap-3 pl-1 sm:gap-4">
                 <div className="flex min-h-10 flex-1 items-end gap-2 rounded-dime-2xl border border-transparent bg-surface-muted px-3 py-2 transition-[box-shadow,border-color] focus-within:border-dime-200 focus-within:ring-2 focus-within:ring-dime-100">
                   <textarea
+                    ref={chatInputRef}
                     value={mensajeChat}
                     onChange={(e) => {
                       setMensajeChat(e.target.value);
@@ -818,17 +827,21 @@ export function HomePage({ lugares }) {
                 </>
               )}
 
-              {/* Pulso al “responder” (distinto a “escuchando”, pero visible en móvil) */}
+              {/* Aros de interacción en “Respondiendo” (mismo comportamiento que “Escuchando”) */}
               {!prefersReducedMotion && respondiendo && (
                 <>
                   <span
-                    className="pointer-events-none absolute -inset-2 rounded-full ring-2 ring-dime-100/60 animate-pulse"
-                    style={{ animationDuration: '1.6s' }}
+                    className="pointer-events-none absolute inset-0 rounded-full ring-2 ring-dime-200/70"
                     aria-hidden
                   />
                   <span
-                    className="pointer-events-none absolute -inset-4 rounded-full ring-2 ring-dime-100/25 animate-pulse"
-                    style={{ animationDuration: '2.2s' }}
+                    className="pointer-events-none absolute inset-0 rounded-full ring-2 ring-dime-200/45 animate-ping"
+                    style={{ animationDuration: '1.4s' }}
+                    aria-hidden
+                  />
+                  <span
+                    className="pointer-events-none absolute inset-0 rounded-full ring-2 ring-dime-200/25 animate-ping"
+                    style={{ animationDuration: '2.1s' }}
                     aria-hidden
                   />
                 </>
