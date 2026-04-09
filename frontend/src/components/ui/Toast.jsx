@@ -41,9 +41,9 @@ export function Toast({ open, variant = 'info', message, onClose, autoHideMs = 4
   const styles = STYLES_BY_VARIANT[variant] ?? STYLES_BY_VARIANT.info;
 
   return (
-    <div className="pointer-events-none fixed left-4 right-4 top-4 z-[5001] flex justify-center">
+    <div className="pointer-events-none fixed inset-x-4 top-4 z-[5001]">
       <div
-        className={`pointer-events-auto flex w-full max-w-none min-h-14 items-start gap-3 rounded-dime-2xl border px-4 py-3 shadow-dime-lg backdrop-blur-sm sm:px-5 ${styles.wrap}`}
+        className={`pointer-events-auto flex w-full min-h-14 items-start gap-3 rounded-dime-2xl border px-4 py-3 shadow-dime-lg backdrop-blur-sm sm:px-5 ${styles.wrap}`}
         role={variant === 'error' || variant === 'warning' ? 'alert' : 'status'}
         aria-live={variant === 'error' || variant === 'warning' ? 'assertive' : 'polite'}
       >
