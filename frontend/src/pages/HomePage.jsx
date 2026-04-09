@@ -448,7 +448,7 @@ export function HomePage({ lugares }) {
             )}
           </div>
         ) : (
-          <div className="dime-glass-chat pointer-events-auto flex h-[clamp(16rem,38vh,24rem)] flex-col overflow-hidden sm:h-[clamp(18rem,40vh,26rem)]">
+          <div className="dime-glass-chat pointer-events-auto flex h-[clamp(14rem,32vh,20rem)] flex-col overflow-hidden sm:h-[clamp(16rem,34vh,22rem)]">
             <div className="flex shrink-0 items-center justify-end gap-2 p-3 pb-0">
               <button
                 type="button"
