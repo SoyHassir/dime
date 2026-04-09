@@ -37,6 +37,7 @@ const EASE = [0.33, 1, 0.68, 1];
 export function HomePage({ lugares }) {
   const prefersReducedMotion = useReducedMotion();
   const chatInputRef = useRef(null);
+  const chatEndRef = useRef(null);
   const userName = getUserName();
   const initialBotMessage = userName
     ? `Hola, ${userName}. Soy DIME-IA, ¿en qué te puedo ayudar?`
@@ -265,6 +266,12 @@ export function HomePage({ lugares }) {
     el.style.height = 'auto';
     el.style.height = `${Math.min(el.scrollHeight, 112)}px`;
   }, [mensajeChat]);
+
+  // Mantener siempre visible el final del chat (incluye indicador "escribiendo")
+  useEffect(() => {
+    const behavior = prefersReducedMotion ? 'auto' : 'smooth';
+    chatEndRef.current?.scrollIntoView({ block: 'end', behavior });
+  }, [mensajesChat.length, cargandoRespuesta, prefersReducedMotion]);
 
   useEffect(() => {
     const handleViewportChange = () => {
@@ -503,7 +510,7 @@ export function HomePage({ lugares }) {
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-5 pb-5">
               <div
                 id="chat-messages"
-                className="mb-3 min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden pr-2"
+                className="mb-3 min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden pr-2 pb-3"
                 style={{ scrollBehavior: 'smooth' }}
               >
                 {mensajesChat.map((mensaje, index) => (
@@ -554,6 +561,7 @@ export function HomePage({ lugares }) {
                     </div>
                   </div>
                 )}
+                <div ref={chatEndRef} aria-hidden />
               </div>
               <div className="mt-2 flex shrink-0 items-end gap-3 pl-1 sm:gap-4">
                 <div className="flex min-h-10 flex-1 items-end gap-2 rounded-dime-2xl border border-transparent bg-surface-muted px-3 py-2 transition-[box-shadow,border-color] focus-within:border-dime-200 focus-within:ring-2 focus-within:ring-dime-100">
