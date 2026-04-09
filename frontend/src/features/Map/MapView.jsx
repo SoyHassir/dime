@@ -119,7 +119,7 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick, showExplore
             );
           }) : (
             <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-              <p className="rounded-dime-lg border border-border bg-surface/95 px-4 py-2 text-sm font-medium text-fg-muted shadow-dime-sm backdrop-blur-sm">
+              <p className="dime-glass-map-hint rounded-dime-lg px-4 py-2 text-sm font-medium text-fg-muted">
                 {lugares && lugares.length === 0 ? 'Cargando lugares...' : 'No hay lugares para mostrar'}
               </p>
             </div>
@@ -128,7 +128,7 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick, showExplore
 
       {showExploreHint && lugaresValidos.length > 0 && !lugarSeleccionado && (
         <div className="pointer-events-none absolute bottom-[10.5rem] left-0 right-0 z-[400] flex justify-center px-4 sm:bottom-[11rem]">
-          <p className="max-w-md rounded-dime-xl border border-border bg-surface/95 px-4 py-2.5 text-center text-sm font-semibold text-dime-700 shadow-dime-md backdrop-blur-sm">
+          <p className="dime-glass-map-hint max-w-md rounded-dime-xl px-4 py-2.5 text-center text-sm font-semibold text-dime-700">
             Explora las entidades públicas
           </p>
         </div>

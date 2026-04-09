@@ -327,7 +327,7 @@ export function HomePage({ lugares }) {
         transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.5, delay: 0.1, ease: EASE }}
         className="pointer-events-none absolute left-4 right-4 top-4 z-[1000] flex justify-center"
       >
-        <div className="pointer-events-auto flex w-full items-center justify-between rounded-dime-2xl border border-border bg-surface/95 px-4 py-3 shadow-dime-md backdrop-blur-sm sm:px-5">
+        <div className="dime-glass pointer-events-auto flex w-full items-center justify-between px-4 py-3 sm:px-5">
           <div className="flex items-center gap-2">
             <div className="rounded-full bg-dime-50 p-2">
               <img src={dimeIcon} alt="" className="h-5 w-5 object-contain" />
@@ -439,7 +439,7 @@ export function HomePage({ lugares }) {
               <button
                 type="button"
                 onClick={abrirChat}
-                className="flex max-w-[72vw] items-center rounded-full border border-border bg-surface/95 px-3 py-2 text-left text-sm font-semibold text-dime-700 shadow-dime-md backdrop-blur-sm transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                className="dime-glass-chip flex max-w-[72vw] items-center px-3 py-2 text-left text-sm font-semibold text-dime-700 transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 aria-label="Abrir asistente y ver sugerencias"
                 title="Abrir asistente"
               >
@@ -448,7 +448,7 @@ export function HomePage({ lugares }) {
             )}
           </div>
         ) : (
-          <div className="pointer-events-auto flex max-h-[72vh] min-h-[14rem] flex-col rounded-dime-2xl border border-border bg-surface shadow-dime-lg">
+          <div className="dime-glass-chat pointer-events-auto flex max-h-[72vh] min-h-[14rem] flex-col">
             <div className="flex items-center justify-end gap-2 p-3 pb-0">
               <button
                 type="button"
