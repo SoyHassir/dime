@@ -139,6 +139,15 @@ export function HomePage({ lugares }) {
     setToast({ open: true, variant, message });
   };
 
+  // Autocierre del estado de éxito del reporte para mantener el flujo ágil
+  useEffect(() => {
+    if (!modalReporte) return;
+    if (!enviado) return;
+    if (prefersReducedMotion) return;
+    const t = setTimeout(() => cerrarModalReporte(), 3000);
+    return () => clearTimeout(t);
+  }, [modalReporte, enviado, prefersReducedMotion]);
+
   const cerrarTodo = () => {
     setMenuAbierto(false);
     setModalAyuda(false);
@@ -617,16 +626,16 @@ export function HomePage({ lugares }) {
             aria-modal="true"
             aria-label="Reportar inconsistencia"
           >
-            <button
-              type="button"
-              onClick={cerrarModalReporte}
-              className="absolute right-4 top-4 rounded-full bg-surface-muted p-2 text-fg-subtle transition-colors hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-              aria-label="Cerrar"
-            >
-              <X className="h-5 w-5" />
-            </button>
             {!enviado ? (
               <>
+                <button
+                  type="button"
+                  onClick={cerrarModalReporte}
+                  className="absolute right-4 top-4 rounded-full bg-surface-muted p-2 text-fg-subtle transition-colors hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                  aria-label="Cerrar"
+                >
+                  <X className="h-5 w-5" />
+                </button>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-warning-muted">
                   <AlertTriangle className="h-6 w-6 text-warning" />
                 </div>
@@ -809,13 +818,20 @@ export function HomePage({ lugares }) {
                 </>
               )}
 
-              {/* Pulso sutil al “responder” (no sugiere que sigue escuchando) */}
+              {/* Pulso al “responder” (distinto a “escuchando”, pero visible en móvil) */}
               {!prefersReducedMotion && respondiendo && (
-                <span
-                  className="pointer-events-none absolute -inset-2 rounded-full bg-dime-200/20 animate-pulse"
-                  style={{ animationDuration: '1.6s' }}
-                  aria-hidden
-                />
+                <>
+                  <span
+                    className="pointer-events-none absolute -inset-2 rounded-full ring-2 ring-dime-100/60 animate-pulse"
+                    style={{ animationDuration: '1.6s' }}
+                    aria-hidden
+                  />
+                  <span
+                    className="pointer-events-none absolute -inset-4 rounded-full ring-2 ring-dime-100/25 animate-pulse"
+                    style={{ animationDuration: '2.2s' }}
+                    aria-hidden
+                  />
+                </>
               )}
 
               {respondiendo ? (
