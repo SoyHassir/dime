@@ -279,24 +279,34 @@ export function HomePage({ lugares }) {
 
   useEffect(() => {
     const handleViewportChange = () => {
-      if (typeof window !== 'undefined' && window.visualViewport) {
-        const diff = window.innerHeight - window.visualViewport.height;
-        const visible = diff > 150;
-        setTecladoVisible(visible);
-        // Subir el chat por encima del teclado (móvil)
-        setPosicionChat(visible ? `${Math.max(8, Math.round(diff) + 8)}px` : '1rem');
-      }
+      if (typeof window === 'undefined' || !window.visualViewport) return;
+      const vv = window.visualViewport;
+      const ih = window.innerHeight;
+      // Inset inferior real (teclado + chrome): no usar solo ih - vv.height (falla si offsetTop ≠ 0)
+      const insetBottom = Math.max(0, ih - (vv.offsetTop + vv.height));
+      const visible = insetBottom > 120;
+      setTecladoVisible(visible);
+      // Evitar valores absurdos en el primer frame (Samsung Internet / WebView a veces reporta mal)
+      const maxInset = Math.round(ih * 0.52);
+      const inset = Math.min(Math.round(insetBottom), maxInset);
+      setPosicionChat(visible ? `${Math.max(8, inset + 8)}px` : '1rem');
+    };
+    const rafHandler = () => {
+      requestAnimationFrame(() => {
+        handleViewportChange();
+        requestAnimationFrame(handleViewportChange);
+      });
     };
     if (typeof window !== 'undefined') {
-      window.visualViewport?.addEventListener('resize', handleViewportChange);
-      window.visualViewport?.addEventListener('scroll', handleViewportChange);
-      window.addEventListener('resize', handleViewportChange);
-      handleViewportChange();
+      window.visualViewport?.addEventListener('resize', rafHandler);
+      window.visualViewport?.addEventListener('scroll', rafHandler);
+      window.addEventListener('resize', rafHandler);
+      rafHandler();
     }
     return () => {
-      window.visualViewport?.removeEventListener('resize', handleViewportChange);
-      window.visualViewport?.removeEventListener('scroll', handleViewportChange);
-      window.removeEventListener('resize', handleViewportChange);
+      window.visualViewport?.removeEventListener('resize', rafHandler);
+      window.visualViewport?.removeEventListener('scroll', rafHandler);
+      window.removeEventListener('resize', rafHandler);
     };
   }, []);
 
@@ -450,7 +460,10 @@ export function HomePage({ lugares }) {
         style={{
           bottom: posicionChat,
           paddingBottom: tecladoVisible ? '0' : 'max(1rem, env(safe-area-inset-bottom))',
-          transition: 'bottom 0.3s ease-out, padding-bottom 0.3s ease-out',
+          // Sin animar bottom con teclado: evita “salto” al primer frame incorrecto del viewport
+          transition: tecladoVisible
+            ? 'none'
+            : 'bottom 0.3s ease-out, padding-bottom 0.3s ease-out',
         }}
       >
         {chatMinimizado ? (
