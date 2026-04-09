@@ -53,5 +53,18 @@ class Settings:
     def gemini_habilitado(self) -> bool:
         return bool(self.GEMINI_API_KEY)
 
+    # Firestore (métricas/eventos)
+    @property
+    def google_cloud_project(self) -> str:
+        return (
+            os.getenv("GOOGLE_CLOUD_PROJECT", "").strip()
+            or os.getenv("GCP_PROJECT", "").strip()
+            or os.getenv("FIREBASE_PROJECT_ID", "").strip()
+        )
+
+    @property
+    def analytics_firestore_enabled(self) -> bool:
+        return os.getenv("ANALYTICS_FIRESTORE_ENABLED", "true").lower() in ("true", "1", "yes")
+
 
 settings = Settings()

@@ -15,6 +15,7 @@ RUTAS_PUBLICAS = {
     "/",
     "/api/lugares",
     "/api/chat",
+    "/api/analytics/events",
     "/docs",
     "/redoc",
     "/openapi.json",

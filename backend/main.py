@@ -29,6 +29,7 @@ API del asistente DIME (Directorio de Información Municipal de Tolú).
 - **GET /** - Health check del servicio
 - **GET /api/lugares** - Lista de entidades municipales con coordenadas
 - **POST /api/chat** - Envía una pregunta a DIME-IA y recibe respuesta
+- **POST /api/analytics/events** - Ingesta de eventos de uso (lote, hacia Firestore)
 
 ## Autenticación
 

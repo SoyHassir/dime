@@ -8,4 +8,14 @@ export { obtenerLugares, obtenerLugaresConCache } from './lugaresService';
 export { enviarMensajeChat } from './chatService';
 export { getToken, setToken, clearToken, isAuthenticated } from './authService';
 export { getOrCreateUserId, hasUserSession, setUserName, getUserName } from './userService';
-export { trackEvent, startSession, endSession, trackMarkerClick, trackChatMessageSent, trackChatMessageReceived, trackVoiceInput, trackReportSubmitted } from './analyticsService';
+export {
+  trackEvent,
+  startSession,
+  endSession,
+  getAnalyticsEnvironment,
+  trackMarkerClick,
+  trackChatMessageSent,
+  trackChatMessageReceived,
+  trackVoiceInput,
+  trackReportSubmitted,
+} from './analyticsService';
