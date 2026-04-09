@@ -788,9 +788,36 @@ export function HomePage({ lugares }) {
             exit={{ scale: 0.94, opacity: 0 }}
             className="flex flex-col items-center"
           >
-            <div
-              className="relative flex h-20 w-20 items-center justify-center rounded-full bg-dime-600 shadow-dime-lg"
-            >
+            <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-dime-600 shadow-dime-lg">
+              {/* Aros de interacción (solo cuando no hay reduced motion) */}
+              {!prefersReducedMotion && !respondiendo && !cargandoRespuesta && (
+                <>
+                  <span
+                    className="pointer-events-none absolute inset-0 rounded-full ring-2 ring-dime-200/70"
+                    aria-hidden
+                  />
+                  <span
+                    className="pointer-events-none absolute inset-0 rounded-full ring-2 ring-dime-200/45 animate-ping"
+                    style={{ animationDuration: '1.4s' }}
+                    aria-hidden
+                  />
+                  <span
+                    className="pointer-events-none absolute inset-0 rounded-full ring-2 ring-dime-200/25 animate-ping"
+                    style={{ animationDuration: '2.1s' }}
+                    aria-hidden
+                  />
+                </>
+              )}
+
+              {/* Pulso sutil al “responder” (no sugiere que sigue escuchando) */}
+              {!prefersReducedMotion && respondiendo && (
+                <span
+                  className="pointer-events-none absolute -inset-2 rounded-full bg-dime-200/20 animate-pulse"
+                  style={{ animationDuration: '1.6s' }}
+                  aria-hidden
+                />
+              )}
+
               {respondiendo ? (
                 <DimeRobotIcon className="h-10 w-10" />
               ) : (
