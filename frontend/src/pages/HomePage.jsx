@@ -42,6 +42,9 @@ export function HomePage({ lugares }) {
   const prefersReducedMotion = useReducedMotion();
   const chatInputRef = useRef(null);
   const chatEndRef = useRef(null);
+  const keyboardOpenRef = useRef(false);
+  const lastBottomStrRef = useRef('1rem');
+  const viewportRafRef = useRef(null);
   const userName = getUserName();
   const initialBotMessage = userName
     ? `Hola, ${userName}. Soy DIME-IA, ¿en qué te puedo ayudar?`
@@ -271,42 +274,54 @@ export function HomePage({ lugares }) {
     el.style.height = `${Math.min(el.scrollHeight, 112)}px`;
   }, [mensajeChat]);
 
-  // Mantener siempre visible el final del chat (incluye indicador "escribiendo")
+  // Mantener visible el final del chat; sin "smooth" para no competir con el teclado (parpadeo)
   useEffect(() => {
-    const behavior = prefersReducedMotion ? 'auto' : 'smooth';
-    chatEndRef.current?.scrollIntoView({ block: 'end', behavior });
-  }, [mensajesChat.length, cargandoRespuesta, prefersReducedMotion]);
+    chatEndRef.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+  }, [mensajesChat.length, cargandoRespuesta]);
 
   useEffect(() => {
-    const handleViewportChange = () => {
+    const flushViewport = () => {
+      viewportRafRef.current = null;
       if (typeof window === 'undefined' || !window.visualViewport) return;
       const vv = window.visualViewport;
       const ih = window.innerHeight;
-      // Inset inferior real (teclado + chrome): no usar solo ih - vv.height (falla si offsetTop ≠ 0)
       const insetBottom = Math.max(0, ih - (vv.offsetTop + vv.height));
-      const visible = insetBottom > 120;
-      setTecladoVisible(visible);
-      // Evitar valores absurdos en el primer frame (Samsung Internet / WebView a veces reporta mal)
+      // Histéresis: evita parpadeo true/false entre eventos sucesivos del teclado
+      let open = keyboardOpenRef.current;
+      if (insetBottom > 135) open = true;
+      else if (insetBottom < 90) open = false;
+      keyboardOpenRef.current = open;
+      setTecladoVisible(open);
+
       const maxInset = Math.round(ih * 0.52);
       const inset = Math.min(Math.round(insetBottom), maxInset);
-      setPosicionChat(visible ? `${Math.max(8, inset + 8)}px` : '1rem');
+      const nextBottom = open ? `${Math.max(8, inset + 8)}px` : '1rem';
+      // No re-render si el cambio es mínimo (reduce saltos)
+      if (nextBottom !== lastBottomStrRef.current) {
+        lastBottomStrRef.current = nextBottom;
+        setPosicionChat(nextBottom);
+      }
     };
-    const rafHandler = () => {
-      requestAnimationFrame(() => {
-        handleViewportChange();
-        requestAnimationFrame(handleViewportChange);
-      });
+
+    const scheduleViewport = () => {
+      if (viewportRafRef.current != null) return;
+      viewportRafRef.current = requestAnimationFrame(flushViewport);
     };
+
     if (typeof window !== 'undefined') {
-      window.visualViewport?.addEventListener('resize', rafHandler);
-      window.visualViewport?.addEventListener('scroll', rafHandler);
-      window.addEventListener('resize', rafHandler);
-      rafHandler();
+      window.visualViewport?.addEventListener('resize', scheduleViewport);
+      window.visualViewport?.addEventListener('scroll', scheduleViewport);
+      window.addEventListener('resize', scheduleViewport);
+      scheduleViewport();
     }
     return () => {
-      window.visualViewport?.removeEventListener('resize', rafHandler);
-      window.visualViewport?.removeEventListener('scroll', rafHandler);
-      window.removeEventListener('resize', rafHandler);
+      if (viewportRafRef.current != null) {
+        cancelAnimationFrame(viewportRafRef.current);
+        viewportRafRef.current = null;
+      }
+      window.visualViewport?.removeEventListener('resize', scheduleViewport);
+      window.visualViewport?.removeEventListener('scroll', scheduleViewport);
+      window.removeEventListener('resize', scheduleViewport);
     };
   }, []);
 
