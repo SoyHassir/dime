@@ -585,6 +585,13 @@ export function HomePage({ lugares }) {
                 {/* Acción estilo WhatsApp/Telegram: mic si vacío, enviar si hay texto */}
                 <button
                   type="button"
+                  onMouseDown={(e) => {
+                    // Mantener el foco en el textarea (evita que el teclado "parpadee" en móvil)
+                    e.preventDefault();
+                  }}
+                  onTouchStart={(e) => {
+                    e.preventDefault();
+                  }}
                   onClick={() => {
                     if (hasText) enviarMensaje(mensajeChat);
                     else activarVozInput();
