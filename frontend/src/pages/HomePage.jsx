@@ -2,7 +2,8 @@
  * Pagina principal: mapa, chat y menu.
  */
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion as Motion, useReducedMotion } from 'framer-motion';
 import { MapView } from '../features/Map/MapView';
 import {
@@ -42,6 +43,9 @@ export function HomePage({ lugares }) {
   const prefersReducedMotion = useReducedMotion();
   const chatInputRef = useRef(null);
   const chatEndRef = useRef(null);
+  const menuButtonRef = useRef(null);
+  const menuPanelRef = useRef(null);
+  const [menuCoords, setMenuCoords] = useState({ top: 0, right: 0 });
   const keyboardOpenRef = useRef(false);
   const lastBottomStrRef = useRef('1rem');
   const viewportRafRef = useRef(null);
@@ -358,6 +362,40 @@ export function HomePage({ lugares }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [escuchando]);
 
+  // Menú ⋮: overlay full-screen debe estar fuera del header con transform (fixed quedaría recortado)
+  useLayoutEffect(() => {
+    if (!menuAbierto) return;
+    const update = () => {
+      const el = menuButtonRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setMenuCoords({ top: r.bottom + 8, right: window.innerWidth - r.right });
+    };
+    update();
+    window.addEventListener('resize', update);
+    window.visualViewport?.addEventListener('resize', update);
+    window.visualViewport?.addEventListener('scroll', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.visualViewport?.removeEventListener('resize', update);
+      window.visualViewport?.removeEventListener('scroll', update);
+    };
+  }, [menuAbierto]);
+
+  // Cierre al tocar fuera: captura en document evita que Leaflet/Android se queden con el gesto antes que onClick en un overlay.
+  useEffect(() => {
+    if (!menuAbierto) return;
+    const onPointerDownCapture = (e) => {
+      const t = e.target;
+      if (!(t instanceof Node)) return;
+      if (menuButtonRef.current?.contains(t)) return;
+      if (menuPanelRef.current?.contains(t)) return;
+      setMenuAbierto(false);
+    };
+    document.addEventListener('pointerdown', onPointerDownCapture, true);
+    return () => document.removeEventListener('pointerdown', onPointerDownCapture, true);
+  }, [menuAbierto]);
+
   useEffect(() => {
     if (!chatMinimizado) return;
     if (minHintShown) return;
@@ -413,52 +451,55 @@ export function HomePage({ lugares }) {
           </div>
           <div className="relative pointer-events-auto">
             <button
+              ref={menuButtonRef}
               type="button"
               onClick={() => setMenuAbierto(!menuAbierto)}
               className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-surface-muted transition-colors hover:bg-dime-50 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               aria-expanded={menuAbierto}
               aria-label="Menú"
+              aria-haspopup="menu"
             >
               <MoreHorizontal className="h-6 w-6 text-dime-500" />
             </button>
-            {menuAbierto && (
-              <>
-                <div
-                  className="fixed inset-0 z-[1001]"
-                  onClick={() => setMenuAbierto(false)}
-                  aria-hidden
-                />
+            {menuAbierto &&
+              createPortal(
                 <Motion.div
+                  ref={menuPanelRef}
+                  role="menu"
+                  aria-label="Menú de la aplicación"
                   initial={{ opacity: 0, scale: 0.96, y: -8 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{ duration: 0.22, ease: EASE }}
-                  className="absolute right-0 top-14 z-[1002] w-52 origin-top-right overflow-hidden rounded-dime-xl border border-border bg-surface shadow-dime-lg"
+                  className="fixed z-[5001] w-52 origin-top-right overflow-hidden rounded-dime-xl border border-border bg-surface shadow-dime-lg"
+                  style={{ top: menuCoords.top, right: menuCoords.right }}
                 >
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-3 border-b border-border px-5 py-4 text-left text-sm text-fg transition-colors hover:bg-dime-50"
-                    onClick={() => {
-                      setModalReporte(true);
-                      setMenuAbierto(false);
-                    }}
-                  >
-                    <AlertTriangle className="h-4 w-4 text-warning" />
-                    <span>Reportar error</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-3 px-5 py-4 text-left text-sm text-fg transition-colors hover:bg-dime-50"
-                    onClick={() => {
-                      setModalAyuda(true);
-                      setMenuAbierto(false);
-                    }}
-                  >
-                    <HelpCircle className="h-4 w-4 text-dime-600" />
-                    <span>Ayuda / Acerca de</span>
-                  </button>
-                </Motion.div>
-              </>
-            )}
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="flex w-full items-center gap-3 border-b border-border px-5 py-4 text-left text-sm text-fg transition-colors hover:bg-dime-50"
+                      onClick={() => {
+                        setModalReporte(true);
+                        setMenuAbierto(false);
+                      }}
+                    >
+                      <AlertTriangle className="h-4 w-4 text-warning" />
+                      <span>Reportar error</span>
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="flex w-full items-center gap-3 px-5 py-4 text-left text-sm text-fg transition-colors hover:bg-dime-50"
+                      onClick={() => {
+                        setModalAyuda(true);
+                        setMenuAbierto(false);
+                      }}
+                    >
+                      <HelpCircle className="h-4 w-4 text-dime-600" />
+                      <span>Ayuda / Acerca de</span>
+                    </button>
+                  </Motion.div>,
+                document.body
+              )}
           </div>
         </div>
       </Motion.div>

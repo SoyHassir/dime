@@ -40,8 +40,9 @@ export function Toast({ open, variant = 'info', message, onClose, autoHideMs = 4
   const Icon = ICON_BY_VARIANT[variant] ?? Info;
   const styles = STYLES_BY_VARIANT[variant] ?? STYLES_BY_VARIANT.info;
 
+  // absolute como el header: respeta el padding de #root (safe-area); fixed usaría el viewport entero.
   return (
-    <div className="pointer-events-none fixed inset-x-4 top-4 z-[5001]">
+    <div className="pointer-events-none absolute left-4 right-4 top-4 z-[5001]">
       <div
         className={`pointer-events-auto flex w-full min-h-14 items-start gap-3 rounded-dime-2xl border px-4 py-3 shadow-dime-lg backdrop-blur-sm sm:px-5 ${styles.wrap}`}
         role={variant === 'error' || variant === 'warning' ? 'alert' : 'status'}
