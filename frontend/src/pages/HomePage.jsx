@@ -73,6 +73,7 @@ export function HomePage({ lugares }) {
   const [escuchando, setEscuchando] = useState(false);
   const [respondiendo, setRespondiendo] = useState(false);
   const hasText = !!mensajeChat.trim();
+  const borrarChatDisabled = mensajesChat.length <= 1 && !mensajeChat.trim();
   const [minHintShown, setMinHintShown] = useState(false);
 
   const hablar = (texto) => {
@@ -265,12 +266,6 @@ export function HomePage({ lugares }) {
   const minimizarChat = () => {
     setChatMinimizado(true);
     chatMinimizadoPorUsuarioRef.current = true;
-  };
-
-  /** Móvil: evitar que el teclado se cierre al tocar iconos del header del chat. */
-  const evitarRoboFocoTeclado = (e) => {
-    e.preventDefault();
-    chatInputRef.current?.focus({ preventScroll: true });
   };
 
   const refuerzoFocoInput = () => {
@@ -492,10 +487,10 @@ export function HomePage({ lugares }) {
         style={{
           bottom: posicionChat,
           paddingBottom: tecladoVisible ? '0' : 'max(1rem, env(safe-area-inset-bottom))',
-          // Sin animar bottom con teclado: más estable entre navegadores
-          transition: tecladoVisible
+          // Misma curva al subir y bajar el chat con el teclado
+          transition: prefersReducedMotion
             ? 'none'
-            : 'bottom 0.3s ease-out, padding-bottom 0.3s ease-out',
+            : 'bottom 0.28s cubic-bezier(0.33, 1, 0.68, 1), padding-bottom 0.28s ease-out',
         }}
       >
         {chatMinimizado ? (
@@ -524,32 +519,52 @@ export function HomePage({ lugares }) {
         ) : (
           <div className="dime-glass-chat pointer-events-auto flex h-[clamp(14rem,32vh,20rem)] flex-col overflow-hidden sm:h-[clamp(16rem,34vh,22rem)]">
             <div className="flex shrink-0 items-center justify-end gap-2 p-3 pb-0">
-              <button
-                type="button"
-                onPointerDown={evitarRoboFocoTeclado}
-                onClick={borrarConversacion}
-                className="p-1 text-fg-subtle transition-colors hover:text-dime-600 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50"
+              <span
+                role="button"
+                tabIndex={borrarChatDisabled ? -1 : 0}
+                aria-disabled={borrarChatDisabled}
                 title="Borrar conversación"
                 aria-label="Borrar conversación"
-                disabled={mensajesChat.length <= 1 && !mensajeChat.trim()}
+                className={`inline-flex rounded-dime-md p-1 text-fg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
+                  borrarChatDisabled
+                    ? 'cursor-not-allowed opacity-50'
+                    : 'cursor-pointer hover:text-dime-600 active:scale-90'
+                }`}
+                onClick={() => {
+                  if (borrarChatDisabled) return;
+                  borrarConversacion();
+                }}
+                onKeyDown={(e) => {
+                  if (borrarChatDisabled) return;
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    borrarConversacion();
+                  }
+                }}
               >
-                <Trash2 className="h-5 w-5" />
-              </button>
+                <Trash2 className="h-5 w-5" aria-hidden />
+              </span>
 
-              <button
-                type="button"
-                onPointerDown={evitarRoboFocoTeclado}
+              <span
+                role="button"
+                tabIndex={0}
+                className="inline-flex cursor-pointer rounded-dime-md p-1 text-fg-subtle transition-colors hover:text-dime-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface active:scale-90"
+                aria-label={vozActiva ? 'Silenciar voz' : 'Activar voz'}
+                title={vozActiva ? 'Voz activada (tocar para silenciar)' : 'Voz silenciada (tocar para activar)'}
                 onClick={() => {
                   setVozActiva(!vozActiva);
                   window.speechSynthesis?.cancel();
-                  refuerzoFocoInput();
                 }}
-                className="p-1 text-fg-subtle transition-colors hover:text-dime-700 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-                aria-label={vozActiva ? 'Silenciar voz' : 'Activar voz'}
-                title={vozActiva ? 'Voz activada (tocar para silenciar)' : 'Voz silenciada (tocar para activar)'}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setVozActiva(!vozActiva);
+                    window.speechSynthesis?.cancel();
+                  }
+                }}
               >
                 {vozActiva ? <Volume2 className="h-5 w-5" aria-hidden /> : <VolumeX className="h-5 w-5" aria-hidden />}
-              </button>
+              </span>
               <button
                 type="button"
                 onClick={minimizarChat}
