@@ -254,6 +254,7 @@ export function HomePage({ lugares }) {
     setMensajeChat('');
     window.speechSynthesis?.cancel();
     mostrarToast('info', 'Conversación borrada.');
+    refuerzoFocoInput();
   };
 
   const abrirChat = () => {
@@ -264,6 +265,22 @@ export function HomePage({ lugares }) {
   const minimizarChat = () => {
     setChatMinimizado(true);
     chatMinimizadoPorUsuarioRef.current = true;
+  };
+
+  /** Móvil: evitar que el teclado se cierre al tocar iconos del header del chat. */
+  const evitarRoboFocoTeclado = (e) => {
+    e.preventDefault();
+    chatInputRef.current?.focus({ preventScroll: true });
+  };
+
+  const refuerzoFocoInput = () => {
+    const ta = chatInputRef.current;
+    if (!ta) return;
+    const f = () => ta.focus({ preventScroll: true });
+    f();
+    requestAnimationFrame(() => requestAnimationFrame(f));
+    setTimeout(f, 0);
+    setTimeout(f, 50);
   };
 
   useEffect(() => {
@@ -475,7 +492,7 @@ export function HomePage({ lugares }) {
         style={{
           bottom: posicionChat,
           paddingBottom: tecladoVisible ? '0' : 'max(1rem, env(safe-area-inset-bottom))',
-          // Sin animar bottom con teclado: evita “salto” al primer frame incorrecto del viewport
+          // Sin animar bottom con teclado: más estable entre navegadores
           transition: tecladoVisible
             ? 'none'
             : 'bottom 0.3s ease-out, padding-bottom 0.3s ease-out',
@@ -509,6 +526,7 @@ export function HomePage({ lugares }) {
             <div className="flex shrink-0 items-center justify-end gap-2 p-3 pb-0">
               <button
                 type="button"
+                onPointerDown={evitarRoboFocoTeclado}
                 onClick={borrarConversacion}
                 className="p-1 text-fg-subtle transition-colors hover:text-dime-600 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50"
                 title="Borrar conversación"
@@ -520,9 +538,11 @@ export function HomePage({ lugares }) {
 
               <button
                 type="button"
+                onPointerDown={evitarRoboFocoTeclado}
                 onClick={() => {
                   setVozActiva(!vozActiva);
                   window.speechSynthesis?.cancel();
+                  refuerzoFocoInput();
                 }}
                 className="p-1 text-fg-subtle transition-colors hover:text-dime-700 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 aria-label={vozActiva ? 'Silenciar voz' : 'Activar voz'}
