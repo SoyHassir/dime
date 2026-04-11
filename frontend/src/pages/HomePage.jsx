@@ -4,7 +4,7 @@
 
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion as Motion, useReducedMotion } from 'framer-motion';
+import { motion as Motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { MapView } from '../features/Map/MapView';
 import {
   Mic,
@@ -34,6 +34,17 @@ import {
 import { getUserName } from '../services/userService';
 
 const EASE = [0.33, 1, 0.68, 1];
+
+/** Duraciones de UI: entradas un poco más largas que salidas (menos brusco al cerrar). */
+const DUR = {
+  menuIn: 0.22,
+  menuOut: 0.18,
+  chatIn: 0.3,
+  chatOut: 0.22,
+  modalBackdrop: 0.22,
+  modalPanel: 0.26,
+  overlay: 0.22,
+};
 
 // Inyectado por Vite (vite.config.js -> define)
 // eslint-disable-next-line no-undef
@@ -470,18 +481,29 @@ export function HomePage({ lugares }) {
             >
               <MoreHorizontal className="h-6 w-6 text-dime-500" />
             </button>
-            {menuAbierto &&
-              createPortal(
-                <Motion.div
-                  ref={menuPanelRef}
-                  role="menu"
-                  aria-label="Menú de la aplicación"
-                  initial={{ opacity: 0, scale: 0.96, y: -4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 0.22, ease: EASE }}
-                  className="fixed z-[5001] w-52 origin-top-right overflow-hidden rounded-dime-xl border border-border bg-surface shadow-dime-lg"
-                  style={{ top: menuCoords.top, right: menuCoords.right }}
-                >
+            {createPortal(
+              <AnimatePresence>
+                {menuAbierto && (
+                  <Motion.div
+                    key="dime-menu-dropdown"
+                    ref={menuPanelRef}
+                    role="menu"
+                    aria-label="Menú de la aplicación"
+                    initial={{ opacity: 0, scale: 0.96, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.94,
+                      y: -8,
+                      transition: {
+                        duration: prefersReducedMotion ? 0 : DUR.menuOut,
+                        ease: EASE,
+                      },
+                    }}
+                    transition={{ duration: prefersReducedMotion ? 0 : DUR.menuIn, ease: EASE }}
+                    className="fixed z-[5001] w-52 origin-top-right overflow-hidden rounded-dime-xl border border-border bg-surface shadow-dime-lg"
+                    style={{ top: menuCoords.top, right: menuCoords.right }}
+                  >
                     <button
                       type="button"
                       role="menuitem"
@@ -506,9 +528,11 @@ export function HomePage({ lugares }) {
                       <HelpCircle className="h-4 w-4 text-dime-600" />
                       <span>Ayuda / Acerca de</span>
                     </button>
-                  </Motion.div>,
-                document.body
-              )}
+                  </Motion.div>
+                )}
+              </AnimatePresence>,
+              document.body
+            )}
           </div>
         </div>
       </Motion.div>
@@ -555,31 +579,64 @@ export function HomePage({ lugares }) {
               : 'bottom 0.28s cubic-bezier(0.33, 1, 0.68, 1), padding-bottom 0.28s ease-out',
         }}
       >
-        {chatMinimizado ? (
-          <div className="pointer-events-auto flex items-center gap-2">
-            <button
-              type="button"
-              onClick={abrirChat}
-              className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-border bg-surface shadow-dime-lg transition-all hover:bg-surface-muted active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-              aria-label="Abrir asistente DIME-IA"
+        <AnimatePresence mode="wait" initial={false}>
+          {chatMinimizado ? (
+            <Motion.div
+              key="chat-min"
+              className="pointer-events-auto flex items-center gap-2"
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.92, y: 14 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={
+                prefersReducedMotion
+                  ? { opacity: 0 }
+                  : {
+                      opacity: 0,
+                      scale: 0.94,
+                      y: 10,
+                      transition: { duration: DUR.chatOut, ease: EASE },
+                    }
+              }
+              transition={{ duration: prefersReducedMotion ? 0 : DUR.chatIn, ease: EASE }}
             >
-              <DimeRobotIcon className="h-10 w-10" />
-            </button>
-
-            {!tecladoVisible && !modalReporte && !modalAyuda && (
               <button
                 type="button"
                 onClick={abrirChat}
-                className="dime-glass-chip flex max-w-[72vw] items-center px-3 py-2 text-left text-sm font-semibold text-dime-700 transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-                aria-label="Abrir asistente y ver sugerencias"
-                title="Abrir asistente"
+                className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-border bg-surface shadow-dime-lg transition-all hover:bg-surface-muted active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                aria-label="Abrir asistente DIME-IA"
               >
-                Toca un pin o pregúntale a DIME‑IA
+                <DimeRobotIcon className="h-10 w-10" />
               </button>
-            )}
-          </div>
-        ) : (
-          <div className="dime-glass-chat pointer-events-auto flex h-[clamp(14rem,32vh,20rem)] flex-col overflow-hidden sm:h-[clamp(16rem,34vh,22rem)]">
+
+              {!tecladoVisible && !modalReporte && !modalAyuda && (
+                <button
+                  type="button"
+                  onClick={abrirChat}
+                  className="dime-glass-chip flex max-w-[72vw] items-center px-3 py-2 text-left text-sm font-semibold text-dime-700 transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                  aria-label="Abrir asistente y ver sugerencias"
+                  title="Abrir asistente"
+                >
+                  Toca un pin o pregúntale a DIME‑IA
+                </button>
+              )}
+            </Motion.div>
+          ) : (
+            <Motion.div
+              key="chat-expanded"
+              className="dime-glass-chat pointer-events-auto flex h-[clamp(14rem,32vh,20rem)] flex-col overflow-hidden sm:h-[clamp(16rem,34vh,22rem)]"
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.96, y: 22 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={
+                prefersReducedMotion
+                  ? { opacity: 0 }
+                  : {
+                      opacity: 0,
+                      scale: 0.97,
+                      y: 18,
+                      transition: { duration: DUR.chatOut, ease: EASE },
+                    }
+              }
+              transition={{ duration: prefersReducedMotion ? 0 : DUR.chatIn, ease: EASE }}
+            >
             <div className="flex shrink-0 items-center justify-end gap-2 p-3 pb-0">
               <div
                 className="flex items-center gap-2"
@@ -767,25 +824,33 @@ export function HomePage({ lugares }) {
                 </button>
               </div>
             </div>
-          </div>
-        )}
+            </Motion.div>
+          )}
+        </AnimatePresence>
       </Motion.div>
 
       {/* Modal Reporte */}
-      {modalReporte && (
-        <Motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-[2000] flex items-center justify-center bg-fg/35 p-4 backdrop-blur-sm"
-          onClick={cerrarModalReporte}
-        >
+      <AnimatePresence>
+        {modalReporte && (
           <Motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.35, ease: EASE }}
+            key="modal-reporte"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: prefersReducedMotion ? 0 : DUR.modalBackdrop, ease: EASE } }}
+            transition={{ duration: prefersReducedMotion ? 0 : DUR.modalBackdrop, ease: EASE }}
+            className="fixed inset-0 z-[2000] flex items-center justify-center bg-fg/35 p-4 backdrop-blur-sm"
+            onClick={cerrarModalReporte}
+          >
+            <Motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{
+                opacity: 0,
+                scale: 0.96,
+                y: 12,
+                transition: { duration: prefersReducedMotion ? 0 : DUR.modalPanel, ease: EASE },
+              }}
+              transition={{ duration: prefersReducedMotion ? 0 : DUR.modalPanel, ease: EASE }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-sm rounded-dime-2xl border border-border bg-surface p-6 shadow-dime-lg"
             role="dialog"
@@ -868,23 +933,31 @@ export function HomePage({ lugares }) {
             )}
           </Motion.div>
         </Motion.div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Modal Ayuda */}
-      {modalAyuda && (
-        <Motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-[2000] flex items-center justify-center bg-fg/35 p-4 backdrop-blur-sm"
-          onClick={() => setModalAyuda(false)}
-        >
+      <AnimatePresence>
+        {modalAyuda && (
           <Motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.35, ease: EASE }}
+            key="modal-ayuda"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: prefersReducedMotion ? 0 : DUR.modalBackdrop, ease: EASE } }}
+            transition={{ duration: prefersReducedMotion ? 0 : DUR.modalBackdrop, ease: EASE }}
+            className="fixed inset-0 z-[2000] flex items-center justify-center bg-fg/35 p-4 backdrop-blur-sm"
+            onClick={() => setModalAyuda(false)}
+          >
+            <Motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{
+                opacity: 0,
+                scale: 0.96,
+                y: 12,
+                transition: { duration: prefersReducedMotion ? 0 : DUR.modalPanel, ease: EASE },
+              }}
+              transition={{ duration: prefersReducedMotion ? 0 : DUR.modalPanel, ease: EASE }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-sm rounded-dime-2xl border border-border bg-surface p-6 text-center shadow-dime-lg"
             role="dialog"
@@ -934,17 +1007,20 @@ export function HomePage({ lugares }) {
             </div>
           </Motion.div>
         </Motion.div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Overlay escuchando */}
-      {escuchando && (
-        <Motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-[3000] flex items-center justify-center bg-surface/85 backdrop-blur-md"
-        >
+      <AnimatePresence>
+        {escuchando && (
+          <Motion.div
+            key="overlay-voz"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: prefersReducedMotion ? 0 : DUR.overlay, ease: EASE } }}
+            transition={{ duration: prefersReducedMotion ? 0 : DUR.overlay, ease: EASE }}
+            className="fixed inset-0 z-[3000] flex items-center justify-center bg-surface/85 backdrop-blur-md"
+          >
           <button
             type="button"
             onClick={() => {
@@ -963,7 +1039,12 @@ export function HomePage({ lugares }) {
           <Motion.div
             initial={prefersReducedMotion ? false : { scale: 0.94, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.94, opacity: 0 }}
+            exit={{
+              scale: 0.94,
+              opacity: 0,
+              transition: { duration: prefersReducedMotion ? 0 : DUR.overlay, ease: EASE },
+            }}
+            transition={{ duration: prefersReducedMotion ? 0 : DUR.overlay, ease: EASE }}
             className="flex flex-col items-center"
           >
             <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-dime-600 shadow-dime-lg">
@@ -1017,8 +1098,9 @@ export function HomePage({ lugares }) {
               {respondiendo ? 'Respondiendo...' : cargandoRespuesta ? 'Procesando...' : 'Escuchando...'}
             </h2>
           </Motion.div>
-        </Motion.div>
-      )}
+          </Motion.div>
+        )}
+      </AnimatePresence>
     </Motion.div>
   );
 }
