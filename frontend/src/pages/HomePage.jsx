@@ -385,7 +385,7 @@ export function HomePage({ lugares }) {
       const br = btn.getBoundingClientRect();
       const gr = glass?.getBoundingClientRect();
       // Debajo de toda la barra (no del solo botón), con hueco claro respecto al navbar
-      const topBelowNav = (gr?.bottom ?? br.bottom) + 12;
+      const topBelowNav = (gr?.bottom ?? br.bottom) + 8;
       setMenuCoords({ top: topBelowNav, right: window.innerWidth - br.right });
     };
     update();
@@ -501,7 +501,7 @@ export function HomePage({ lugares }) {
                       },
                     }}
                     transition={{ duration: prefersReducedMotion ? 0 : DUR.menuIn, ease: EASE }}
-                    className="fixed z-[5001] w-52 origin-top-right overflow-hidden rounded-dime-xl border border-border bg-surface shadow-dime-lg"
+                    className="dime-glass-menu fixed z-[5001] w-52 origin-top-right overflow-hidden"
                     style={{ top: menuCoords.top, right: menuCoords.right }}
                   >
                     <button

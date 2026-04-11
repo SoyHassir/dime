@@ -136,13 +136,19 @@ body {
   .dime-glass-map-hint {
     @apply border border-border/80 bg-surface/88 shadow-dime-md backdrop-blur-sm;
   }
+
+  /** Menú ⋮ (portal): mismo lenguaje que la barra, radio acorde al panel estrecho */
+  .dime-glass-menu {
+    @apply rounded-dime-xl border border-border/80 bg-surface/88 shadow-dime-lg backdrop-blur-md;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .dime-glass,
   .dime-glass-chat,
   .dime-glass-chip,
-  .dime-glass-map-hint {
+  .dime-glass-map-hint,
+  .dime-glass-menu {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     @apply border-border bg-surface;
