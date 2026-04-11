@@ -44,6 +44,8 @@ export function HomePage({ lugares }) {
   const chatInputRef = useRef(null);
   const chatEndRef = useRef(null);
   const menuButtonRef = useRef(null);
+  /** Borde inferior del header cristal (el botón ⋮ queda más arriba que la barra). */
+  const navGlassRef = useRef(null);
   const menuPanelRef = useRef(null);
   const [menuCoords, setMenuCoords] = useState({ top: 0, right: 0 });
   const keyboardOpenRef = useRef(false);
@@ -366,10 +368,14 @@ export function HomePage({ lugares }) {
   useLayoutEffect(() => {
     if (!menuAbierto) return;
     const update = () => {
-      const el = menuButtonRef.current;
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      setMenuCoords({ top: r.bottom + 8, right: window.innerWidth - r.right });
+      const btn = menuButtonRef.current;
+      const glass = navGlassRef.current;
+      if (!btn) return;
+      const br = btn.getBoundingClientRect();
+      const gr = glass?.getBoundingClientRect();
+      // Debajo de toda la barra (no del solo botón), con hueco claro respecto al navbar
+      const topBelowNav = (gr?.bottom ?? br.bottom) + 12;
+      setMenuCoords({ top: topBelowNav, right: window.innerWidth - br.right });
     };
     update();
     window.addEventListener('resize', update);
@@ -442,7 +448,10 @@ export function HomePage({ lugares }) {
         transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.5, delay: 0.1, ease: EASE }}
         className="pointer-events-none absolute left-4 right-4 top-4 z-[1000] flex justify-center"
       >
-        <div className="dime-glass pointer-events-auto flex w-full items-center justify-between px-4 py-3 sm:px-5">
+        <div
+          ref={navGlassRef}
+          className="dime-glass pointer-events-auto flex w-full items-center justify-between px-4 py-3 sm:px-5"
+        >
           <div className="flex items-center gap-2">
             <div className="rounded-full bg-dime-50 p-2">
               <img src={dimeIcon} alt="" className="h-5 w-5 object-contain" />
@@ -467,7 +476,7 @@ export function HomePage({ lugares }) {
                   ref={menuPanelRef}
                   role="menu"
                   aria-label="Menú de la aplicación"
-                  initial={{ opacity: 0, scale: 0.96, y: -8 }}
+                  initial={{ opacity: 0, scale: 0.96, y: -4 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{ duration: 0.22, ease: EASE }}
                   className="fixed z-[5001] w-52 origin-top-right overflow-hidden rounded-dime-xl border border-border bg-surface shadow-dime-lg"
@@ -643,7 +652,7 @@ export function HomePage({ lugares }) {
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-5 pb-5">
               <div
                 id="chat-messages"
-                className="mb-3 min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden pr-2 pb-3"
+                className="mb-3 min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden pr-2 pb-3 scroll-pb-4 sm:scroll-pb-5"
                 style={{ scrollBehavior: 'smooth' }}
               >
                 {mensajesChat.map((mensaje, index) => (
@@ -718,7 +727,7 @@ export function HomePage({ lugares }) {
                     }}
                     placeholder="Escribe o habla..."
                     rows={1}
-                    className="max-h-28 w-full resize-none bg-transparent text-sm text-fg outline-none placeholder:text-fg-subtle"
+                    className="max-h-28 w-full resize-none bg-transparent text-base text-fg outline-none placeholder:text-fg-subtle sm:text-sm"
                     aria-label="Mensaje para DIME-IA"
                   />
                 </div>
