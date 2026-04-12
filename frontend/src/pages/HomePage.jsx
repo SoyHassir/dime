@@ -211,6 +211,8 @@ export function HomePage({ lugares }) {
       mostrarToast('warning', 'Tu navegador no soporta comandos de voz. Usa el teclado.');
       return;
     }
+    // Cierra el teclado de forma explícita para que visualViewport y el layout inmersivo no compitan con el overlay de voz.
+    chatInputRef.current?.blur();
     const recognition = new SpeechRecognition();
     recognition.lang = 'es-CO';
     recognition.interimResults = false;
@@ -474,8 +476,8 @@ export function HomePage({ lugares }) {
     setTipoError('');
   };
 
-  /** Con teclado y chat expandido: priorizar conversación (ocultar barra/mapa; panel a pantalla útil). */
-  const soloChatKeyboard = tecladoVisible && !chatMinimizado;
+  /** Chat expandido + (teclado o escucha por voz): mismo layout inmersivo; si solo había teclado y se cierra al pulsar el mic, seguir inmersivo evita solapamientos. */
+  const soloChatImmersive = !chatMinimizado && (tecladoVisible || escuchando);
 
   return (
     <Motion.div
@@ -496,14 +498,14 @@ export function HomePage({ lugares }) {
         animate={{ opacity: 1, y: 0 }}
         transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.5, delay: 0.1, ease: EASE }}
         className={`pointer-events-none absolute left-4 right-4 top-4 z-[1000] flex justify-center transition-opacity duration-200 ease-out motion-reduce:transition-none ${
-          soloChatKeyboard ? 'pointer-events-none opacity-0' : 'opacity-100'
+          soloChatImmersive ? 'pointer-events-none opacity-0' : 'opacity-100'
         }`}
-        aria-hidden={soloChatKeyboard}
+        aria-hidden={soloChatImmersive}
       >
         <div
           ref={navGlassRef}
           className={`dime-glass flex w-full items-center justify-between px-4 py-3 sm:px-5 ${
-            soloChatKeyboard ? 'pointer-events-none' : 'pointer-events-auto'
+            soloChatImmersive ? 'pointer-events-none' : 'pointer-events-auto'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -512,7 +514,7 @@ export function HomePage({ lugares }) {
             </div>
             <h1 className="text-xl font-bold leading-none tracking-tight text-dime-600">D I M E</h1>
           </div>
-          <div className={`relative ${soloChatKeyboard ? 'pointer-events-none' : 'pointer-events-auto'}`}>
+          <div className={`relative ${soloChatImmersive ? 'pointer-events-none' : 'pointer-events-auto'}`}>
             <button
               ref={menuButtonRef}
               type="button"
@@ -586,9 +588,9 @@ export function HomePage({ lugares }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.55, delay: 0.05, ease: EASE }}
         className={`absolute inset-0 z-0 transition-opacity duration-200 ease-out motion-reduce:transition-none ${
-          soloChatKeyboard ? 'pointer-events-none opacity-0' : 'opacity-100'
+          soloChatImmersive ? 'pointer-events-none opacity-0' : 'opacity-100'
         }`}
-        aria-hidden={soloChatKeyboard}
+        aria-hidden={soloChatImmersive}
       >
         <MapView
           lugares={lugares}
@@ -596,8 +598,8 @@ export function HomePage({ lugares }) {
           // Señal estabilizada (exploreHintStable) para no parpadear al variar estado en cadena.
           showExploreHint={exploreHintStable}
           toastOpen={toast.open}
-          keyboardOpen={tecladoVisible}
-          mapObscured={soloChatKeyboard}
+          keyboardOpen={tecladoVisible || escuchando}
+          mapObscured={soloChatImmersive}
           onMarkerClick={(lugar) => {
             if (!lugar) {
               setLugarSeleccionado(null);
@@ -617,11 +619,11 @@ export function HomePage({ lugares }) {
         animate={{ opacity: 1, y: 0 }}
         transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.4, delay: 0.15, ease: EASE }}
         className={`pointer-events-none absolute flex min-h-0 flex-col ${
-          soloChatKeyboard ? 'left-0 right-0' : 'left-4 right-4 justify-end'
+          soloChatImmersive ? 'left-0 right-0' : 'left-4 right-4 justify-end'
         } ${tecladoVisible ? 'z-[99999]' : 'z-[1000]'} ${modalReporte || modalAyuda ? 'hidden' : ''}`}
         style={{
           bottom: posicionChat,
-          ...(soloChatKeyboard ? { top: 'env(safe-area-inset-top, 0px)' } : {}),
+          ...(soloChatImmersive ? { top: 'env(safe-area-inset-top, 0px)' } : {}),
           paddingBottom: tecladoVisible ? '0' : 'max(1rem, env(safe-area-inset-bottom))',
           // Con teclado visible: sin transición (evita saltos). Al cerrar teclado: suave.
           transition:
@@ -674,7 +676,7 @@ export function HomePage({ lugares }) {
             <Motion.div
               key="chat-expanded"
               className={`dime-glass-chat pointer-events-auto flex flex-col overflow-hidden transition-[border-radius] duration-200 ease-out motion-reduce:transition-none ${
-                soloChatKeyboard
+                soloChatImmersive
                   ? 'h-full min-h-0 rounded-t-dime-2xl rounded-b-none border-x-0 border-b-0 shadow-dime-lg'
                   : 'h-[clamp(14rem,32vh,20rem)] sm:h-[clamp(16rem,34vh,22rem)]'
               }`}
@@ -848,11 +850,11 @@ export function HomePage({ lugares }) {
                 <button
                   type="button"
                   onMouseDown={(e) => {
-                    // Mantener el foco en el textarea (evita que el teclado "parpadee" en móvil)
-                    e.preventDefault();
+                    // Solo al enviar: evitar que el botón robe foco y el teclado parpadee. Con mic, no bloquear: hace falta blur + overlay de voz.
+                    if (hasText) e.preventDefault();
                   }}
                   onTouchStart={(e) => {
-                    e.preventDefault();
+                    if (hasText) e.preventDefault();
                   }}
                   onClick={() => {
                     if (hasText) enviarMensaje(mensajeChat);
@@ -1074,7 +1076,7 @@ export function HomePage({ lugares }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: prefersReducedMotion ? 0 : DUR.overlay, ease: EASE } }}
             transition={{ duration: prefersReducedMotion ? 0 : DUR.overlay, ease: EASE }}
-            className="fixed inset-0 z-[3000] flex items-center justify-center bg-surface/85 backdrop-blur-md"
+            className="fixed inset-0 z-[100001] flex items-center justify-center bg-surface/85 backdrop-blur-md"
           >
           <button
             type="button"
