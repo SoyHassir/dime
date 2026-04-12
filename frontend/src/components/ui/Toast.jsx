@@ -11,19 +11,19 @@ const ICON_BY_VARIANT = {
 
 const STYLES_BY_VARIANT = {
   info: {
-    wrap: 'bg-surface border-border text-fg',
+    wrap: 'bg-surface text-fg',
     icon: 'text-dime-600',
   },
   success: {
-    wrap: 'bg-success-muted border-border text-fg',
+    wrap: 'bg-success-muted text-fg',
     icon: 'text-success',
   },
   warning: {
-    wrap: 'bg-warning-muted border-border text-fg',
+    wrap: 'bg-warning-muted text-fg',
     icon: 'text-warning',
   },
   error: {
-    wrap: 'bg-danger-muted border-border text-fg',
+    wrap: 'bg-danger-muted text-fg',
     icon: 'text-danger',
   },
 };
@@ -43,30 +43,31 @@ export function Toast({ open, variant = 'info', message, onClose, autoHideMs = 4
   const Icon = ICON_BY_VARIANT[variant] ?? Info;
   const styles = STYLES_BY_VARIANT[variant] ?? STYLES_BY_VARIANT.info;
 
-  // absolute como el header: respeta el padding de #root (safe-area); fixed usaría el viewport entero.
+  // Misma cáscara que el navbar (HomePage): inset-x-4 top-4 + flex justify-center + hijo w-full → mismo ancho y centrado en el área útil (#root + safe-area).
   return (
-    <div className="pointer-events-none absolute left-4 right-4 top-4 z-[5001]">
-      <AnimatePresence>
-        {open && (
-          <Motion.div
-            key="dime-toast"
-            initial={prefersReducedMotion ? false : { opacity: 0, y: -10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={
-              prefersReducedMotion
-                ? { opacity: 0 }
-                : {
-                    opacity: 0,
-                    y: -6,
-                    scale: 0.98,
-                    transition: { duration: 0.18, ease: EASE },
-                  }
-            }
-            transition={{ duration: prefersReducedMotion ? 0 : 0.24, ease: EASE }}
-            className={`pointer-events-auto flex w-full min-h-14 items-start gap-3 rounded-dime-2xl border px-4 py-3 shadow-dime-lg backdrop-blur-sm sm:px-5 ${styles.wrap}`}
-            role={variant === 'error' || variant === 'warning' ? 'alert' : 'status'}
-            aria-live={variant === 'error' || variant === 'warning' ? 'assertive' : 'polite'}
-          >
+    <div className="pointer-events-none absolute inset-x-4 top-4 z-[5001] flex justify-center">
+      <div className="w-full min-w-0">
+        <AnimatePresence>
+          {open && (
+            <Motion.div
+              key="dime-toast"
+              initial={prefersReducedMotion ? false : { opacity: 0, y: -10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={
+                prefersReducedMotion
+                  ? { opacity: 0 }
+                  : {
+                      opacity: 0,
+                      y: -6,
+                      scale: 0.98,
+                      transition: { duration: 0.18, ease: EASE },
+                    }
+              }
+              transition={{ duration: prefersReducedMotion ? 0 : 0.24, ease: EASE }}
+              className={`pointer-events-auto flex w-full min-h-14 items-start gap-3 rounded-dime-2xl border border-border/80 px-4 py-3 shadow-dime-md backdrop-blur-sm sm:px-5 ${styles.wrap}`}
+              role={variant === 'error' || variant === 'warning' ? 'alert' : 'status'}
+              aria-live={variant === 'error' || variant === 'warning' ? 'assertive' : 'polite'}
+            >
             <div className="mt-0.5 shrink-0">
               <Icon className={`h-5 w-5 ${styles.icon}`} aria-hidden />
             </div>
@@ -80,8 +81,9 @@ export function Toast({ open, variant = 'info', message, onClose, autoHideMs = 4
               <X className="h-4 w-4" />
             </button>
           </Motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

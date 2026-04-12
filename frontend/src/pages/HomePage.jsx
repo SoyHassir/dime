@@ -83,6 +83,9 @@ export function HomePage({ lugares }) {
   ]);
   const [cargandoRespuesta, setCargandoRespuesta] = useState(false);
   const [chatMinimizado, setChatMinimizado] = useState(false);
+  /** Tras maximizar desde la barra flotante: no mostrar el hint del mapa hasta que termine la animación del chat (misma zona visual). */
+  const [exploreHintSuppressed, setExploreHintSuppressed] = useState(false);
+  const prevChatMinimizadoRef = useRef(chatMinimizado);
   const chatMinimizadoPorUsuarioRef = useRef(false);
   const [tecladoVisible, setTecladoVisible] = useState(false);
   const [posicionChat, setPosicionChat] = useState('1rem');
@@ -366,6 +369,16 @@ export function HomePage({ lugares }) {
   }, []);
 
   useEffect(() => {
+    if (prevChatMinimizadoRef.current && !chatMinimizado) {
+      setExploreHintSuppressed(true);
+      const t = window.setTimeout(() => setExploreHintSuppressed(false), 480);
+      prevChatMinimizadoRef.current = chatMinimizado;
+      return () => window.clearTimeout(t);
+    }
+    prevChatMinimizadoRef.current = chatMinimizado;
+  }, [chatMinimizado]);
+
+  useEffect(() => {
     const onKeyDown = (e) => {
       if (e.key !== 'Escape') return;
       cerrarTodo();
@@ -547,7 +560,13 @@ export function HomePage({ lugares }) {
         <MapView
           lugares={lugares}
           lugarSeleccionado={lugarSeleccionado}
-          showExploreHint={!chatMinimizado && !tecladoVisible && !modalReporte && !modalAyuda}
+          showExploreHint={
+            !chatMinimizado &&
+            !exploreHintSuppressed &&
+            !tecladoVisible &&
+            !modalReporte &&
+            !modalAyuda
+          }
           onMarkerClick={(lugar) => {
             if (!lugar) {
               setLugarSeleccionado(null);

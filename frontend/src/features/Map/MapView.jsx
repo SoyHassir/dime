@@ -127,7 +127,7 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick, showExplore
       </MapContainer>
 
       {showExploreHint && lugaresValidos.length > 0 && !lugarSeleccionado && (
-        <div className="pointer-events-none absolute bottom-[10.5rem] left-0 right-0 z-[400] flex justify-center px-4 sm:bottom-[11rem]">
+        <div className="pointer-events-none absolute left-0 right-0 top-[max(6.25rem,calc(env(safe-area-inset-top,0px)+5rem))] z-[400] flex justify-center px-4">
           <p className="dime-glass-map-hint max-w-md rounded-dime-xl px-4 py-2.5 text-center text-sm font-semibold text-dime-700">
             Explora las entidades públicas
           </p>
