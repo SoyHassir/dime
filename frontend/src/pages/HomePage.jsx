@@ -468,6 +468,9 @@ export function HomePage({ lugares }) {
     setTipoError('');
   };
 
+  /** Con teclado y chat expandido: priorizar conversación (ocultar barra/mapa; panel a pantalla útil). */
+  const soloChatKeyboard = tecladoVisible && !chatMinimizado;
+
   return (
     <Motion.div
       initial={{ opacity: 0 }}
@@ -486,11 +489,16 @@ export function HomePage({ lugares }) {
         initial={prefersReducedMotion ? false : { opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.5, delay: 0.1, ease: EASE }}
-        className="pointer-events-none absolute left-4 right-4 top-4 z-[1000] flex justify-center"
+        className={`pointer-events-none absolute left-4 right-4 top-4 z-[1000] flex justify-center transition-opacity duration-200 ease-out motion-reduce:transition-none ${
+          soloChatKeyboard ? 'pointer-events-none opacity-0' : 'opacity-100'
+        }`}
+        aria-hidden={soloChatKeyboard}
       >
         <div
           ref={navGlassRef}
-          className="dime-glass pointer-events-auto flex w-full items-center justify-between px-4 py-3 sm:px-5"
+          className={`dime-glass flex w-full items-center justify-between px-4 py-3 sm:px-5 ${
+            soloChatKeyboard ? 'pointer-events-none' : 'pointer-events-auto'
+          }`}
         >
           <div className="flex items-center gap-2">
             <div className="rounded-full bg-dime-50 p-2">
@@ -498,7 +506,7 @@ export function HomePage({ lugares }) {
             </div>
             <h1 className="text-xl font-bold leading-none tracking-tight text-dime-600">D I M E</h1>
           </div>
-          <div className="relative pointer-events-auto">
+          <div className={`relative ${soloChatKeyboard ? 'pointer-events-none' : 'pointer-events-auto'}`}>
             <button
               ref={menuButtonRef}
               type="button"
@@ -571,13 +579,19 @@ export function HomePage({ lugares }) {
         initial={prefersReducedMotion ? false : { opacity: 0, scale: 1.02 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.55, delay: 0.05, ease: EASE }}
-        className="absolute inset-0 z-0"
+        className={`absolute inset-0 z-0 transition-opacity duration-200 ease-out motion-reduce:transition-none ${
+          soloChatKeyboard ? 'pointer-events-none opacity-0' : 'opacity-100'
+        }`}
+        aria-hidden={soloChatKeyboard}
       >
         <MapView
           lugares={lugares}
           lugarSeleccionado={lugarSeleccionado}
           // Señal estabilizada (exploreHintStable) para no parpadear al variar estado en cadena.
           showExploreHint={exploreHintStable}
+          toastOpen={toast.open}
+          keyboardOpen={tecladoVisible}
+          mapObscured={soloChatKeyboard}
           onMarkerClick={(lugar) => {
             if (!lugar) {
               setLugarSeleccionado(null);
@@ -596,17 +610,18 @@ export function HomePage({ lugares }) {
         initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.4, delay: 0.15, ease: EASE }}
-        className={`pointer-events-none absolute left-4 right-4 flex flex-col justify-end ${
-          tecladoVisible ? 'z-[99999]' : 'z-[1000]'
-        } ${modalReporte || modalAyuda ? 'hidden' : ''}`}
+        className={`pointer-events-none absolute flex min-h-0 flex-col ${
+          soloChatKeyboard ? 'left-0 right-0' : 'left-4 right-4 justify-end'
+        } ${tecladoVisible ? 'z-[99999]' : 'z-[1000]'} ${modalReporte || modalAyuda ? 'hidden' : ''}`}
         style={{
           bottom: posicionChat,
+          ...(soloChatKeyboard ? { top: 'env(safe-area-inset-top, 0px)' } : {}),
           paddingBottom: tecladoVisible ? '0' : 'max(1rem, env(safe-area-inset-bottom))',
           // Con teclado visible: sin transición (evita saltos). Al cerrar teclado: suave.
           transition:
             prefersReducedMotion || tecladoVisible
               ? 'none'
-              : 'bottom 0.28s cubic-bezier(0.33, 1, 0.68, 1), padding-bottom 0.28s ease-out',
+              : 'bottom 0.28s cubic-bezier(0.33, 1, 0.68, 1), padding-bottom 0.28s ease-out, top 0.2s ease-out, left 0.2s ease-out, right 0.2s ease-out',
         }}
       >
         <AnimatePresence mode="wait" initial={false}>
@@ -652,7 +667,11 @@ export function HomePage({ lugares }) {
           ) : (
             <Motion.div
               key="chat-expanded"
-              className="dime-glass-chat pointer-events-auto flex h-[clamp(14rem,32vh,20rem)] flex-col overflow-hidden sm:h-[clamp(16rem,34vh,22rem)]"
+              className={`dime-glass-chat pointer-events-auto flex flex-col overflow-hidden transition-[border-radius] duration-200 ease-out motion-reduce:transition-none ${
+                soloChatKeyboard
+                  ? 'h-full min-h-0 rounded-t-dime-2xl rounded-b-none border-x-0 border-b-0 shadow-dime-lg'
+                  : 'h-[clamp(14rem,32vh,20rem)] sm:h-[clamp(16rem,34vh,22rem)]'
+              }`}
               initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.96, y: 22 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={

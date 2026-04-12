@@ -60,7 +60,23 @@ function FlyToLocation({ coords }) {
   return null;
 }
 
-export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick, showExploreHint = true }) => {
+/** Offset vertical del hint: con toast visible hace falta más espacio para no quedar pegado al aviso. */
+const HINT_TOP_DEFAULT =
+  'top-[max(6.25rem,calc(env(safe-area-inset-top,0px)+5rem))]';
+const HINT_TOP_WITH_TOAST =
+  'top-[max(8.75rem,calc(env(safe-area-inset-top,0px)+7rem))]';
+
+export const MapView = ({
+  lugares,
+  lugarSeleccionado,
+  onMarkerClick,
+  showExploreHint = true,
+  toastOpen = false,
+  /** Oculta el pill "Explora…" (p. ej. modo solo chat con teclado). */
+  keyboardOpen = false,
+  /** Mapa invisible: no capturar toques (p. ej. teclado + chat expandido). */
+  mapObscured = false,
+}) => {
   const centroTolu = [9.524189, -75.582492];
 
   const lugaresValidos = useMemo(() => {
@@ -86,7 +102,7 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick, showExplore
 
 
   return (
-    <div className="h-full w-full z-0">
+    <div className={`h-full w-full z-0 ${mapObscured ? 'pointer-events-none' : ''}`}>
       <MapContainer 
         center={centroTolu} 
         zoom={15} 
@@ -128,10 +144,12 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick, showExplore
 
       {lugaresValidos.length > 0 && !lugarSeleccionado && (
         <div
-          className={`pointer-events-none absolute left-0 right-0 top-[max(6.25rem,calc(env(safe-area-inset-top,0px)+5rem))] z-[400] flex justify-center px-4 transition-opacity duration-500 ease-out motion-reduce:transition-none ${
-            showExploreHint ? 'opacity-100' : 'opacity-0'
+          className={`pointer-events-none absolute left-0 right-0 z-[400] flex justify-center px-4 transition-[opacity,top] duration-300 ease-out motion-reduce:transition-none ${
+            toastOpen ? HINT_TOP_WITH_TOAST : HINT_TOP_DEFAULT
+          } ${
+            showExploreHint && !keyboardOpen ? 'opacity-100' : 'opacity-0'
           }`}
-          aria-hidden={!showExploreHint}
+          aria-hidden={!showExploreHint || keyboardOpen}
         >
           <p className="dime-glass-map-hint max-w-md rounded-dime-xl px-4 py-2.5 text-center text-sm font-semibold text-dime-700">
             Explora las entidades públicas

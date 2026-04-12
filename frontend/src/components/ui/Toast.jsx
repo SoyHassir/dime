@@ -45,7 +45,7 @@ export function Toast({ open, variant = 'info', message, onClose, autoHideMs = 4
 
   // Misma cáscara que el navbar (HomePage): inset-x-4 top-4 + flex justify-center + hijo w-full → mismo ancho y centrado en el área útil (#root + safe-area).
   return (
-    <div className="pointer-events-none absolute inset-x-4 top-4 z-[5001] flex justify-center">
+    <div className="pointer-events-none absolute inset-x-4 top-4 z-[100002] flex justify-center">
       <div className="w-full min-w-0">
         <AnimatePresence>
           {open && (
