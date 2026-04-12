@@ -64,20 +64,20 @@ export function Toast({ open, variant = 'info', message, onClose, autoHideMs = 4
               }
               transition={{ duration: prefersReducedMotion ? 0 : 0.24, ease: EASE }}
               style={{ width: '100%', maxWidth: '100%' }}
-              className={`pointer-events-auto box-border grid min-h-14 w-full min-w-0 max-w-none grid-cols-[auto,minmax(0,1fr),auto] items-start gap-3 overflow-hidden rounded-dime-2xl border border-border/80 px-4 py-3 shadow-dime-md backdrop-blur-md sm:px-5 ${styles.wrap}`}
+              className={`pointer-events-auto box-border flex min-h-14 w-full min-w-0 max-w-none flex-nowrap items-start gap-3 overflow-hidden rounded-dime-2xl border border-border/80 px-4 py-3 shadow-dime-md backdrop-blur-md sm:px-5 ${styles.wrap}`}
               role={variant === 'error' || variant === 'warning' ? 'alert' : 'status'}
               aria-live={variant === 'error' || variant === 'warning' ? 'assertive' : 'polite'}
             >
             <div className="mt-0.5 shrink-0">
               <Icon className={`h-5 w-5 ${styles.icon}`} aria-hidden />
             </div>
-            <div className="min-w-0 whitespace-pre-line break-words text-sm font-medium leading-snug">
+            <div className="min-w-0 flex-1 whitespace-pre-line break-words text-sm font-medium leading-snug">
               {message}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="shrink-0 rounded-full bg-surface/70 p-1 text-fg-subtle transition-colors hover:text-fg"
+              className="shrink-0 self-start rounded-full bg-surface/70 p-1 text-fg-subtle transition-colors hover:text-fg"
               aria-label="Cerrar"
             >
               <X className="h-4 w-4" />
