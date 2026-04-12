@@ -343,8 +343,15 @@ export function HomePage({ lugares }) {
       viewportRafRef.current = null;
       if (typeof window === 'undefined' || !window.visualViewport) return;
       const vv = window.visualViewport;
-      const ih = window.innerHeight;
-      const insetBottom = Math.max(0, ih - (vv.offsetTop + vv.height));
+      // clientHeight suele alinear mejor con el bloque contenedor (#root) que innerHeight en Android/Samsung con teclado.
+      const layoutH =
+        typeof document !== 'undefined'
+          ? document.documentElement?.clientHeight || window.innerHeight
+          : window.innerHeight;
+      const fromVisual = Math.max(0, layoutH - vv.offsetTop - vv.height);
+      const fromInner = Math.max(0, window.innerHeight - vv.offsetTop - vv.height);
+      // En algunos navegadores una métrica sobrestima el hueco y deja franja con el mapa detrás; usamos la menor.
+      const insetBottom = Math.round(Math.min(fromVisual, fromInner));
       // Histéresis: evita parpadeo true/false entre eventos sucesivos del teclado
       let open = keyboardOpenRef.current;
       if (insetBottom > 135) open = true;
@@ -352,9 +359,8 @@ export function HomePage({ lugares }) {
       keyboardOpenRef.current = open;
       setTecladoVisible(open);
 
-      const maxInset = Math.round(ih * 0.52);
-      const inset = Math.min(Math.round(insetBottom), maxInset);
-      const nextBottom = open ? `${Math.max(8, inset + 8)}px` : '1rem';
+      // Sin tope bajo: teclados altos (p. ej. ~60% pantalla) necesitan todo el inset; un cap antiguo dejaba gap.
+      const nextBottom = open ? `${Math.max(0, insetBottom)}px` : '1rem';
       // No re-render si el cambio es mínimo (reduce saltos)
       if (nextBottom !== lastBottomStrRef.current) {
         lastBottomStrRef.current = nextBottom;
