@@ -560,12 +560,9 @@ export function HomePage({ lugares }) {
         <MapView
           lugares={lugares}
           lugarSeleccionado={lugarSeleccionado}
+          // El hint va arriba del mapa: no depende del teclado (evita parpadeos por umbrales del viewport).
           showExploreHint={
-            !chatMinimizado &&
-            !exploreHintSuppressed &&
-            !tecladoVisible &&
-            !modalReporte &&
-            !modalAyuda
+            !chatMinimizado && !exploreHintSuppressed && !modalReporte && !modalAyuda
           }
           onMarkerClick={(lugar) => {
             if (!lugar) {

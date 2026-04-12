@@ -64,14 +64,15 @@ export function Toast({ open, variant = 'info', message, onClose, autoHideMs = 4
                     }
               }
               transition={{ duration: prefersReducedMotion ? 0 : 0.24, ease: EASE }}
-              className={`pointer-events-auto flex w-full min-h-14 items-start gap-3 rounded-dime-2xl border border-border/80 px-4 py-3 shadow-dime-md backdrop-blur-sm sm:px-5 ${styles.wrap}`}
+              style={{ width: '100%', maxWidth: '100%' }}
+              className={`pointer-events-auto box-border flex w-full min-w-0 max-w-none min-h-14 items-start gap-3 overflow-hidden rounded-dime-2xl border border-border/80 px-4 py-3 shadow-dime-md backdrop-blur-md sm:px-5 ${styles.wrap}`}
               role={variant === 'error' || variant === 'warning' ? 'alert' : 'status'}
               aria-live={variant === 'error' || variant === 'warning' ? 'assertive' : 'polite'}
             >
             <div className="mt-0.5 shrink-0">
               <Icon className={`h-5 w-5 ${styles.icon}`} aria-hidden />
             </div>
-            <div className="flex-1 text-sm font-medium leading-snug">{message}</div>
+            <div className="min-w-0 flex-1 text-sm font-medium leading-snug">{message}</div>
             <button
               type="button"
               onClick={onClose}
