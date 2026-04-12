@@ -49,6 +49,8 @@ const DUR = {
 // Inyectado por Vite (vite.config.js -> define)
 // eslint-disable-next-line no-undef
 const BUILD_ID = typeof __DIME_BUILD_ID__ !== 'undefined' ? __DIME_BUILD_ID__ : 'dev';
+// eslint-disable-next-line no-undef
+const APP_VERSION = typeof __DIME_APP_VERSION__ !== 'undefined' ? __DIME_APP_VERSION__ : '0.0.0';
 
 export function HomePage({ lugares }) {
   const prefersReducedMotion = useReducedMotion();
@@ -1038,7 +1040,7 @@ export function HomePage({ lugares }) {
             </div>
             <h2 className="mb-1 text-2xl font-bold text-dime-600">DIME</h2>
             <p className="mb-6 text-xs font-medium uppercase tracking-widest text-fg-subtle">
-              Versión Prototipo 1.0
+              Versión {APP_VERSION} · Prototipo
             </p>
             <p className="mb-6 text-[11px] font-semibold tracking-wide text-fg-subtle">
               Build: <span className="font-mono">{BUILD_ID}</span>
