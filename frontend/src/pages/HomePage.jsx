@@ -98,7 +98,11 @@ export function HomePage({ lugares }) {
 
   /** Evita parpadeos: ocultar al instante; mostrar tras un tick si la señal sigue estable (filtra true/false rápidos). */
   const exploreHintRaw =
-    !chatMinimizado && !exploreHintSuppressed && !modalReporte && !modalAyuda;
+    !chatMinimizado &&
+    !exploreHintSuppressed &&
+    !modalReporte &&
+    !modalAyuda &&
+    !menuAbierto;
   const [exploreHintStable, setExploreHintStable] = useState(false);
   useEffect(() => {
     if (!exploreHintRaw) {
