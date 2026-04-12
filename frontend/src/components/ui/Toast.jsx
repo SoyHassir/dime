@@ -51,28 +51,29 @@ export function Toast({ open, variant = 'info', message, onClose, autoHideMs = 4
           {open && (
             <Motion.div
               key="dime-toast"
-              initial={prefersReducedMotion ? false : { opacity: 0, y: -10, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={
                 prefersReducedMotion
                   ? { opacity: 0 }
                   : {
                       opacity: 0,
                       y: -6,
-                      scale: 0.98,
                       transition: { duration: 0.18, ease: EASE },
                     }
               }
               transition={{ duration: prefersReducedMotion ? 0 : 0.24, ease: EASE }}
               style={{ width: '100%', maxWidth: '100%' }}
-              className={`pointer-events-auto box-border flex w-full min-w-0 max-w-none min-h-14 items-start gap-3 overflow-hidden rounded-dime-2xl border border-border/80 px-4 py-3 shadow-dime-md backdrop-blur-md sm:px-5 ${styles.wrap}`}
+              className={`pointer-events-auto box-border grid min-h-14 w-full min-w-0 max-w-none grid-cols-[auto,minmax(0,1fr),auto] items-start gap-3 overflow-hidden rounded-dime-2xl border border-border/80 px-4 py-3 shadow-dime-md backdrop-blur-md sm:px-5 ${styles.wrap}`}
               role={variant === 'error' || variant === 'warning' ? 'alert' : 'status'}
               aria-live={variant === 'error' || variant === 'warning' ? 'assertive' : 'polite'}
             >
             <div className="mt-0.5 shrink-0">
               <Icon className={`h-5 w-5 ${styles.icon}`} aria-hidden />
             </div>
-            <div className="min-w-0 flex-1 text-sm font-medium leading-snug">{message}</div>
+            <div className="min-w-0 whitespace-pre-line break-words text-sm font-medium leading-snug">
+              {message}
+            </div>
             <button
               type="button"
               onClick={onClose}

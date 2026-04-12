@@ -96,6 +96,19 @@ export function HomePage({ lugares }) {
   const borrarChatDisabled = mensajesChat.length <= 1 && !mensajeChat.trim();
   const [minHintShown, setMinHintShown] = useState(false);
 
+  /** Evita parpadeos: ocultar al instante; mostrar tras un tick si la señal sigue estable (filtra true/false rápidos). */
+  const exploreHintRaw =
+    !chatMinimizado && !exploreHintSuppressed && !modalReporte && !modalAyuda;
+  const [exploreHintStable, setExploreHintStable] = useState(false);
+  useEffect(() => {
+    if (!exploreHintRaw) {
+      setExploreHintStable(false);
+      return;
+    }
+    const tid = window.setTimeout(() => setExploreHintStable(true), 160);
+    return () => window.clearTimeout(tid);
+  }, [exploreHintRaw]);
+
   const hablar = (texto) => {
     if (!vozActiva || !window.speechSynthesis) {
       if (escuchando) {
@@ -274,7 +287,10 @@ export function HomePage({ lugares }) {
     setMensajesChat([{ tipo: 'bot', texto: initialBotMessage }]);
     setMensajeChat('');
     window.speechSynthesis?.cancel();
-    mostrarToast('info', 'Conversación borrada.');
+    mostrarToast(
+      'info',
+      'Conversación borrada.\nPuedes seguir escribiendo cuando quieras.'
+    );
     refuerzoTecladoMovil();
   };
 
@@ -560,10 +576,8 @@ export function HomePage({ lugares }) {
         <MapView
           lugares={lugares}
           lugarSeleccionado={lugarSeleccionado}
-          // El hint va arriba del mapa: no depende del teclado (evita parpadeos por umbrales del viewport).
-          showExploreHint={
-            !chatMinimizado && !exploreHintSuppressed && !modalReporte && !modalAyuda
-          }
+          // Señal estabilizada (exploreHintStable) para no parpadear al variar estado en cadena.
+          showExploreHint={exploreHintStable}
           onMarkerClick={(lugar) => {
             if (!lugar) {
               setLugarSeleccionado(null);

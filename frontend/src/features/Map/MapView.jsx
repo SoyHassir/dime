@@ -128,7 +128,7 @@ export const MapView = ({ lugares, lugarSeleccionado, onMarkerClick, showExplore
 
       {lugaresValidos.length > 0 && !lugarSeleccionado && (
         <div
-          className={`pointer-events-none absolute left-0 right-0 top-[max(6.25rem,calc(env(safe-area-inset-top,0px)+5rem))] z-[400] flex justify-center px-4 transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+          className={`pointer-events-none absolute left-0 right-0 top-[max(6.25rem,calc(env(safe-area-inset-top,0px)+5rem))] z-[400] flex justify-center px-4 transition-opacity duration-500 ease-out motion-reduce:transition-none ${
             showExploreHint ? 'opacity-100' : 'opacity-0'
           }`}
           aria-hidden={!showExploreHint}
