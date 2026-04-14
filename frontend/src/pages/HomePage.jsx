@@ -211,7 +211,7 @@ export function HomePage({ lugares }) {
     }
   };
 
-  const activarVozInput = () => {
+  const activarVozInput = async () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       mostrarToast('warning', 'Tu navegador no soporta comandos de voz. Usa el teclado.');
@@ -219,6 +219,34 @@ export function HomePage({ lugares }) {
     }
     // Cierra el teclado de forma explícita para que visualViewport y el layout inmersivo no compitan con el overlay de voz.
     chatInputRef.current?.blur();
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      mostrarToast(
+        'warning',
+        'No se puede acceder al micrófono desde este navegador. Usa el teclado.'
+      );
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Soltar el stream enseguida: el permiso queda concedido para el origen; en iOS evita que dos capturas compitan.
+      stream.getTracks().forEach((t) => t.stop());
+    } catch (err) {
+      const name = err?.name || '';
+      if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+        mostrarToast(
+          'error',
+          'Permiso de micrófono denegado. En iPhone: Ajustes > Safari > Micrófono, o el menú “aa” / candado en la barra de direcciones.'
+        );
+      } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+        mostrarToast('warning', 'No se detectó ningún micrófono.');
+      } else {
+        mostrarToast('error', 'No se pudo activar el micrófono. Intenta de nuevo.');
+      }
+      return;
+    }
+
     const recognition = new SpeechRecognition();
     recognition.lang = 'es-CO';
     recognition.interimResults = false;
@@ -227,7 +255,16 @@ export function HomePage({ lugares }) {
     trackVoiceInput();
     reproducirSonidoInicio();
     setEscuchando(true);
-    recognition.start();
+
+    try {
+      recognition.start();
+    } catch {
+      setEscuchando(false);
+      reproducirSonidoFin();
+      mostrarToast('error', 'No se pudo iniciar el reconocimiento de voz. Intenta de nuevo.');
+      return;
+    }
+
     recognition.onresult = (e) => {
       const transcript = e.results[0][0].transcript;
       reproducirSonidoFin();
@@ -241,7 +278,7 @@ export function HomePage({ lugares }) {
       if (e.error === 'not-allowed') {
         mostrarToast(
           'error',
-          'Permiso denegado. Permite el acceso al micrófono en la configuración del navegador.'
+          'Permiso denegado. Permite el micrófono para este sitio en la configuración del navegador.'
         );
       } else if (e.error === 'no-speech') {
         mostrarToast('warning', 'No se detectó voz. Intenta hablar un poco más fuerte.');
@@ -250,10 +287,10 @@ export function HomePage({ lugares }) {
       }
     };
     recognition.onend = () => {
-      if (escuchando) {
-        setEscuchando(false);
-        reproducirSonidoFin();
-      }
+      setEscuchando((prev) => {
+        if (prev) reproducirSonidoFin();
+        return false;
+      });
     };
     window.currentRecognition = recognition;
   };

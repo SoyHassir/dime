@@ -1,6 +1,6 @@
 /**
- * Pantalla inicial de captura de usuario (friccion cero).
- * Pide nombre opcional o genera ID anonimo al continuar.
+ * Pantalla inicial de captura de usuario.
+ * "Continuar" exige nombre; sin nombre solo "Omitir… invitado".
  */
 
 import React, { useState } from 'react';
@@ -12,10 +12,12 @@ import { trackEvent } from '../services/analyticsService';
 
 export function UserCapturePage({ onComplete }) {
   const [nombre, setNombre] = useState('');
+  const nombreOk = nombre.trim().length > 0;
 
   const handleContinuar = () => {
-    const { id } = initUserSession(nombre || null);
-    trackEvent('user_captured', { has_name: !!nombre, user_id: id });
+    if (!nombreOk) return;
+    const { id } = initUserSession(nombre.trim());
+    trackEvent('user_captured', { has_name: true, user_id: id });
     onComplete();
   };
 
@@ -75,7 +77,9 @@ export function UserCapturePage({ onComplete }) {
               type="text"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleContinuar()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && nombreOk) handleContinuar();
+              }}
               placeholder="Tu nombre"
               className="w-full rounded-dime-xl border border-border bg-surface py-3 pl-12 pr-4 text-fg outline-none transition-[box-shadow,border-color] placeholder:text-fg-subtle focus:border-dime-500 focus:ring-2 focus:ring-dime-100"
               maxLength={50}
@@ -87,7 +91,9 @@ export function UserCapturePage({ onComplete }) {
           <button
             type="button"
             onClick={handleContinuar}
-            className="flex w-full items-center justify-center gap-2 rounded-dime-xl bg-dime-600 py-3 font-semibold text-fg-on-dime shadow-dime-sm transition-[transform,background-color] hover:bg-dime-700 active:scale-[0.99]"
+            disabled={!nombreOk}
+            aria-disabled={!nombreOk}
+            className="flex w-full items-center justify-center gap-2 rounded-dime-xl bg-dime-600 py-3 font-semibold text-fg-on-dime shadow-dime-sm transition-[transform,background-color] hover:bg-dime-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-dime-600"
           >
             Continuar
             <ArrowRight className="h-5 w-5" aria-hidden />
