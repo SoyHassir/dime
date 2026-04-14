@@ -1,73 +1,80 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion as Motion, useReducedMotion } from 'framer-motion';
 import dimeIcon from '../../assets/dime-icon.png';
+import { PRELOADER_MIN_MS } from '../../constants/uiTiming';
 
 export const Preloader = () => {
-  const [mensaje, setMensaje] = useState("Iniciando DIME...");
+  const [mensaje, setMensaje] = useState('Iniciando DIME...');
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const mensajes = [
-      "Conectando con Santiago de Tolú...",
-      "Cargando directorio público...",
-      "Preparando el mapa...",
-      "¡Todo listo!"
+      'Conectando con Santiago de Tolú...',
+      'Cargando directorio público...',
+      'Preparando el mapa...',
+      '¡Todo listo!',
     ];
-    
+
     let i = 0;
     const interval = setInterval(() => {
       setMensaje(mensajes[i]);
       i = (i + 1) % mensajes.length;
-    }, 800); // Cambia texto cada 0.8 segundos
+    }, 800);
 
     return () => clearInterval(interval);
   }, []);
 
+  const duracionBarraS = PRELOADER_MIN_MS / 1000;
+
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.5 } }}
-      className="fixed inset-0 z-[5000] bg-white flex flex-col items-center justify-center font-sans"
+      exit={{ opacity: 0, transition: { duration: 0.45 } }}
+      className="fixed inset-0 z-[5000] flex flex-col items-center justify-center bg-surface font-sans"
     >
-      <motion.div
-        animate={{ 
-          scale: [1, 1.2, 1], 
-          opacity: [1, 0.8, 1] 
-        }}
-        transition={{ 
-          repeat: Infinity, 
-          duration: 1.5, 
-          ease: "easeInOut" 
-        }}
-        className="bg-blue-50 p-6 rounded-full mb-3 shadow-lg shadow-blue-100"
+      <Motion.div
+        animate={
+          prefersReducedMotion
+            ? { opacity: 1, scale: 1 }
+            : {
+                scale: [1, 1.06, 1],
+                opacity: [1, 0.92, 1],
+              }
+        }
+        transition={
+          prefersReducedMotion
+            ? { duration: 0 }
+            : {
+                repeat: Infinity,
+                duration: 2,
+                ease: [0.45, 0, 0.55, 1],
+              }
+        }
+        className="mb-3 rounded-full bg-dime-50 p-6 shadow-dime-md"
       >
-        <img 
-          src={dimeIcon} 
-          alt="DIME" 
-          className="w-16 h-16 object-contain"
-        />
-      </motion.div>
+        <img src={dimeIcon} alt="DIME" className="h-16 w-16 object-contain" />
+      </Motion.div>
 
-      <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: '#1c528b' }}>
-        D I M E
-      </h1>
+      <h1 className="mb-2 text-3xl font-bold tracking-tight text-dime-600">D I M E</h1>
 
-      <p className="text-gray-400 text-sm font-medium animate-pulse">
+      <p
+        className={`text-sm font-medium text-fg-muted ${prefersReducedMotion ? '' : 'animate-pulse'}`}
+      >
         {mensaje}
       </p>
 
-      <div className="w-32 h-1 bg-gray-100 rounded-full mt-8 overflow-hidden">
-        <motion.div 
-          className="h-full bg-blue-500"
-          initial={{ width: "0%" }}
-          animate={{ width: "100%" }}
-          transition={{ duration: 2.5, ease: "easeInOut" }}
+      <div className="mt-8 h-1 w-36 overflow-hidden rounded-full bg-surface-muted">
+        <Motion.div
+          className="h-full rounded-full bg-dime-500"
+          initial={{ width: '0%' }}
+          animate={{ width: '100%' }}
+          transition={{ duration: duracionBarraS, ease: [0.45, 0, 0.55, 1] }}
         />
       </div>
 
-      <div className="absolute bottom-8 text-xs text-gray-300 text-center">
-      Conectando a Tolú con tecnología
+      <div className="absolute bottom-8 max-w-xs text-center text-xs text-fg-subtle">
+        Conectando a Tolú con tecnología
       </div>
-
-    </motion.div>
+    </Motion.div>
   );
 };

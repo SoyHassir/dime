@@ -49,4 +49,5 @@ htmlcov/
 frontend/node_modules
 frontend/dist
 frontend/dist-ssr
+frontend/.firebase
 
